@@ -97,11 +97,8 @@ Folders map to the four architecture modules from ADR-001, using the interfaces 
 ├── README.md
 ├── docs/
 │   ├── PED/                  # Project Engineering Document (PED v2.4)
-│   ├── decisions/            # ADRs (ADR-001 – ADR-005)
-│   ├── requirements/         # RTM
-│   ├── risk/                 # Risk Register
-│   └── architecture/         # Architecture & ERD diagrams
-├── src/
+│
+├── Civic Connect/
 │   ├── CivicConnect.App/         # WinForms UI (forms, presenters)
 │   ├── CivicConnect.Requests/    # Requests module — IRequestService, RequestAggregate,
 │   │                             #   IRequestState + state classes (ADR-004)
@@ -111,7 +108,7 @@ Folders map to the four architecture modules from ADR-001, using the interfaces 
 │   └── CivicConnect.Reporting/   # Reporting module — management/oversight queries
 ├── tests/                    # xUnit v3 test projects
 ├── appsettings.example.json  # placeholder config, safe to commit
-├── .github/
+├── .git/
 │   ├── workflows/
 │   └── pull_request_template.md
 └── .gitignore                 # must exclude appsettings.json
