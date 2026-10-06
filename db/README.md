@@ -39,7 +39,7 @@ There are deliberately **no** business-rule triggers, row-level security, views 
 users 1──N request N──1 category
 users 1──N request (assigned_staff_id, optional)
 request 1──N request_history      users 1──N request_history (changed_by)
-request 1──N comment              users 1──N comment (author_id)
+request 1──N notes            users 1──N notes (author_id)
 ```
 
 | Table | Notes |
@@ -48,7 +48,7 @@ request 1──N comment              users 1──N comment (author_id)
 | `category` | Fixed lookup list (FR-002). `is_active` retires a category without breaking old requests. |
 | `request` | Status: `Submitted`, `Assigned`, `InProgress`, `Resolved`, `Closed`. Uses PostgreSQL `xmin` for optimistic concurrency. |
 | `request_history` | Append-only audit log (NFR-005). `old_status` is `NULL` for the initial entry. |
-| `comment` | Staff action / resolution notes (FR-012). |
+| `notes` | Staff action / resolution notes (FR-012). |
 
 All foreign keys use `ON DELETE RESTRICT`.
 
@@ -88,7 +88,7 @@ Requires PostgreSQL 16+. The scripts are **not re-runnable** on an existing setu
 Then repeat steps 1 to 3 above.
 
 ### Application connection string
-Store it in the **gitignored** `appsettings.json` (see `appsettings.example.json`), using the `civicconnect_app` role:
+Store it in the **gitignored** `.env`, using the `civicconnect_app` role:
 
 ```
 Host=localhost;Port=5432;Database=civicconnect_db;Username=civicconnect_app;Password=<from local config>
@@ -121,7 +121,6 @@ Host=localhost;Port=5432;Database=civicconnect_db;Username=civicconnect_app;Pass
 
 ## 7. Placeholders to review
 
-- Seed categories (`Roads & Potholes`, `Water & Sanitation`, ...) are placeholders. Replace them with the agreed fixed list (FR-002).
 - The overdue SLA threshold (FR-015) is **not** in the database; it is applied in C# and is still to be agreed.
 - In-app/email notification storage (FR-005) is not in the ERD and is not part of this script.
 
