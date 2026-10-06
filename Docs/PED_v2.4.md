@@ -400,7 +400,7 @@ A modular monolith deploys as a single unit, which fits cleanly within a single 
 
 ## Architecture diagram
 
-<img src="images/image3.png" alt="Architecture diagram" width="547" />
+<img src="Architechture.png" alt="Architecture diagram" width="547" />
 
 ## Architecture vs. technology, logical modules vs. physical deployment tiers
 
@@ -636,7 +636,7 @@ Request is the core entity, meaning its lifecycle drives the others. RequestHist
 
 ## ERD diagram
 
-<img src="images/image4.png" alt="ERD diagram" width="552" />
+<img src="ERD.png" alt="ERD diagram" width="552" />
 
 ## Persistence model classification
 
