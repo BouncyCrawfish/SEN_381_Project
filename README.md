@@ -97,7 +97,13 @@ Folders map to the four architecture modules from ADR-001, using the interfaces 
 ├── README.md
 ├── docs/
 │   ├── PED/                  # Project Engineering Document (PED v2.4)
-│
+├── db/
+│   ├── README.md                       # explains the scripts
+│   ├── 00a_drop_database.sql           # DEV ONLY reset
+│   ├── 00b_drop_roles.sql              # DEV ONLY reset
+│   ├── 01_roles.sql                    # placeholders only, no real passwords
+│   ├── 02_create_database.sql
+│   └── 03_schema.sql
 ├── Civic Connect/
 │   ├── CivicConnect.App/         # WinForms UI (forms, presenters)
 │   ├── CivicConnect.Requests/    # Requests module — IRequestService, RequestAggregate,
@@ -126,7 +132,7 @@ Five entities are baselined in ADR-002 and the PED's Data & Persistence Baseline
 | `Category` | Controlled, bounded list of request categories | Referenced by `Request.category_id` |
 | `Request` | Core service-request record: status, category, requester, assignee | FK to `User`, `Category`; has many `RequestHistory`, `Comment` |
 | `RequestHistory` | Append-only log of every status change (creation, assignment, resolution, closure) | FK to `Request`; populated by `AuditLogEventHandler` (ADR-005) |
-| `Comment` | Staff-recorded actions/notes against a request | FK to `Request`, `User` |
+| `Notes` | Staff-recorded actions/notes against a request | FK to `Request`, `User` |
 
 Integrity is enforced through a **hybrid model** (database constraints + application-layer checks), with **optimistic concurrency** using PostgreSQL's native `xmin` system column to prevent lost updates under concurrent edits (ADR-002, ADR-003). Migrations run via `dbContext.Database.Migrate()` on startup or via PostgreSQL setup scripts. The full ERD lives in `docs/architecture/`.
 

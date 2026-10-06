@@ -1,5 +1,5 @@
 
-Project Engineering document (ped\_ v2.4)
+Project Engineering document (PED\_ v3.0)
 
 SEN 381
 
@@ -772,26 +772,25 @@ Available at: <u>https://costbench.com/software/sms-api/twilio-sms/hidden-costs/
 
 Zhu, Q.-H., Tang, H., Huang, J.-J. & Hou, Y., 2021. Task scheduling for multi-cloud computing subject to security and reliability constraints. *IEEE/CAA Journal of Automatica Sinica,* 8(4), pp. 848-865.
 
-# AI usage Register
+# AI Usage Register
 
-| Team Member         | Artefact/Task                                          |        | AI Tool Used | Nature of Assistance                                                                                                                     | What Was Verified/Changed/Rejected                                                                                                                                                                                                           |
-|---------------------|--------------------------------------------------------|--------|--------------|------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| MILESTONE 1         |                                                        |        |              |                                                                                                                                          |                                                                                                                                                                                                                                              |
-| Paul Edward van Zyl | Drafting initial risk category and considerations list |        | Claude       | Suggested a starting set of risk categories and example wording. Helped with engineering considerations list                             | Team cross-checked categories against CivicConnect's actual scope; rewrote 3 of 5 example risks as project-specific; removed one category                                                                                                    |
-| Freerk van den Bos  | Drafting of initial FR/NFR tables and the RTM          |        | Claude       | Suggested FRs and NFRs along with an RTM. Helped with structure and wording.                                                             | Cross-checked with CivicConnect’s business needs.                                                                                                                                                                                            |
-| Regardt Osler       | Formatting of Project Scope, Risks, Constraints        |        | Claude       | Suggested possible order of Constraints and did general spell checking                                                                   | Many of the suggested constraints were rejected due to not being applicable.                                                                                                                                                                 |
-| MILESTONE 2         |                                                        |        |              |                                                                                                                                          |                                                                                                                                                                                                                                              |
-| Paul Edward van Zyl | Technology, Design Baseline                            | Gemini |              | Generated initial drafts for the WinForms .NET 10 technology stack, PostgreSQL persistence, xUnit testing configuration, design patterns | Manually reviewed and modified parts of the generated text to fit the team's precise requirements. Retained the core design pattern decisions (ADR-004 and ADR-005) as a shared baseline for the group to adapt during later implementation. |
-| Freerk van den Bos  | Drafting of version control log & README               | Claude |              | Generating the version control log & README.                                                                                             | Checked to verify that all drafted content is accurate to the PED.                                                                                                                                                                           |
-| Regardt Osler       | Generating architecture & ERD diagrams                 | Claude |              | Generating architecture & ERD diagrams based on given information.                                                                       | Checked the validity of diagrams and changed the diagrams to match overall look and feel of document. Changed the colors used in the diagram to match the overall look and feel of the document.                                             |
-
+| Team Member | Artefact/Task | AI Tool Used | Nature of Assistance | What Was Verified/Changed/Rejected |
+|---|---|---|---|---|
+| **MILESTONE 1** | 
+| Paul Edward van Zyl | Drafting initial risk category and considerations list | Claude | Suggested a starting set of risk categories and example risk wording. Helped with engineering considerations list. | Team cross-checked categories against CivicConnect's actual scope; rewrote 3 of 5 example risks as project-specific; removed one category. |
+| Freerk van den Bos | Drafting of initial FR/NFR tables and the RTM | Claude | Suggested FRs and NFRs along with an RTM. Helped with structure and wording. | Cross-checked with CivicConnect's business needs. |
+| Regardt Osler | Formatting of Project Scope, Risks, Constraints | Claude | Suggested possible order of Constraints and did general spell checking. | Many of the suggested constraints were rejected due to not being applicable. |
+| **MILESTONE 2** | 
+| Paul Edward van Zyl | Technology, Design Baseline | Gemini | Generated initial drafts for the WinForms .NET 10 technology stack, PostgreSQL persistence, xUnit testing configuration, design patterns. | Manually reviewed and modified parts of the generated text to fit the team's precise requirements. Retained the core design pattern decisions (ADR-004 and ADR-005) as a shared baseline for the group to adapt during later implementation. |
+| Freerk van den Bos | Drafting of version control log & README | Claude | Generating the version control log & README. | Checked to verify that all drafted content is accurate to the PED. |
+| Regardt Osler | Generating architecture & ERD diagrams | Claude | Generating architecture & ERD diagrams based on given information. | Checked the validity of diagrams and changed the diagrams to match the overall look and feel of the document. Changed the colors used in the diagram to match the overall look and feel of the document. |
+| **MILESTONE 3** | 
+| Paul Edward van Zyl | | | | |
+| Freerk van den Bos | Database baseline and supporting documentation (06/10/2026): (1) `db/` setup scripts (dev reset, roles, create database, schema); (2) `db/README.md`; (3) commit message, v3.0 Document Control Log row and PR description; (4) suggested repository/project structure | Claude | Generated the PostgreSQL scripts for `civicconnect_db` from the ERD and PED (tables, constraints, indexes, `xmin` concurrency, append-only history trigger, least-privilege roles and grants) and iterated on errors reported by the team. Drafted the database README, the commit/changelog/PR wording from the project's existing conventions, and a proposed folder layout mapped to the PED architecture. | Rejected: first version's business-rule triggers, row-level security, views and stored functions, because they duplicated the State Pattern and Observer logic in C# (ADR-004/005, hybrid strategy). Changed: roles aligned to Requester/Staff/Manager; statuses aligned to the PED workflow; script split into three files after psql-only commands failed in pgAdmin; schema-ownership and aborted-transaction errors fixed; email format check re-added at team request. Verified: [complete: PostgreSQL version, scripts run in own environment, checks from `db/README.md` section 8 executed and results; README and PR text checked against the scripts and PED; placeholders replaced; folder layout adopted/adjusted/rejected]. Evidence: PR #[ ] / commit [hash]. |
+| Regardt Osler | | | | |
 # Sign off
 
-<img src="images/signature1.png" alt="Signature block" />
 
-<img src="images/signature2.png" alt="Signature block" />
-
-<img src="images/signature3.png" alt="Signature block" />
 
 [^1]: New member of the development team.
 
