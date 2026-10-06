@@ -97,7 +97,13 @@ Folders map to the four architecture modules from ADR-001, using the interfaces 
 ├── README.md
 ├── docs/
 │   ├── PED/                  # Project Engineering Document (PED v2.4)
-│
+├── db/
+│   ├── README.md                       # explains the scripts
+│   ├── 00a_drop_database.sql           # DEV ONLY reset
+│   ├── 00b_drop_roles.sql              # DEV ONLY reset
+│   ├── 01_roles.sql                    # placeholders only, no real passwords
+│   ├── 02_create_database.sql
+│   └── 03_schema.sql
 ├── Civic Connect/
 │   ├── CivicConnect.App/         # WinForms UI (forms, presenters)
 │   ├── CivicConnect.Requests/    # Requests module — IRequestService, RequestAggregate,
