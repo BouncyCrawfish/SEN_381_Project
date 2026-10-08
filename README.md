@@ -117,7 +117,7 @@ Folders map to the four architecture modules from ADR-001, using the interfaces 
 ├── .git/
 │   ├── workflows/
 │   └── pull_request_template.md
-└── .gitignore                 # must exclude appsettings.json
+└── .gitignore                 
 ```
 
 *(Illustrative until the solution is actually scaffolded — update once real project names exist.)*
