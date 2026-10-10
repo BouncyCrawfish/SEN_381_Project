@@ -1,0 +1,53 @@
+# ---------- SECRETS & REAL CONFIG ----------
+# Real app config (copy appsettings.example.json -> appsettings.json locally)
+appsettings.json
+appsettings.*.json
+!appsettings.example.json
+# Environment files
+.env
+.env.*
+!.env.example
+# Local copy of db/01_roles.sql after replacing the CHANGE_ME_* passwords
+01_roles.local.sql
+*.local.sql
+# Private keys / credential stores
+*.pfx
+*.p12
+id_rsa*
+id_ed25519*
+*.publishsettings
+.pgpass
+pgpass.conf
+
+# ---------- DATABASE DUMPS (may contain real user data) ----------
+*.dump
+*.backup
+*.sql.gz
+
+# ---------- BUILD OUTPUT ----------
+[Bb]in/
+[Oo]bj/
+*.nupkg
+*.snupkg
+
+# ---------- VISUAL STUDIO / IDE USER FILES ----------
+.vs/
+*.user
+*.suo
+*.userprefs
+*.rsuser
+*.DotSettings.user
+.idea/
+
+# ---------- TEST RESULTS / LOGS ----------
+[Tt]est[Rr]esult*/
+*.trx
+*.coverage
+coverage.cobertura.xml
+*.log
+
+# ---------- OS JUNK ----------
+.DS_Store
+Thumbs.db
+desktop.ini
+~$*
