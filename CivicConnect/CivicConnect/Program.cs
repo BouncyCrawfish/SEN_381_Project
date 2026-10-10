@@ -1,4 +1,4 @@
-namespace Civic_Connect
+namespace CivicConnect
 {
     internal static class Program
     {

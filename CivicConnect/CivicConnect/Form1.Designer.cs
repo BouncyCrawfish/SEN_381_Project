@@ -1,4 +1,4 @@
-﻿namespace Civic_Connect
+﻿namespace CivicConnect
 {
     partial class Form1
     {

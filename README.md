@@ -111,13 +111,14 @@ Folders map to the four architecture modules from ADR-001, using the interfaces 
 │   ├── CivicConnect.AuditLog/    # Audit log module — IAuditLogService, AuditLogEventHandler,
 │   │                             #   domain event dispatching (ADR-005)
 │   ├── CivicConnect.Auth/        # Users and auth module — IUserService, roles
+│   ├── CivicConnect.Common/
 │   └── CivicConnect.Reporting/   # Reporting module — management/oversight queries
 ├── tests/                    # xUnit v3 test projects
 ├── appsettings.example.json  # placeholder config, safe to commit
 ├── .git/
 │   ├── workflows/
 │   └── pull_request_template.md
-└── .gitignore                 # must exclude appsettings.json
+└── .gitignore                 
 ```
 
 *(Illustrative until the solution is actually scaffolded — update once real project names exist.)*
