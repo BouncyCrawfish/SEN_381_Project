@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/CivicConnect/">
+    <Project Path="CivicConnect/CivicConnect.App/CivicConnect.App.csproj" />
+    <Project Path="CivicConnect/CivicConnect.Auth/CivicConnect.Auth.csproj" />
+    <Project Path="CivicConnect/CivicConnect.Common/CivicConnect.Common.csproj" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="Tests/CivicConnect.Tests/CivicConnect.Tests.csproj" />
+  </Folder>
+</Solution>
