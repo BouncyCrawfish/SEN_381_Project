@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using CivicConnect.Requests.Domain;
+
 namespace CivicConnect.Requests.Domain
 {
     /// <summary>
@@ -16,12 +19,12 @@ namespace CivicConnect.Requests.Domain
 
     public class Request
     {
-        public int Id { get; protected set; };
-        public string Category { get; protected set; };
-        public string Location { get; protected set; };
-        public string Description { get; protected set; };
-        public int RequesterId { get; protected set; };
-        public int? AssignedStaffId { get; protected set; };
+        public int Id { get; protected set; }
+        public string Category { get; protected set; }
+        public string Location { get; protected set; }
+        public string Description { get; protected set; }
+        public int RequesterId { get; protected set; }
+        public int? AssignedStaffId { get; protected set; }
         public RequestStatus Status { get; protected set; } = RequestStatus.Submitted;
         public DateTime CreatedAt { get; protected set; } = DateTime.UtcNow;
 
@@ -53,24 +56,20 @@ namespace CivicConnect.Requests.Domain
 
         public virtual CivicConnect.Common.Result TransitionTo(RequestStatus nextStatus, int staffId, string notes)
         {
-            if (!CanTransitionTo(newStatus))
+            if (!CanTransitionTo(nextStatus))
             {
-                return CivicConnect.Common.Result.Failure($"Invalid status transition from {Status} to {nextStatus}.");
+                return CivicConnect.Common.Result.Failure(
+                    new CivicConnect.Common.Error(
+                        "InvalidRequestStatusTransition",
+                        "Invalid request status transition.",
+                        CivicConnect.Common.ErrorType.Validation));
             }
 
             Status = nextStatus;
             AssignedStaffId = staffId;
 
             //Add a history entry
-            _history.Add(new RequestHistory
-            {
-                RequestId = Id,
-                PreviousStatus = Status,
-                NewStatus = nextStatus,
-                ChangedByStaffId = staffId,
-                Notes = notes,
-                ChangedAt = DateTime.UtcNow
-            });
+            _history.Add(new RequestHistory(Id, Category, Location, Description, RequesterId, Status, notes));
 
             return CivicConnect.Common.Result.Success();
         }

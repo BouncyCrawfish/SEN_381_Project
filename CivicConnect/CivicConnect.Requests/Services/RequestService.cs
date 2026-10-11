@@ -39,11 +39,11 @@ namespace CivicConnect.Requests.Services
             var requests = await _requestRepository.GetAllActiveAsync();
             var dtos = requests.Select(r => new RequestDto
             {
-                Id = r.Id,
+                HistoryId = r.Id,
                 Category = r.Category,
                 Location = r.Location,
                 Description = r.Description,
-                RequesterId = r.RequesterId,
+                RequestId = r.RequesterId,
                 CreatedAt = r.CreatedAt
             });
             return Result<IEnumerable<RequestDto>>.Success(dtos);
