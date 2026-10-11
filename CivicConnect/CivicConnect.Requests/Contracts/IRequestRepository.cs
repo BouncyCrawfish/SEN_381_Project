@@ -7,7 +7,7 @@ namespace CivicConnect.Requests.Contracts
 {
     internal interface IRequestRepository
     {
-        Task<Request> GetRequestByIdAsync(int requestId);
+        Task<Request> GetRequestByIdAsync(int Id);
         Task<IEnumerable<Request>> GetAllActiveAsync();
         Task AddAsync(Request request);
         Task UpdateAsync(Request request);

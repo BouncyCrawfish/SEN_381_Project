@@ -64,7 +64,7 @@ namespace CivicConnect.Tests.Requests
             //Assert
             Assert.True(result.IsFailure);
             Assert.Equal(RequestStatus.Submitted, request.Status);
-            Assert.Equal("Invalid state transition from Submitted to Closed.", result.Error);
+            Assert.Equal("Invalid state transition from Submitted to Closed.", result.Error.Message);
         }
 
         [Theory]

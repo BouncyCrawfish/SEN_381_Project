@@ -19,19 +19,19 @@ namespace CivicConnect.Requests.Domain
 
     public class Request
     {
-        public int Id { get; protected set; }
-        public string Category { get; protected set; }
-        public string Location { get; protected set; }
-        public string Description { get; protected set; }
-        public int RequesterId { get; protected set; }
-        public int? AssignedStaffId { get; protected set; }
-        public RequestStatus Status { get; protected set; } = RequestStatus.Submitted;
-        public DateTime CreatedAt { get; protected set; } = DateTime.UtcNow;
+        public int Id { get; set; }
+        public string Category { get; set; }
+        public string Location { get; set; }
+        public string Description { get; set; }
+        public int RequesterId { get; set; }
+        public int? AssignedStaffId { get; set; }
+        public RequestStatus Status { get; set; } = RequestStatus.Submitted;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         private readonly List<RequestHistory> _history = new();
         public IReadOnlyCollection<RequestHistory> History => _history.AsReadOnly();
 
-        protected Request() { } // For EF Core
+        public Request() { } // For EF Core
 
         public Request(string category, string location, string description, int requesterId)
         {

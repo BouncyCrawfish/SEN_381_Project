@@ -5,7 +5,7 @@ using CivicConnect.Requests.Domain;
 
 namespace CivicConnect.Requests.Services
 {
-    public class RequestService : IRequestService
+    internal class RequestService : IRequestService
     {
         private readonly IRequestRepository _requestRepository;
 
@@ -16,19 +16,12 @@ namespace CivicConnect.Requests.Services
 
         public async Task<Result<int>> SubmitRequestAsync(SubmitRequestDto dto)
         {
-            if(string.IsNullOrWhiteSpace(dto.Category) || string.IsNullOrWhiteSpaces(dto.Description))
+            if (string.IsNullOrWhiteSpace(dto.Category) || string.IsNullOrWhiteSpace(dto.Description))
             {
-                return Result<int>.Failure("Category and Description are required.");
+                return Result<int>.Failure(new Error("Request.Validate", "Category and Description are required.", ErrorType.Validation));
             }
 
-            var request = new Request
-            {
-                Category = dto.Category,
-                Location = dto.Location,
-                Description = dto.Description,
-                RequesterId = dto.RequesterId,
-                CreatedAt = DateTime.UtcNow
-            };
+            var request = new Request(dto.Category, dto.Location, dto.Description, dto.RequestId);
 
             await _requestRepository.AddAsync(request);
             return Result<int>.Success(request.Id);
@@ -37,15 +30,16 @@ namespace CivicConnect.Requests.Services
         public async Task<Result<IEnumerable<RequestDto>>> GetStaffQueueAsync()
         {
             var requests = await _requestRepository.GetAllActiveAsync();
-            var dtos = requests.Select(r => new RequestDto
-            {
-                HistoryId = r.Id,
-                Category = r.Category,
-                Location = r.Location,
-                Description = r.Description,
-                RequestId = r.RequesterId,
-                CreatedAt = r.CreatedAt
-            });
+            var dtos = requests.Select(r => new RequestDto(
+                r.Id,
+                r.Category,
+                r.Location,
+                r.Description,
+                r.Status.ToString(),
+                r.RequesterId,
+                r.AssignedStaffId,
+                r.CreatedAt
+            ));
             return Result<IEnumerable<RequestDto>>.Success(dtos);
         }
 
@@ -54,7 +48,7 @@ namespace CivicConnect.Requests.Services
            var request = await _requestRepository.GetRequestByIdAsync(requestId);
             if (request == null)
             {
-                return Result.Failure("Request not found.");
+                return Result.Failure(new Error("Request.NotFound", "Request not found.", ErrorType.NotFound));
             }
            
             var transitionResults = request.TransitionTo(newStatus, staffId, notes);
