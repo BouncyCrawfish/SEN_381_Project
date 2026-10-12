@@ -8,10 +8,12 @@ namespace CivicConnect.Requests.Services
     internal class RequestService : IRequestService
     {
         private readonly IRequestRepository _requestRepository;
+        private readonly INotificationService _notificationService;
 
-        public RequestService(IRequestRepository requestRepository)
+        public RequestService(IRequestRepository requestRepository, INotificationService notificationService)
         {
             _requestRepository = requestRepository ?? throw new ArgumentNullException(nameof(requestRepository));
+            _notificationService = notificationService ?? throw new ArgumentNullException(nameof(notificationService));
         }
 
         public async Task<Result<int>> SubmitRequestAsync(SubmitRequestDto dto)

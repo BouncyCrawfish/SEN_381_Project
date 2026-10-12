@@ -14,6 +14,7 @@
   <ItemGroup>
     <ProjectReference Include="..\CivicConnect.Common\CivicConnect.Common.csproj" />
     <ProjectReference Include="..\CivicConnect.Auth\CivicConnect.Auth.csproj" />
+	<ProjectReference Include="..\CivicConnect.Notifications\CivicConnect.Notifications.csproj" />  
   </ItemGroup>
 
   <ItemGroup>
