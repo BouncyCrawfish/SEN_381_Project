@@ -8,4 +8,5 @@
   <Folder Name="/Tests/">
     <Project Path="Tests/CivicConnect.Tests/CivicConnect.Tests.csproj" />
   </Folder>
+  <Project Path="CivicConnect/CivicConnect.Notifications/CivicConnect.Notifications.csproj" />
 </Solution>

@@ -9,7 +9,7 @@
     <ProjectReference Include="..\CivicConnect.Common\CivicConnect.Common.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <InternalsVisibleTo Include="CivicConnect.Auth.Tests" />
+    <InternalsVisibleTo Include="CivicConnect.Tests" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="BCrypt.Net-Next" Version="4.2.0" />
