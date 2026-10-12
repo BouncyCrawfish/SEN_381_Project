@@ -16,6 +16,4 @@
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.2.0" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
   </ItemGroup>
-  <!-- NuGet packages are added with `dotnet add package` (see src/CivicConnect.Auth/README.md)
-       so the latest compatible versions are resolved and pinned in this file. -->
-</Project>
+  </Project>
