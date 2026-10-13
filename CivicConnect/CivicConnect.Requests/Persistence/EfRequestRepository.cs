@@ -64,8 +64,9 @@ internal sealed class EfRequestRepository(IDbContextFactory<RequestsDbContext> f
     public async Task<IReadOnlyList<RequestDto>> ListByRequesterAsync(long requesterId, CancellationToken ct)
     {
         await using var db = await factory.CreateDbContextAsync(ct);
-        return await Project(db, db.Requests.AsNoTracking().Where(r => r.RequesterId == requesterId))
-            .OrderByDescending(r => r.CreatedAt).ToListAsync(ct);
+        var query = db.Requests.AsNoTracking().Where(r => r.RequesterId == requesterId)
+            .OrderByDescending(r => r.CreatedAt);
+        return await Project(db, query).ToListAsync(ct);
     }
 
     public async Task<IReadOnlyList<RequestDto>> ListQueueAsync(RequestQueueFilter filter, long? assignedStaffId, CancellationToken ct)
@@ -88,7 +89,8 @@ internal sealed class EfRequestRepository(IDbContextFactory<RequestsDbContext> f
                                   || EF.Functions.ILike(r.Location, pattern, "\\"));
         }
 
-        return await Project(db, query).OrderBy(r => r.CreatedAt).ToListAsync(ct);
+        // Order the entity query before projection so EF Core can translate the ordering to SQL.
+        return await Project(db, query.OrderBy(r => r.CreatedAt)).ToListAsync(ct);
     }
 
     private static IQueryable<RequestDto> Project(RequestsDbContext db, IQueryable<Request> requests) =>
