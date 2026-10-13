@@ -36,6 +36,7 @@ internal static class Program
         builder.Services.AddMessageBoxNotification();
         builder.Services.AddAuthModule(connectionString);
         builder.Services.AddRequestsModule(connectionString);   // needs the Auth module registered first
+        builder.Services.AddSingleton<IFormFactory, FormFactory>();
         // Other modules register here later, e.g. builder.Services.AddRequestsModule(connectionString);
 
         // Forms are created on demand with ActivatorUtilities, so the container does not keep
@@ -49,8 +50,10 @@ internal static class Program
         if (login.ShowDialog() != DialogResult.OK) return;
 
         // PLACEHOLDER until the main window exists: replace with the role-based main form.
-        var user = host.Services.GetRequiredService<ISessionContext>().CurrentUser!;
-        MessageBox.Show($"Signed in as {user.Name} ({user.Role}).\n\nThe main window has not been built yet.",
-            "CivicConnect", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        //var user = host.Services.GetRequiredService<ISessionContext>().CurrentUser!;
+        //MessageBox.Show($"Signed in as {user.Name} ({user.Role}).\n\nThe main window has not been built yet.",
+        //"CivicConnect", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        using var main = ActivatorUtilities.CreateInstance<MainForm>(host.Services);
+        Application.Run(main);
     }
 }
