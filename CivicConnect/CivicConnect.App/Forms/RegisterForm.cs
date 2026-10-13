@@ -131,11 +131,12 @@ internal sealed class RegisterForm : Form
             _status.Text = result.Error.Message;
             _password.Focus();
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             // TODO: log exception type/message (never the DTO or passwords) once logging exists.
             _password.Clear();
             _confirm.Clear();
+            System.Diagnostics.Debug.WriteLine(ex);
             _status.Text = "Registration is unavailable right now. Please try again later.";
         }
         finally

@@ -1,9 +1,10 @@
 using CivicConnect.App.Forms;
 using CivicConnect.Auth;
+using CivicConnect.Notifications;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-
+using CivicConnect.AuditLog;
 namespace CivicConnect.App;
 
 internal static class Program
@@ -30,6 +31,8 @@ internal static class Program
             return;
         }
 
+        builder.Services.AddNotificationsModule();
+        builder.Services.AddMessageBoxNotification();
         builder.Services.AddAuthModule(connectionString);
         // Other modules register here later, e.g. builder.Services.AddRequestsModule(connectionString);
 

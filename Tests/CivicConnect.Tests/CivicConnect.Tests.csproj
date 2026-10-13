@@ -5,6 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
+	<OutputType>Exe</OutputType>
   </PropertyGroup>
 
   <ItemGroup>
@@ -26,6 +27,7 @@
     <ProjectReference Include="..\..\CivicConnect\CivicConnect.Auth\CivicConnect.Auth.csproj" />
     <ProjectReference Include="..\..\CivicConnect\CivicConnect.Common\CivicConnect.Common.csproj" />
     <ProjectReference Include="..\..\CivicConnect\CivicConnect.Requests\CivicConnect.Requests.csproj" />
+	<ProjectReference Include="..\..\CivicConnect\CivicConnect.AuditLog\CivicConnect.AuditLog.csproj" />
   </ItemGroup>
 
 </Project>
