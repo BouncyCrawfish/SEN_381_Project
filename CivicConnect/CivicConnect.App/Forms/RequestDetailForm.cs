@@ -66,9 +66,9 @@ internal sealed class RequestDetailForm : Form
         _description.Height = 90;
         _description.Dock = DockStyle.Fill;
 
-        _history.Height = 90; _history.Dock = DockStyle.Fill; _history.HorizontalScrollBar = true;
-        _notes.Height = 90; _notes.Dock = DockStyle.Fill; _notes.HorizontalScrollBar = true;
-
+        _history.Height = 90; _history.Dock = DockStyle.Fill; _history.HorizontalScrollbar = true;
+        _notes.Height = 90; _notes.Dock = DockStyle.Fill; _notes.HorizontalScrollbar = true;
+    
         _message.AutoSize = true;
         _message.MaximumSize = new Size(680, 0);
         _message.Margin = new Padding(0, 6, 0, 6);
