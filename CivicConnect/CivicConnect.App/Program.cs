@@ -1,5 +1,6 @@
 using CivicConnect.App.Forms;
 using CivicConnect.Auth;
+using CivicConnect.Requests;
 using CivicConnect.Notifications;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -34,6 +35,7 @@ internal static class Program
         builder.Services.AddNotificationsModule();
         builder.Services.AddMessageBoxNotification();
         builder.Services.AddAuthModule(connectionString);
+        builder.Services.AddRequestsModule(connectionString);   // needs the Auth module registered first
         // Other modules register here later, e.g. builder.Services.AddRequestsModule(connectionString);
 
         // Forms are created on demand with ActivatorUtilities, so the container does not keep
