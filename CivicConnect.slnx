@@ -4,6 +4,7 @@
     <Project Path="CivicConnect/CivicConnect.Auth/CivicConnect.Auth.csproj" />
     <Project Path="CivicConnect/CivicConnect.Common/CivicConnect.Common.csproj" />
     <Project Path="CivicConnect/CivicConnect.Requests/CivicConnect.Requests.csproj" Id="f1184e96-8075-4cc7-ac35-ea4d2eba1909" />
+    <Project Path="CivicConnect/CivicConnect.AuditLog/CivicConnect.AuditLog.csproj" />
   </Folder>
   <Folder Name="/Tests/">
     <Project Path="Tests/CivicConnect.Tests/CivicConnect.Tests.csproj" />

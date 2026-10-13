@@ -4,7 +4,7 @@ using CivicConnect.Notifications;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-
+using CivicConnect.AuditLog;
 namespace CivicConnect.App;
 
 internal static class Program
