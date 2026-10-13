@@ -8,7 +8,8 @@ Baseline: PED v2.4 (ADR-002, ADR-003, ADR-004, ADR-005; NFR-003, NFR-005, NFR-00
 | `00a_drop_database.sql`, `00b_drop_roles.sql` | Dev-only reset: drops the database, then the roles |
 | `01_roles.sql` | Creates the three login roles (run first, on the `postgres` database) |
 | `02_create_database.sql` | Creates `civicconnect_db` (run alone, on the `postgres` database) |
-| `03_schema.sql` | Tables, constraints, indexes, append-only trigger, grants, seed categories (run on `civicconnect_db`) |
+| `03_schema.sql` | Tables, constraints, indexes, append-only trigger, grants (run on `civicconnect_db`) |
+| `04_requests_module.sql` | Seed categories, length/owner constraints, assignee-must-be-Staff trigger (run on `civicconnect_db`, after 03) |
 
 ---
 
@@ -78,6 +79,10 @@ Run as the PostgreSQL superuser (`postgres`), in order. Works in **pgAdmin's Que
 psql -U postgres -d postgres       -v ON_ERROR_STOP=1 -f db/01_roles.sql
 psql -U postgres -d postgres       -v ON_ERROR_STOP=1 -f db/02_create_database.sql
 psql -U postgres -d civicconnect_db -v ON_ERROR_STOP=1 -f db/03_schema.sql
+```
+
+```bash
+psql -U postgres -d civicconnect_db -v ON_ERROR_STOP=1 -f db/04_requests_module.sql
 ```
 
 Requires PostgreSQL 16+. The scripts are **not re-runnable** on an existing setup. To reset a **dev** database (destroys all data), run on the `postgres` database:
@@ -155,3 +160,25 @@ Tests that prove these belong in the xUnit integration suite and should be linke
 | ADR-002 Atomicity and concurrency | `xmin` token; transaction handled in C# |
 | ADR-003 PostgreSQL + EF Core | PostgreSQL 16+ schema, string-mapped enums |
 | ADR-004 / ADR-005 | Intentionally implemented in C#, not in the database |
+
+---
+
+## 10. Creating a Staff account for testing (no passwords in the repo)
+
+Self-registration only creates Requesters. Register the account in the app, then promote it as the **owner** role (the app role cannot change roles):
+
+```sql
+-- connected to civicconnect_db as civicconnect_owner (or postgres)
+UPDATE users SET role = 'Staff' WHERE lower(email) = lower('staff.tester@example.com');
+```
+
+The role is read at login, so sign out and in again.
+
+## 11. Extra checks for 04_requests_module.sql
+
+| Check | Expected result |
+|---|---|
+| `UPDATE request SET assigned_staff_id = <a Requester id>` | Rejected by `trg_request_assignee_is_staff` |
+| Update a request to `Assigned` with `assigned_staff_id` NULL | Rejected by `request_assignee_present` |
+| Insert a note or description over 1000 characters | Rejected by the length CHECKs |
+| `UPDATE request SET description = 'x'` as `civicconnect_app` | Permission denied (column not granted) |

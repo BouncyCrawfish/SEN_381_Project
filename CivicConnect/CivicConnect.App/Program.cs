@@ -1,5 +1,6 @@
 using CivicConnect.App.Forms;
 using CivicConnect.Auth;
+using CivicConnect.Requests;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -32,7 +33,8 @@ internal static class Program
 
         builder.Services.AddAuthModule(connectionString);
         // Other modules register here later, e.g. builder.Services.AddRequestsModule(connectionString);
-
+        builder.Services.AddRequestsModule(connectionString);
+        builder.Services.AddSingleton<IFormFactory, FormFactory>();
         // Forms are created on demand with ActivatorUtilities, so the container does not keep
         // every closed form alive. Nobody should resolve them as plain services.
         builder.Services.AddSingleton<Func<RegisterForm>>(
@@ -44,8 +46,10 @@ internal static class Program
         if (login.ShowDialog() != DialogResult.OK) return;
 
         // PLACEHOLDER until the main window exists: replace with the role-based main form.
-        var user = host.Services.GetRequiredService<ISessionContext>().CurrentUser!;
-        MessageBox.Show($"Signed in as {user.Name} ({user.Role}).\n\nThe main window has not been built yet.",
-            "CivicConnect", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        //var user = host.Services.GetRequiredService<ISessionContext>().CurrentUser!;
+        //MessageBox.Show($"Signed in as {user.Name} ({user.Role}).\n\nThe main window has not been built yet.",
+        //"CivicConnect", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        using var main = ActivatorUtilities.CreateInstance<MainForm>(host.Services);
+        Application.Run(main);
     }
 }

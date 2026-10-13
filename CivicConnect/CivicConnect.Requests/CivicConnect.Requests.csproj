@@ -7,7 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\CivicConnect.Auth\CivicConnect.Auth.csproj" />
     <ProjectReference Include="..\CivicConnect.Common\CivicConnect.Common.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="CivicConnect.Requests.Tests" />
   </ItemGroup>
 
 </Project>
