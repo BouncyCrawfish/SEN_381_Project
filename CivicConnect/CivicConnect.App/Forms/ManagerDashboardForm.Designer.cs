@@ -17,536 +17,541 @@ namespace CivicConnect.App.Forms
 
         private void InitializeComponent()
         {
-            this.pnlHeader = new System.Windows.Forms.Panel();
-            this.btnBack = new System.Windows.Forms.Button();
-            this.lblSubtitle = new System.Windows.Forms.Label();
-            this.lblTitle = new System.Windows.Forms.Label();
-            this.tlpMain = new System.Windows.Forms.TableLayoutPanel();
-            this.flowKpis = new System.Windows.Forms.FlowLayoutPanel();
-            this.pnlKpiTotal = new System.Windows.Forms.Panel();
-            this.lblKpiTotalValue = new System.Windows.Forms.Label();
-            this.lblKpiTotalCaption = new System.Windows.Forms.Label();
-            this.pnlKpiSubmitted = new System.Windows.Forms.Panel();
-            this.lblKpiSubmittedValue = new System.Windows.Forms.Label();
-            this.lblKpiSubmittedCaption = new System.Windows.Forms.Label();
-            this.pnlKpiAssigned = new System.Windows.Forms.Panel();
-            this.lblKpiAssignedValue = new System.Windows.Forms.Label();
-            this.lblKpiAssignedCaption = new System.Windows.Forms.Label();
-            this.pnlKpiInProgress = new System.Windows.Forms.Panel();
-            this.lblKpiInProgressValue = new System.Windows.Forms.Label();
-            this.lblKpiInProgressCaption = new System.Windows.Forms.Label();
-            this.pnlKpiResolved = new System.Windows.Forms.Panel();
-            this.lblKpiResolvedValue = new System.Windows.Forms.Label();
-            this.lblKpiResolvedCaption = new System.Windows.Forms.Label();
-            this.pnlKpiClosed = new System.Windows.Forms.Panel();
-            this.lblKpiClosedValue = new System.Windows.Forms.Label();
-            this.lblKpiClosedCaption = new System.Windows.Forms.Label();
-            this.tlpLower = new System.Windows.Forms.TableLayoutPanel();
-            this.pnlListCard = new System.Windows.Forms.Panel();
-            this.dgvRequests = new System.Windows.Forms.DataGridView();
-            this.colId = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colCategory = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colLocation = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colStatus = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colAssigned = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colSubmitted = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.flowToolbar = new System.Windows.Forms.FlowLayoutPanel();
-            this.lblFilter = new System.Windows.Forms.Label();
-            this.cboStatus = new System.Windows.Forms.ComboBox();
-            this.txtSearch = new System.Windows.Forms.TextBox();
-            this.btnApply = new System.Windows.Forms.Button();
-            this.btnOpen = new System.Windows.Forms.Button();
-            this.lblStatus = new System.Windows.Forms.Label();
-            this.pnlCategoryCard = new System.Windows.Forms.Panel();
-            this.lstCategories = new System.Windows.Forms.ListBox();
-            this.lblCategoryHeading = new System.Windows.Forms.Label();
-            this.pnlHeader.SuspendLayout();
-            this.tlpMain.SuspendLayout();
-            this.flowKpis.SuspendLayout();
-            this.pnlKpiTotal.SuspendLayout();
-            this.pnlKpiSubmitted.SuspendLayout();
-            this.pnlKpiAssigned.SuspendLayout();
-            this.pnlKpiInProgress.SuspendLayout();
-            this.pnlKpiResolved.SuspendLayout();
-            this.pnlKpiClosed.SuspendLayout();
-            this.tlpLower.SuspendLayout();
-            this.pnlListCard.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvRequests)).BeginInit();
-            this.flowToolbar.SuspendLayout();
-            this.pnlCategoryCard.SuspendLayout();
-            this.SuspendLayout();
-            //
+            pnlHeader = new Panel();
+            btnBack = new Button();
+            lblSubtitle = new Label();
+            lblTitle = new Label();
+            tlpMain = new TableLayoutPanel();
+            flowKpis = new FlowLayoutPanel();
+            pnlKpiTotal = new Panel();
+            lblKpiTotalCaption = new Label();
+            lblKpiTotalValue = new Label();
+            pnlKpiSubmitted = new Panel();
+            lblKpiSubmittedCaption = new Label();
+            lblKpiSubmittedValue = new Label();
+            pnlKpiAssigned = new Panel();
+            lblKpiAssignedCaption = new Label();
+            lblKpiAssignedValue = new Label();
+            pnlKpiInProgress = new Panel();
+            lblKpiInProgressCaption = new Label();
+            lblKpiInProgressValue = new Label();
+            pnlKpiResolved = new Panel();
+            lblKpiResolvedCaption = new Label();
+            lblKpiResolvedValue = new Label();
+            pnlKpiClosed = new Panel();
+            lblKpiClosedCaption = new Label();
+            lblKpiClosedValue = new Label();
+            tlpLower = new TableLayoutPanel();
+            pnlListCard = new Panel();
+            dgvRequests = new DataGridView();
+            flowToolbar = new FlowLayoutPanel();
+            lblFilter = new Label();
+            cboStatus = new ComboBox();
+            txtSearch = new TextBox();
+            btnApply = new Button();
+            btnOpen = new Button();
+            btnAudit = new Button();
+            lblStatus = new Label();
+            pnlCategoryCard = new Panel();
+            lstCategories = new ListBox();
+            lblCategoryHeading = new Label();
+            pnlHeader.SuspendLayout();
+            tlpMain.SuspendLayout();
+            flowKpis.SuspendLayout();
+            pnlKpiTotal.SuspendLayout();
+            pnlKpiSubmitted.SuspendLayout();
+            pnlKpiAssigned.SuspendLayout();
+            pnlKpiInProgress.SuspendLayout();
+            pnlKpiResolved.SuspendLayout();
+            pnlKpiClosed.SuspendLayout();
+            tlpLower.SuspendLayout();
+            pnlListCard.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)dgvRequests).BeginInit();
+            flowToolbar.SuspendLayout();
+            pnlCategoryCard.SuspendLayout();
+            SuspendLayout();
+            // 
             // pnlHeader
-            //
-            this.pnlHeader.Controls.Add(this.btnBack);
-            this.pnlHeader.Controls.Add(this.lblSubtitle);
-            this.pnlHeader.Controls.Add(this.lblTitle);
-            this.pnlHeader.Dock = System.Windows.Forms.DockStyle.Top;
-            this.pnlHeader.Location = new System.Drawing.Point(0, 0);
-            this.pnlHeader.Name = "pnlHeader";
-            this.pnlHeader.Size = new System.Drawing.Size(1200, 84);
-            this.pnlHeader.TabIndex = 0;
-            this.pnlHeader.Tag = "header";
-            //
+            // 
+            pnlHeader.Controls.Add(btnBack);
+            pnlHeader.Controls.Add(lblSubtitle);
+            pnlHeader.Controls.Add(lblTitle);
+            pnlHeader.Dock = DockStyle.Top;
+            pnlHeader.Location = new Point(0, 0);
+            pnlHeader.Name = "pnlHeader";
+            pnlHeader.Size = new Size(1200, 84);
+            pnlHeader.TabIndex = 0;
+            pnlHeader.Tag = "header";
+            // 
             // btnBack
-            //
-            this.btnBack.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnBack.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnBack.Location = new System.Drawing.Point(1050, 22);
-            this.btnBack.Name = "btnBack";
-            this.btnBack.Size = new System.Drawing.Size(120, 40);
-            this.btnBack.TabIndex = 2;
-            this.btnBack.Tag = "ghost";
-            this.btnBack.Text = "&Back";
-            //
+            // 
+            btnBack.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnBack.DialogResult = DialogResult.Cancel;
+            btnBack.Location = new Point(1050, 22);
+            btnBack.Name = "btnBack";
+            btnBack.Size = new Size(120, 40);
+            btnBack.TabIndex = 2;
+            btnBack.Tag = "ghost";
+            btnBack.Text = "&Back";
+            // 
             // lblSubtitle
-            //
-            this.lblSubtitle.AutoSize = true;
-            this.lblSubtitle.Location = new System.Drawing.Point(30, 52);
-            this.lblSubtitle.Name = "lblSubtitle";
-            this.lblSubtitle.Size = new System.Drawing.Size(300, 23);
-            this.lblSubtitle.TabIndex = 1;
-            this.lblSubtitle.Tag = "subtitle";
-            this.lblSubtitle.Text = "Read-only view of every request, including closed ones.";
-            //
+            // 
+            lblSubtitle.AutoSize = true;
+            lblSubtitle.Location = new Point(30, 52);
+            lblSubtitle.Name = "lblSubtitle";
+            lblSubtitle.Size = new Size(299, 15);
+            lblSubtitle.TabIndex = 1;
+            lblSubtitle.Tag = "subtitle";
+            lblSubtitle.Text = "Read-only view of every request, including closed ones.";
+            // 
             // lblTitle
-            //
-            this.lblTitle.AutoSize = true;
-            this.lblTitle.Location = new System.Drawing.Point(28, 10);
-            this.lblTitle.Name = "lblTitle";
-            this.lblTitle.Size = new System.Drawing.Size(300, 41);
-            this.lblTitle.TabIndex = 0;
-            this.lblTitle.Tag = "title";
-            this.lblTitle.Text = "Overview";
-            //
+            // 
+            lblTitle.AutoSize = true;
+            lblTitle.Location = new Point(28, 10);
+            lblTitle.Name = "lblTitle";
+            lblTitle.Size = new Size(56, 15);
+            lblTitle.TabIndex = 0;
+            lblTitle.Tag = "title";
+            lblTitle.Text = "Overview";
+            // 
             // tlpMain
-            //
-            this.tlpMain.ColumnCount = 1;
-            this.tlpMain.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tlpMain.Controls.Add(this.flowKpis, 0, 0);
-            this.tlpMain.Controls.Add(this.tlpLower, 0, 1);
-            this.tlpMain.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tlpMain.Location = new System.Drawing.Point(0, 84);
-            this.tlpMain.Name = "tlpMain";
-            this.tlpMain.Padding = new System.Windows.Forms.Padding(28, 24, 28, 24);
-            this.tlpMain.RowCount = 2;
-            this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tlpMain.Size = new System.Drawing.Size(1200, 616);
-            this.tlpMain.TabIndex = 1;
-            //
+            // 
+            tlpMain.ColumnCount = 1;
+            tlpMain.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tlpMain.Controls.Add(flowKpis, 0, 0);
+            tlpMain.Controls.Add(tlpLower, 0, 1);
+            tlpMain.Dock = DockStyle.Fill;
+            tlpMain.Location = new Point(0, 84);
+            tlpMain.Name = "tlpMain";
+            tlpMain.Padding = new Padding(28, 24, 28, 24);
+            tlpMain.RowCount = 2;
+            tlpMain.RowStyles.Add(new RowStyle());
+            tlpMain.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tlpMain.Size = new Size(1200, 616);
+            tlpMain.TabIndex = 1;
+            // 
             // flowKpis
-            //
-            this.flowKpis.AutoSize = true;
-            this.flowKpis.Controls.Add(this.pnlKpiTotal);
-            this.flowKpis.Controls.Add(this.pnlKpiSubmitted);
-            this.flowKpis.Controls.Add(this.pnlKpiAssigned);
-            this.flowKpis.Controls.Add(this.pnlKpiInProgress);
-            this.flowKpis.Controls.Add(this.pnlKpiResolved);
-            this.flowKpis.Controls.Add(this.pnlKpiClosed);
-            this.flowKpis.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flowKpis.Margin = new System.Windows.Forms.Padding(0, 0, 0, 16);
-            this.flowKpis.Name = "flowKpis";
-            this.flowKpis.TabIndex = 0;
-            //
+            // 
+            flowKpis.AutoSize = true;
+            flowKpis.Controls.Add(pnlKpiTotal);
+            flowKpis.Controls.Add(pnlKpiSubmitted);
+            flowKpis.Controls.Add(pnlKpiAssigned);
+            flowKpis.Controls.Add(pnlKpiInProgress);
+            flowKpis.Controls.Add(pnlKpiResolved);
+            flowKpis.Controls.Add(pnlKpiClosed);
+            flowKpis.Dock = DockStyle.Fill;
+            flowKpis.Location = new Point(28, 24);
+            flowKpis.Margin = new Padding(0, 0, 0, 16);
+            flowKpis.Name = "flowKpis";
+            flowKpis.Size = new Size(1144, 192);
+            flowKpis.TabIndex = 0;
+            // 
             // pnlKpiTotal
-            //
-            this.pnlKpiTotal.Controls.Add(this.lblKpiTotalCaption);
-            this.pnlKpiTotal.Controls.Add(this.lblKpiTotalValue);
-            this.pnlKpiTotal.Margin = new System.Windows.Forms.Padding(0, 0, 16, 0);
-            this.pnlKpiTotal.Name = "pnlKpiTotal";
-            this.pnlKpiTotal.Size = new System.Drawing.Size(190, 96);
-            this.pnlKpiTotal.TabIndex = 0;
-            this.pnlKpiTotal.Tag = "kpi";
-            //
-            // lblKpiTotalValue
-            //
-            this.lblKpiTotalValue.AutoSize = true;
-            this.lblKpiTotalValue.Dock = System.Windows.Forms.DockStyle.Top;
-            this.lblKpiTotalValue.Name = "lblKpiTotalValue";
-            this.lblKpiTotalValue.TabIndex = 0;
-            this.lblKpiTotalValue.Tag = "kpi";
-            this.lblKpiTotalValue.Text = "-";
-            //
+            // 
+            pnlKpiTotal.Controls.Add(lblKpiTotalCaption);
+            pnlKpiTotal.Controls.Add(lblKpiTotalValue);
+            pnlKpiTotal.Location = new Point(0, 0);
+            pnlKpiTotal.Margin = new Padding(0, 0, 16, 0);
+            pnlKpiTotal.Name = "pnlKpiTotal";
+            pnlKpiTotal.Size = new Size(190, 96);
+            pnlKpiTotal.TabIndex = 0;
+            pnlKpiTotal.Tag = "kpi";
+            // 
             // lblKpiTotalCaption
-            //
-            this.lblKpiTotalCaption.AutoSize = true;
-            this.lblKpiTotalCaption.Dock = System.Windows.Forms.DockStyle.Top;
-            this.lblKpiTotalCaption.Name = "lblKpiTotalCaption";
-            this.lblKpiTotalCaption.TabIndex = 1;
-            this.lblKpiTotalCaption.Tag = "muted";
-            this.lblKpiTotalCaption.Text = "Total requests";
-            //
+            // 
+            lblKpiTotalCaption.AutoSize = true;
+            lblKpiTotalCaption.Dock = DockStyle.Top;
+            lblKpiTotalCaption.Location = new Point(0, 15);
+            lblKpiTotalCaption.Name = "lblKpiTotalCaption";
+            lblKpiTotalCaption.Size = new Size(80, 15);
+            lblKpiTotalCaption.TabIndex = 1;
+            lblKpiTotalCaption.Tag = "muted";
+            lblKpiTotalCaption.Text = "Total requests";
+            // 
+            // lblKpiTotalValue
+            // 
+            lblKpiTotalValue.AutoSize = true;
+            lblKpiTotalValue.Dock = DockStyle.Top;
+            lblKpiTotalValue.Location = new Point(0, 0);
+            lblKpiTotalValue.Name = "lblKpiTotalValue";
+            lblKpiTotalValue.Size = new Size(12, 15);
+            lblKpiTotalValue.TabIndex = 0;
+            lblKpiTotalValue.Tag = "kpi";
+            lblKpiTotalValue.Text = "-";
+            // 
             // pnlKpiSubmitted
-            //
-            this.pnlKpiSubmitted.Controls.Add(this.lblKpiSubmittedCaption);
-            this.pnlKpiSubmitted.Controls.Add(this.lblKpiSubmittedValue);
-            this.pnlKpiSubmitted.Margin = new System.Windows.Forms.Padding(0, 0, 16, 0);
-            this.pnlKpiSubmitted.Name = "pnlKpiSubmitted";
-            this.pnlKpiSubmitted.Size = new System.Drawing.Size(190, 96);
-            this.pnlKpiSubmitted.TabIndex = 1;
-            this.pnlKpiSubmitted.Tag = "kpi";
-            //
-            // lblKpiSubmittedValue
-            //
-            this.lblKpiSubmittedValue.AutoSize = true;
-            this.lblKpiSubmittedValue.Dock = System.Windows.Forms.DockStyle.Top;
-            this.lblKpiSubmittedValue.Name = "lblKpiSubmittedValue";
-            this.lblKpiSubmittedValue.TabIndex = 0;
-            this.lblKpiSubmittedValue.Tag = "kpi";
-            this.lblKpiSubmittedValue.Text = "-";
-            //
+            // 
+            pnlKpiSubmitted.Controls.Add(lblKpiSubmittedCaption);
+            pnlKpiSubmitted.Controls.Add(lblKpiSubmittedValue);
+            pnlKpiSubmitted.Location = new Point(206, 0);
+            pnlKpiSubmitted.Margin = new Padding(0, 0, 16, 0);
+            pnlKpiSubmitted.Name = "pnlKpiSubmitted";
+            pnlKpiSubmitted.Size = new Size(190, 96);
+            pnlKpiSubmitted.TabIndex = 1;
+            pnlKpiSubmitted.Tag = "kpi";
+            // 
             // lblKpiSubmittedCaption
-            //
-            this.lblKpiSubmittedCaption.AutoSize = true;
-            this.lblKpiSubmittedCaption.Dock = System.Windows.Forms.DockStyle.Top;
-            this.lblKpiSubmittedCaption.Name = "lblKpiSubmittedCaption";
-            this.lblKpiSubmittedCaption.TabIndex = 1;
-            this.lblKpiSubmittedCaption.Tag = "muted";
-            this.lblKpiSubmittedCaption.Text = "Submitted";
-            //
+            // 
+            lblKpiSubmittedCaption.AutoSize = true;
+            lblKpiSubmittedCaption.Dock = DockStyle.Top;
+            lblKpiSubmittedCaption.Location = new Point(0, 15);
+            lblKpiSubmittedCaption.Name = "lblKpiSubmittedCaption";
+            lblKpiSubmittedCaption.Size = new Size(62, 15);
+            lblKpiSubmittedCaption.TabIndex = 1;
+            lblKpiSubmittedCaption.Tag = "muted";
+            lblKpiSubmittedCaption.Text = "Submitted";
+            // 
+            // lblKpiSubmittedValue
+            // 
+            lblKpiSubmittedValue.AutoSize = true;
+            lblKpiSubmittedValue.Dock = DockStyle.Top;
+            lblKpiSubmittedValue.Location = new Point(0, 0);
+            lblKpiSubmittedValue.Name = "lblKpiSubmittedValue";
+            lblKpiSubmittedValue.Size = new Size(12, 15);
+            lblKpiSubmittedValue.TabIndex = 0;
+            lblKpiSubmittedValue.Tag = "kpi";
+            lblKpiSubmittedValue.Text = "-";
+            // 
             // pnlKpiAssigned
-            //
-            this.pnlKpiAssigned.Controls.Add(this.lblKpiAssignedCaption);
-            this.pnlKpiAssigned.Controls.Add(this.lblKpiAssignedValue);
-            this.pnlKpiAssigned.Margin = new System.Windows.Forms.Padding(0, 0, 16, 0);
-            this.pnlKpiAssigned.Name = "pnlKpiAssigned";
-            this.pnlKpiAssigned.Size = new System.Drawing.Size(190, 96);
-            this.pnlKpiAssigned.TabIndex = 2;
-            this.pnlKpiAssigned.Tag = "kpi";
-            //
-            // lblKpiAssignedValue
-            //
-            this.lblKpiAssignedValue.AutoSize = true;
-            this.lblKpiAssignedValue.Dock = System.Windows.Forms.DockStyle.Top;
-            this.lblKpiAssignedValue.Name = "lblKpiAssignedValue";
-            this.lblKpiAssignedValue.TabIndex = 0;
-            this.lblKpiAssignedValue.Tag = "kpi";
-            this.lblKpiAssignedValue.Text = "-";
-            //
+            // 
+            pnlKpiAssigned.Controls.Add(lblKpiAssignedCaption);
+            pnlKpiAssigned.Controls.Add(lblKpiAssignedValue);
+            pnlKpiAssigned.Location = new Point(412, 0);
+            pnlKpiAssigned.Margin = new Padding(0, 0, 16, 0);
+            pnlKpiAssigned.Name = "pnlKpiAssigned";
+            pnlKpiAssigned.Size = new Size(190, 96);
+            pnlKpiAssigned.TabIndex = 2;
+            pnlKpiAssigned.Tag = "kpi";
+            // 
             // lblKpiAssignedCaption
-            //
-            this.lblKpiAssignedCaption.AutoSize = true;
-            this.lblKpiAssignedCaption.Dock = System.Windows.Forms.DockStyle.Top;
-            this.lblKpiAssignedCaption.Name = "lblKpiAssignedCaption";
-            this.lblKpiAssignedCaption.TabIndex = 1;
-            this.lblKpiAssignedCaption.Tag = "muted";
-            this.lblKpiAssignedCaption.Text = "Assigned";
-            //
+            // 
+            lblKpiAssignedCaption.AutoSize = true;
+            lblKpiAssignedCaption.Dock = DockStyle.Top;
+            lblKpiAssignedCaption.Location = new Point(0, 15);
+            lblKpiAssignedCaption.Name = "lblKpiAssignedCaption";
+            lblKpiAssignedCaption.Size = new Size(55, 15);
+            lblKpiAssignedCaption.TabIndex = 1;
+            lblKpiAssignedCaption.Tag = "muted";
+            lblKpiAssignedCaption.Text = "Assigned";
+            // 
+            // lblKpiAssignedValue
+            // 
+            lblKpiAssignedValue.AutoSize = true;
+            lblKpiAssignedValue.Dock = DockStyle.Top;
+            lblKpiAssignedValue.Location = new Point(0, 0);
+            lblKpiAssignedValue.Name = "lblKpiAssignedValue";
+            lblKpiAssignedValue.Size = new Size(12, 15);
+            lblKpiAssignedValue.TabIndex = 0;
+            lblKpiAssignedValue.Tag = "kpi";
+            lblKpiAssignedValue.Text = "-";
+            // 
             // pnlKpiInProgress
-            //
-            this.pnlKpiInProgress.Controls.Add(this.lblKpiInProgressCaption);
-            this.pnlKpiInProgress.Controls.Add(this.lblKpiInProgressValue);
-            this.pnlKpiInProgress.Margin = new System.Windows.Forms.Padding(0, 0, 16, 0);
-            this.pnlKpiInProgress.Name = "pnlKpiInProgress";
-            this.pnlKpiInProgress.Size = new System.Drawing.Size(190, 96);
-            this.pnlKpiInProgress.TabIndex = 3;
-            this.pnlKpiInProgress.Tag = "kpi";
-            //
-            // lblKpiInProgressValue
-            //
-            this.lblKpiInProgressValue.AutoSize = true;
-            this.lblKpiInProgressValue.Dock = System.Windows.Forms.DockStyle.Top;
-            this.lblKpiInProgressValue.Name = "lblKpiInProgressValue";
-            this.lblKpiInProgressValue.TabIndex = 0;
-            this.lblKpiInProgressValue.Tag = "kpi";
-            this.lblKpiInProgressValue.Text = "-";
-            //
+            // 
+            pnlKpiInProgress.Controls.Add(lblKpiInProgressCaption);
+            pnlKpiInProgress.Controls.Add(lblKpiInProgressValue);
+            pnlKpiInProgress.Location = new Point(618, 0);
+            pnlKpiInProgress.Margin = new Padding(0, 0, 16, 0);
+            pnlKpiInProgress.Name = "pnlKpiInProgress";
+            pnlKpiInProgress.Size = new Size(190, 96);
+            pnlKpiInProgress.TabIndex = 3;
+            pnlKpiInProgress.Tag = "kpi";
+            // 
             // lblKpiInProgressCaption
-            //
-            this.lblKpiInProgressCaption.AutoSize = true;
-            this.lblKpiInProgressCaption.Dock = System.Windows.Forms.DockStyle.Top;
-            this.lblKpiInProgressCaption.Name = "lblKpiInProgressCaption";
-            this.lblKpiInProgressCaption.TabIndex = 1;
-            this.lblKpiInProgressCaption.Tag = "muted";
-            this.lblKpiInProgressCaption.Text = "In progress";
-            //
+            // 
+            lblKpiInProgressCaption.AutoSize = true;
+            lblKpiInProgressCaption.Dock = DockStyle.Top;
+            lblKpiInProgressCaption.Location = new Point(0, 15);
+            lblKpiInProgressCaption.Name = "lblKpiInProgressCaption";
+            lblKpiInProgressCaption.Size = new Size(65, 15);
+            lblKpiInProgressCaption.TabIndex = 1;
+            lblKpiInProgressCaption.Tag = "muted";
+            lblKpiInProgressCaption.Text = "In progress";
+            // 
+            // lblKpiInProgressValue
+            // 
+            lblKpiInProgressValue.AutoSize = true;
+            lblKpiInProgressValue.Dock = DockStyle.Top;
+            lblKpiInProgressValue.Location = new Point(0, 0);
+            lblKpiInProgressValue.Name = "lblKpiInProgressValue";
+            lblKpiInProgressValue.Size = new Size(12, 15);
+            lblKpiInProgressValue.TabIndex = 0;
+            lblKpiInProgressValue.Tag = "kpi";
+            lblKpiInProgressValue.Text = "-";
+            // 
             // pnlKpiResolved
-            //
-            this.pnlKpiResolved.Controls.Add(this.lblKpiResolvedCaption);
-            this.pnlKpiResolved.Controls.Add(this.lblKpiResolvedValue);
-            this.pnlKpiResolved.Margin = new System.Windows.Forms.Padding(0, 0, 16, 0);
-            this.pnlKpiResolved.Name = "pnlKpiResolved";
-            this.pnlKpiResolved.Size = new System.Drawing.Size(190, 96);
-            this.pnlKpiResolved.TabIndex = 4;
-            this.pnlKpiResolved.Tag = "kpi";
-            //
-            // lblKpiResolvedValue
-            //
-            this.lblKpiResolvedValue.AutoSize = true;
-            this.lblKpiResolvedValue.Dock = System.Windows.Forms.DockStyle.Top;
-            this.lblKpiResolvedValue.Name = "lblKpiResolvedValue";
-            this.lblKpiResolvedValue.TabIndex = 0;
-            this.lblKpiResolvedValue.Tag = "kpi";
-            this.lblKpiResolvedValue.Text = "-";
-            //
+            // 
+            pnlKpiResolved.Controls.Add(lblKpiResolvedCaption);
+            pnlKpiResolved.Controls.Add(lblKpiResolvedValue);
+            pnlKpiResolved.Location = new Point(824, 0);
+            pnlKpiResolved.Margin = new Padding(0, 0, 16, 0);
+            pnlKpiResolved.Name = "pnlKpiResolved";
+            pnlKpiResolved.Size = new Size(190, 96);
+            pnlKpiResolved.TabIndex = 4;
+            pnlKpiResolved.Tag = "kpi";
+            // 
             // lblKpiResolvedCaption
-            //
-            this.lblKpiResolvedCaption.AutoSize = true;
-            this.lblKpiResolvedCaption.Dock = System.Windows.Forms.DockStyle.Top;
-            this.lblKpiResolvedCaption.Name = "lblKpiResolvedCaption";
-            this.lblKpiResolvedCaption.TabIndex = 1;
-            this.lblKpiResolvedCaption.Tag = "muted";
-            this.lblKpiResolvedCaption.Text = "Resolved";
-            //
+            // 
+            lblKpiResolvedCaption.AutoSize = true;
+            lblKpiResolvedCaption.Dock = DockStyle.Top;
+            lblKpiResolvedCaption.Location = new Point(0, 15);
+            lblKpiResolvedCaption.Name = "lblKpiResolvedCaption";
+            lblKpiResolvedCaption.Size = new Size(54, 15);
+            lblKpiResolvedCaption.TabIndex = 1;
+            lblKpiResolvedCaption.Tag = "muted";
+            lblKpiResolvedCaption.Text = "Resolved";
+            // 
+            // lblKpiResolvedValue
+            // 
+            lblKpiResolvedValue.AutoSize = true;
+            lblKpiResolvedValue.Dock = DockStyle.Top;
+            lblKpiResolvedValue.Location = new Point(0, 0);
+            lblKpiResolvedValue.Name = "lblKpiResolvedValue";
+            lblKpiResolvedValue.Size = new Size(12, 15);
+            lblKpiResolvedValue.TabIndex = 0;
+            lblKpiResolvedValue.Tag = "kpi";
+            lblKpiResolvedValue.Text = "-";
+            // 
             // pnlKpiClosed
-            //
-            this.pnlKpiClosed.Controls.Add(this.lblKpiClosedCaption);
-            this.pnlKpiClosed.Controls.Add(this.lblKpiClosedValue);
-            this.pnlKpiClosed.Margin = new System.Windows.Forms.Padding(0, 0, 16, 0);
-            this.pnlKpiClosed.Name = "pnlKpiClosed";
-            this.pnlKpiClosed.Size = new System.Drawing.Size(190, 96);
-            this.pnlKpiClosed.TabIndex = 5;
-            this.pnlKpiClosed.Tag = "kpi";
-            //
-            // lblKpiClosedValue
-            //
-            this.lblKpiClosedValue.AutoSize = true;
-            this.lblKpiClosedValue.Dock = System.Windows.Forms.DockStyle.Top;
-            this.lblKpiClosedValue.Name = "lblKpiClosedValue";
-            this.lblKpiClosedValue.TabIndex = 0;
-            this.lblKpiClosedValue.Tag = "kpi";
-            this.lblKpiClosedValue.Text = "-";
-            //
+            // 
+            pnlKpiClosed.Controls.Add(lblKpiClosedCaption);
+            pnlKpiClosed.Controls.Add(lblKpiClosedValue);
+            pnlKpiClosed.Location = new Point(0, 96);
+            pnlKpiClosed.Margin = new Padding(0, 0, 16, 0);
+            pnlKpiClosed.Name = "pnlKpiClosed";
+            pnlKpiClosed.Size = new Size(190, 96);
+            pnlKpiClosed.TabIndex = 5;
+            pnlKpiClosed.Tag = "kpi";
+            // 
             // lblKpiClosedCaption
-            //
-            this.lblKpiClosedCaption.AutoSize = true;
-            this.lblKpiClosedCaption.Dock = System.Windows.Forms.DockStyle.Top;
-            this.lblKpiClosedCaption.Name = "lblKpiClosedCaption";
-            this.lblKpiClosedCaption.TabIndex = 1;
-            this.lblKpiClosedCaption.Tag = "muted";
-            this.lblKpiClosedCaption.Text = "Closed";
-            //
+            // 
+            lblKpiClosedCaption.AutoSize = true;
+            lblKpiClosedCaption.Dock = DockStyle.Top;
+            lblKpiClosedCaption.Location = new Point(0, 15);
+            lblKpiClosedCaption.Name = "lblKpiClosedCaption";
+            lblKpiClosedCaption.Size = new Size(43, 15);
+            lblKpiClosedCaption.TabIndex = 1;
+            lblKpiClosedCaption.Tag = "muted";
+            lblKpiClosedCaption.Text = "Closed";
+            // 
+            // lblKpiClosedValue
+            // 
+            lblKpiClosedValue.AutoSize = true;
+            lblKpiClosedValue.Dock = DockStyle.Top;
+            lblKpiClosedValue.Location = new Point(0, 0);
+            lblKpiClosedValue.Name = "lblKpiClosedValue";
+            lblKpiClosedValue.Size = new Size(12, 15);
+            lblKpiClosedValue.TabIndex = 0;
+            lblKpiClosedValue.Tag = "kpi";
+            lblKpiClosedValue.Text = "-";
+            // 
             // tlpLower
-            //
-            this.tlpLower.ColumnCount = 2;
-            this.tlpLower.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tlpLower.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 300F));
-            this.tlpLower.Controls.Add(this.pnlListCard, 0, 0);
-            this.tlpLower.Controls.Add(this.pnlCategoryCard, 1, 0);
-            this.tlpLower.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tlpLower.Margin = new System.Windows.Forms.Padding(0);
-            this.tlpLower.Name = "tlpLower";
-            this.tlpLower.RowCount = 1;
-            this.tlpLower.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tlpLower.TabIndex = 1;
-            //
+            // 
+            tlpLower.ColumnCount = 2;
+            tlpLower.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tlpLower.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 300F));
+            tlpLower.Controls.Add(pnlListCard, 0, 0);
+            tlpLower.Controls.Add(pnlCategoryCard, 1, 0);
+            tlpLower.Dock = DockStyle.Fill;
+            tlpLower.Location = new Point(28, 232);
+            tlpLower.Margin = new Padding(0);
+            tlpLower.Name = "tlpLower";
+            tlpLower.RowCount = 1;
+            tlpLower.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tlpLower.Size = new Size(1144, 360);
+            tlpLower.TabIndex = 1;
+            // 
             // pnlListCard
-            //
-            this.pnlListCard.Controls.Add(this.dgvRequests);
-            this.pnlListCard.Controls.Add(this.flowToolbar);
-            this.pnlListCard.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlListCard.Margin = new System.Windows.Forms.Padding(0, 0, 16, 0);
-            this.pnlListCard.Name = "pnlListCard";
-            this.pnlListCard.TabIndex = 0;
-            this.pnlListCard.Tag = "card";
-            //
-            // flowToolbar
-            //
-            this.flowToolbar.AutoSize = true;
-            this.flowToolbar.Controls.Add(this.lblFilter);
-            this.flowToolbar.Controls.Add(this.cboStatus);
-            this.flowToolbar.Controls.Add(this.txtSearch);
-            this.flowToolbar.Controls.Add(this.btnApply);
-            this.flowToolbar.Controls.Add(this.btnOpen);
-            this.flowToolbar.Controls.Add(this.lblStatus);
-            this.flowToolbar.Dock = System.Windows.Forms.DockStyle.Top;
-            this.flowToolbar.Name = "flowToolbar";
-            this.flowToolbar.Padding = new System.Windows.Forms.Padding(0, 0, 0, 12);
-            this.flowToolbar.TabIndex = 1;
-            //
-            // lblFilter
-            //
-            this.lblFilter.AutoSize = true;
-            this.lblFilter.Margin = new System.Windows.Forms.Padding(0, 8, 8, 0);
-            this.lblFilter.Name = "lblFilter";
-            this.lblFilter.TabIndex = 0;
-            this.lblFilter.Text = "Status";
-            //
-            // cboStatus
-            //
-            this.cboStatus.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cboStatus.FormattingEnabled = true;
-            this.cboStatus.Margin = new System.Windows.Forms.Padding(0, 4, 16, 0);
-            this.cboStatus.Name = "cboStatus";
-            this.cboStatus.Size = new System.Drawing.Size(170, 31);
-            this.cboStatus.TabIndex = 1;
-            //
-            // txtSearch
-            //
-            this.txtSearch.Margin = new System.Windows.Forms.Padding(0, 4, 16, 0);
-            this.txtSearch.Name = "txtSearch";
-            this.txtSearch.PlaceholderText = "Search description or location";
-            this.txtSearch.Size = new System.Drawing.Size(280, 30);
-            this.txtSearch.TabIndex = 2;
-            //
-            // btnApply
-            //
-            this.btnApply.Margin = new System.Windows.Forms.Padding(0, 0, 10, 0);
-            this.btnApply.Name = "btnApply";
-            this.btnApply.Size = new System.Drawing.Size(110, 36);
-            this.btnApply.TabIndex = 3;
-            this.btnApply.Tag = "secondary";
-            this.btnApply.Text = "&Apply";
-            this.btnApply.Click += new System.EventHandler(this.btnApply_Click);
-            //
-            // btnOpen
-            //
-            this.btnOpen.Margin = new System.Windows.Forms.Padding(0, 0, 16, 0);
-            this.btnOpen.Name = "btnOpen";
-            this.btnOpen.Size = new System.Drawing.Size(130, 36);
-            this.btnOpen.TabIndex = 4;
-            this.btnOpen.Tag = "primary";
-            this.btnOpen.Text = "&Open";
-            this.btnOpen.Click += new System.EventHandler(this.btnOpen_Click);
-            //
-            // lblStatus
-            //
-            this.lblStatus.AutoSize = true;
-            this.lblStatus.Margin = new System.Windows.Forms.Padding(0, 8, 0, 0);
-            this.lblStatus.Name = "lblStatus";
-            this.lblStatus.TabIndex = 5;
-            this.lblStatus.Tag = "muted";
-            //
+            // 
+            pnlListCard.Controls.Add(dgvRequests);
+            pnlListCard.Controls.Add(flowToolbar);
+            pnlListCard.Dock = DockStyle.Fill;
+            pnlListCard.Location = new Point(0, 0);
+            pnlListCard.Margin = new Padding(0, 0, 16, 0);
+            pnlListCard.Name = "pnlListCard";
+            pnlListCard.Size = new Size(828, 360);
+            pnlListCard.TabIndex = 0;
+            pnlListCard.Tag = "card";
+            // 
             // dgvRequests
-            //
-            this.dgvRequests.AllowUserToAddRows = false;
-            this.dgvRequests.AllowUserToDeleteRows = false;
-            this.dgvRequests.AllowUserToResizeRows = false;
-            this.dgvRequests.AutoGenerateColumns = false;
-            this.dgvRequests.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
-            this.dgvRequests.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvRequests.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-                this.colId,
-                this.colCategory,
-                this.colLocation,
-                this.colStatus,
-                this.colAssigned,
-                this.colSubmitted});
-            this.dgvRequests.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dgvRequests.MultiSelect = false;
-            this.dgvRequests.Name = "dgvRequests";
-            this.dgvRequests.ReadOnly = true;
-            this.dgvRequests.RowHeadersVisible = false;
-            this.dgvRequests.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvRequests.TabIndex = 0;
-            this.dgvRequests.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvRequests_CellDoubleClick);
-            //
-            // colId
-            //
-            this.colId.DataPropertyName = "Id";
-            this.colId.FillWeight = 35F;
-            this.colId.HeaderText = "Ref";
-            this.colId.Name = "colId";
-            this.colId.ReadOnly = true;
-            //
-            // colCategory
-            //
-            this.colCategory.DataPropertyName = "Category";
-            this.colCategory.FillWeight = 80F;
-            this.colCategory.HeaderText = "Category";
-            this.colCategory.Name = "colCategory";
-            this.colCategory.ReadOnly = true;
-            //
-            // colLocation
-            //
-            this.colLocation.DataPropertyName = "Location";
-            this.colLocation.FillWeight = 120F;
-            this.colLocation.HeaderText = "Location";
-            this.colLocation.Name = "colLocation";
-            this.colLocation.ReadOnly = true;
-            //
-            // colStatus
-            //
-            this.colStatus.DataPropertyName = "Status";
-            this.colStatus.FillWeight = 65F;
-            this.colStatus.HeaderText = "Status";
-            this.colStatus.Name = "colStatus";
-            this.colStatus.ReadOnly = true;
-            //
-            // colAssigned
-            //
-            this.colAssigned.DataPropertyName = "Assigned";
-            this.colAssigned.FillWeight = 65F;
-            this.colAssigned.HeaderText = "Assigned to";
-            this.colAssigned.Name = "colAssigned";
-            this.colAssigned.ReadOnly = true;
-            //
-            // colSubmitted
-            //
-            this.colSubmitted.DataPropertyName = "Submitted";
-            this.colSubmitted.FillWeight = 85F;
-            this.colSubmitted.HeaderText = "Submitted";
-            this.colSubmitted.Name = "colSubmitted";
-            this.colSubmitted.ReadOnly = true;
-            //
+            // 
+            dgvRequests.AllowUserToAddRows = false;
+            dgvRequests.AllowUserToDeleteRows = false;
+            dgvRequests.AllowUserToResizeRows = false;
+            dgvRequests.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dgvRequests.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dgvRequests.Dock = DockStyle.Fill;
+            dgvRequests.Location = new Point(0, 84);
+            dgvRequests.MultiSelect = false;
+            dgvRequests.Name = "dgvRequests";
+            dgvRequests.ReadOnly = true;
+            dgvRequests.RowHeadersVisible = false;
+            dgvRequests.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgvRequests.Size = new Size(828, 276);
+            dgvRequests.TabIndex = 0;
+            dgvRequests.CellDoubleClick += dgvRequests_CellDoubleClick;
+            // 
+            // flowToolbar
+            // 
+            flowToolbar.AutoSize = true;
+            flowToolbar.Controls.Add(lblFilter);
+            flowToolbar.Controls.Add(cboStatus);
+            flowToolbar.Controls.Add(txtSearch);
+            flowToolbar.Controls.Add(btnApply);
+            flowToolbar.Controls.Add(btnOpen);
+            flowToolbar.Controls.Add(btnAudit);
+            flowToolbar.Controls.Add(lblStatus);
+            flowToolbar.Dock = DockStyle.Top;
+            flowToolbar.Location = new Point(0, 0);
+            flowToolbar.Name = "flowToolbar";
+            flowToolbar.Padding = new Padding(0, 0, 0, 12);
+            flowToolbar.Size = new Size(828, 84);
+            flowToolbar.TabIndex = 1;
+            // 
+            // lblFilter
+            // 
+            lblFilter.AutoSize = true;
+            lblFilter.Location = new Point(0, 8);
+            lblFilter.Margin = new Padding(0, 8, 8, 0);
+            lblFilter.Name = "lblFilter";
+            lblFilter.Size = new Size(39, 15);
+            lblFilter.TabIndex = 0;
+            lblFilter.Text = "Status";
+            // 
+            // cboStatus
+            // 
+            cboStatus.DropDownStyle = ComboBoxStyle.DropDownList;
+            cboStatus.FormattingEnabled = true;
+            cboStatus.Location = new Point(47, 4);
+            cboStatus.Margin = new Padding(0, 4, 16, 0);
+            cboStatus.Name = "cboStatus";
+            cboStatus.Size = new Size(170, 23);
+            cboStatus.TabIndex = 1;
+            // 
+            // txtSearch
+            // 
+            txtSearch.Location = new Point(233, 4);
+            txtSearch.Margin = new Padding(0, 4, 16, 0);
+            txtSearch.Name = "txtSearch";
+            txtSearch.PlaceholderText = "Search description or location";
+            txtSearch.Size = new Size(280, 23);
+            txtSearch.TabIndex = 2;
+            // 
+            // btnApply
+            // 
+            btnApply.Location = new Point(529, 0);
+            btnApply.Margin = new Padding(0, 0, 10, 0);
+            btnApply.Name = "btnApply";
+            btnApply.Size = new Size(110, 36);
+            btnApply.TabIndex = 3;
+            btnApply.Tag = "secondary";
+            btnApply.Text = "&Apply";
+            btnApply.Click += btnApply_Click;
+            // 
+            // btnOpen
+            // 
+            btnOpen.Location = new Point(649, 0);
+            btnOpen.Margin = new Padding(0, 0, 16, 0);
+            btnOpen.Name = "btnOpen";
+            btnOpen.Size = new Size(130, 36);
+            btnOpen.TabIndex = 4;
+            btnOpen.Tag = "primary";
+            btnOpen.Text = "&Open";
+            btnOpen.Click += btnOpen_Click;
+            // 
+            // btnAudit
+            // 
+            btnAudit.Location = new Point(0, 36);
+            btnAudit.Margin = new Padding(0, 0, 16, 0);
+            btnAudit.Name = "btnAudit";
+            btnAudit.Size = new Size(150, 36);
+            btnAudit.TabIndex = 6;
+            btnAudit.Tag = "secondary";
+            btnAudit.Text = "Audit &trail";
+            btnAudit.Click += btnAudit_Click;
+            // 
+            // lblStatus
+            // 
+            lblStatus.AutoSize = true;
+            lblStatus.Location = new Point(166, 44);
+            lblStatus.Margin = new Padding(0, 8, 0, 0);
+            lblStatus.Name = "lblStatus";
+            lblStatus.Size = new Size(0, 15);
+            lblStatus.TabIndex = 5;
+            lblStatus.Tag = "muted";
+            // 
             // pnlCategoryCard
-            //
-            this.pnlCategoryCard.Controls.Add(this.lstCategories);
-            this.pnlCategoryCard.Controls.Add(this.lblCategoryHeading);
-            this.pnlCategoryCard.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlCategoryCard.Margin = new System.Windows.Forms.Padding(0);
-            this.pnlCategoryCard.Name = "pnlCategoryCard";
-            this.pnlCategoryCard.TabIndex = 1;
-            this.pnlCategoryCard.Tag = "card";
-            //
-            // lblCategoryHeading
-            //
-            this.lblCategoryHeading.AutoSize = true;
-            this.lblCategoryHeading.Dock = System.Windows.Forms.DockStyle.Top;
-            this.lblCategoryHeading.Name = "lblCategoryHeading";
-            this.lblCategoryHeading.Padding = new System.Windows.Forms.Padding(0, 0, 0, 10);
-            this.lblCategoryHeading.TabIndex = 1;
-            this.lblCategoryHeading.Tag = "heading";
-            this.lblCategoryHeading.Text = "Requests by category";
-            //
+            // 
+            pnlCategoryCard.Controls.Add(lstCategories);
+            pnlCategoryCard.Controls.Add(lblCategoryHeading);
+            pnlCategoryCard.Dock = DockStyle.Fill;
+            pnlCategoryCard.Location = new Point(844, 0);
+            pnlCategoryCard.Margin = new Padding(0);
+            pnlCategoryCard.Name = "pnlCategoryCard";
+            pnlCategoryCard.Size = new Size(300, 360);
+            pnlCategoryCard.TabIndex = 1;
+            pnlCategoryCard.Tag = "card";
+            // 
             // lstCategories
-            //
-            this.lstCategories.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lstCategories.FormattingEnabled = true;
-            this.lstCategories.Name = "lstCategories";
-            this.lstCategories.TabIndex = 0;
-            //
+            // 
+            lstCategories.Dock = DockStyle.Fill;
+            lstCategories.FormattingEnabled = true;
+            lstCategories.Location = new Point(0, 25);
+            lstCategories.Name = "lstCategories";
+            lstCategories.Size = new Size(300, 335);
+            lstCategories.TabIndex = 0;
+            // 
+            // lblCategoryHeading
+            // 
+            lblCategoryHeading.AutoSize = true;
+            lblCategoryHeading.Dock = DockStyle.Top;
+            lblCategoryHeading.Location = new Point(0, 0);
+            lblCategoryHeading.Name = "lblCategoryHeading";
+            lblCategoryHeading.Padding = new Padding(0, 0, 0, 10);
+            lblCategoryHeading.Size = new Size(119, 25);
+            lblCategoryHeading.TabIndex = 1;
+            lblCategoryHeading.Tag = "heading";
+            lblCategoryHeading.Text = "Requests by category";
+            // 
             // ManagerDashboardForm
-            //
-            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.CancelButton = this.btnBack;
-            this.ClientSize = new System.Drawing.Size(1200, 700);
-            this.Controls.Add(this.tlpMain);
-            this.Controls.Add(this.pnlHeader);
-            this.MinimumSize = new System.Drawing.Size(1000, 640);
-            this.Name = "ManagerDashboardForm";
-            this.ShowInTaskbar = false;
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "CivicConnect - Overview";
-            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
-            this.pnlHeader.ResumeLayout(false);
-            this.pnlHeader.PerformLayout();
-            this.tlpMain.ResumeLayout(false);
-            this.tlpMain.PerformLayout();
-            this.flowKpis.ResumeLayout(false);
-            this.pnlKpiTotal.ResumeLayout(false);
-            this.pnlKpiTotal.PerformLayout();
-            this.pnlKpiSubmitted.ResumeLayout(false);
-            this.pnlKpiSubmitted.PerformLayout();
-            this.pnlKpiAssigned.ResumeLayout(false);
-            this.pnlKpiAssigned.PerformLayout();
-            this.pnlKpiInProgress.ResumeLayout(false);
-            this.pnlKpiInProgress.PerformLayout();
-            this.pnlKpiResolved.ResumeLayout(false);
-            this.pnlKpiResolved.PerformLayout();
-            this.pnlKpiClosed.ResumeLayout(false);
-            this.pnlKpiClosed.PerformLayout();
-            this.tlpLower.ResumeLayout(false);
-            this.pnlListCard.ResumeLayout(false);
-            this.pnlListCard.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvRequests)).EndInit();
-            this.flowToolbar.ResumeLayout(false);
-            this.flowToolbar.PerformLayout();
-            this.pnlCategoryCard.ResumeLayout(false);
-            this.pnlCategoryCard.PerformLayout();
-            this.ResumeLayout(false);
+            // 
+            AutoScaleDimensions = new SizeF(96F, 96F);
+            AutoScaleMode = AutoScaleMode.Dpi;
+            CancelButton = btnBack;
+            ClientSize = new Size(1200, 700);
+            Controls.Add(tlpMain);
+            Controls.Add(pnlHeader);
+            MinimumSize = new Size(1000, 640);
+            Name = "ManagerDashboardForm";
+            ShowInTaskbar = false;
+            StartPosition = FormStartPosition.CenterParent;
+            Text = "CivicConnect - Overview";
+            WindowState = FormWindowState.Maximized;
+            pnlHeader.ResumeLayout(false);
+            pnlHeader.PerformLayout();
+            tlpMain.ResumeLayout(false);
+            tlpMain.PerformLayout();
+            flowKpis.ResumeLayout(false);
+            pnlKpiTotal.ResumeLayout(false);
+            pnlKpiTotal.PerformLayout();
+            pnlKpiSubmitted.ResumeLayout(false);
+            pnlKpiSubmitted.PerformLayout();
+            pnlKpiAssigned.ResumeLayout(false);
+            pnlKpiAssigned.PerformLayout();
+            pnlKpiInProgress.ResumeLayout(false);
+            pnlKpiInProgress.PerformLayout();
+            pnlKpiResolved.ResumeLayout(false);
+            pnlKpiResolved.PerformLayout();
+            pnlKpiClosed.ResumeLayout(false);
+            pnlKpiClosed.PerformLayout();
+            tlpLower.ResumeLayout(false);
+            pnlListCard.ResumeLayout(false);
+            pnlListCard.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)dgvRequests).EndInit();
+            flowToolbar.ResumeLayout(false);
+            flowToolbar.PerformLayout();
+            pnlCategoryCard.ResumeLayout(false);
+            pnlCategoryCard.PerformLayout();
+            ResumeLayout(false);
         }
 
         #endregion
@@ -590,6 +595,7 @@ namespace CivicConnect.App.Forms
         private System.Windows.Forms.TextBox txtSearch;
         private System.Windows.Forms.Button btnApply;
         private System.Windows.Forms.Button btnOpen;
+        private System.Windows.Forms.Button btnAudit;
         private System.Windows.Forms.Label lblStatus;
         private System.Windows.Forms.Panel pnlCategoryCard;
         private System.Windows.Forms.ListBox lstCategories;

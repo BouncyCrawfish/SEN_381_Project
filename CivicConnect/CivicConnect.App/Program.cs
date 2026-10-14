@@ -36,6 +36,7 @@ internal static class Program
         builder.Services.AddMessageBoxNotification();
         builder.Services.AddAuthModule(connectionString);
         builder.Services.AddRequestsModule(connectionString);   // needs the Auth module registered first
+        builder.Services.AddAuditLogModule(connectionString);
         builder.Services.AddSingleton<IFormFactory, FormFactory>();
         // Other modules register here later, e.g. builder.Services.AddRequestsModule(connectionString);
 

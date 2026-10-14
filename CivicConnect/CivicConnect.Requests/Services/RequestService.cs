@@ -19,7 +19,7 @@ public sealed class RequestService(
     IValidator<SubmitRequestDto> submitValidator,
     IValidator<AssignRequestDto> assignValidator,
     IValidator<UpdateRequestStatusDto> statusValidator,
-    IValidator<AddNoteDto> noteValidator) : IRequestService
+    IValidator<AddNoteDto> noteValidator,IDomainEventDispatcher events) : IRequestService
 {
     private DateTime Now => clock.GetUtcNow().UtcDateTime;
 
@@ -203,18 +203,32 @@ public sealed class RequestService(
         var request = await repository.FindByIdAsync(requestId, ct);
         if (request is null) return Result.Failure(RequestErrors.NotFound);
 
-        var result = operation(request, session.CurrentUser!.Id);
+        var actor = session.CurrentUser!.Id;
+        var before = request.Status;
+        var result = operation(request, actor);
         if (result.IsFailure) return result;
 
         try
         {
             await repository.UpdateAsync(request, ct);
-            return Result.Success();
         }
         catch (RequestConcurrencyException)
         {
             return Result.Failure(RequestErrors.Conflict);
         }
+
+        // Only a real status change is announced (a note on its own is not).
+        if (request.Status != before)
+            await PublishAsync(new RequestStatusChangedEvent(
+                request.Id, before.ToString(), request.Status.ToString(), actor, clock.GetUtcNow()), ct);
+        return Result.Success();
+    }
+
+    //The change is already saved, so a failing listener must never turn it into a failure (ADR-005).
+    private async Task PublishAsync(IDomainEvent domainEvent, CancellationToken ct)
+    {
+        try { await events.DispatchAsync(domainEvent, ct); }
+        catch (Exception) { /* no logging in the project yet; log here once it exists */ }
     }
 
     private static RequestDto ToDto(Request r, string category) =>
