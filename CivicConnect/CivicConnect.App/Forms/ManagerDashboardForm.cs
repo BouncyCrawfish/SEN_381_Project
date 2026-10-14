@@ -33,6 +33,11 @@ internal sealed partial class ManagerDashboardForm : Form
 
     private async void btnApply_Click(object? sender, EventArgs e) => await LoadAsync();
     private async void btnOpen_Click(object? sender, EventArgs e) => await OpenSelectedAsync();
+    private void btnAudit_Click(object? sender, EventArgs e)
+    {
+        using var form = _forms.CreateAuditTrailForm();
+        form.ShowDialog(this);
+    }
     private async void dgvRequests_CellDoubleClick(object? sender, DataGridViewCellEventArgs e) { if (e.RowIndex >= 0) await OpenSelectedAsync(); }
 
     private async Task LoadAsync()
@@ -57,8 +62,9 @@ internal sealed partial class ManagerDashboardForm : Form
             Theme.ShowMessage(lblStatus, $"{list.Value.Count} request(s)", isError: false);
             lblStatus.ForeColor = Theme.Muted;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            System.Diagnostics.Debug.WriteLine(ex);   // temporary: full error goes to the Output window
             Theme.ShowMessage(lblStatus, Ui.Unavailable, isError: true);
         }
         finally

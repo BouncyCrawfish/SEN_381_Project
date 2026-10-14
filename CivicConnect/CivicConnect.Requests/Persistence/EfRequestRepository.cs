@@ -94,8 +94,11 @@ internal sealed class EfRequestRepository(IDbContextFactory<RequestsDbContext> f
     public async Task<IReadOnlyList<RequestDto>> ListAllAsync(RequestQueueFilter filter, CancellationToken ct)
     {
         await using var db = await factory.CreateDbContextAsync(ct);
-        var query = ApplyFilter(db.Requests.AsNoTracking(), filter, hideClosedByDefault: false);
-        return await Project(db, query).OrderByDescending(r => r.CreatedAt).ToListAsync(ct);
+        // Order the entity query before projection (same as the other list methods): EF Core cannot
+        // translate an OrderBy written against the RequestDto.
+        var query = ApplyFilter(db.Requests.AsNoTracking(), filter, hideClosedByDefault: false)
+            .OrderByDescending(r => r.CreatedAt);
+        return await Project(db, query).ToListAsync(ct);
     }
 
     public async Task<RequestSummaryDto> GetSummaryAsync(CancellationToken ct)

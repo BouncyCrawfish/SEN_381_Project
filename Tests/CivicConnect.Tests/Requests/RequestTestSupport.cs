@@ -12,6 +12,21 @@ internal sealed class FixedClock : TimeProvider
     public override DateTimeOffset GetUtcNow() => Now;
 }
 
+internal sealed class FakeEventDispatcher : IDomainEventDispatcher
+{
+    public List<IDomainEvent> Published { get; } = new();
+
+    /// <summary>Set to simulate a listener that fails (the saved change must still succeed).</summary>
+    public bool Throw { get; set; }
+
+    public Task DispatchAsync(IDomainEvent domainEvent, CancellationToken ct = default)
+    {
+        if (Throw) throw new InvalidOperationException("listener failed");
+        Published.Add(domainEvent);
+        return Task.CompletedTask;
+    }
+}
+
 internal sealed class FakeUserService : IUserService
 {
     public List<UserDto> Users { get; } = new();
@@ -83,17 +98,45 @@ internal sealed class FakeRequestRepository : IRequestRepository
         return Task.FromResult<IReadOnlyList<RequestDto>>(q.Select(ToDto).ToList());
     }
 
+    // Implemented to satisfy IRequestRepository.ListAllAsync
+    public Task<IReadOnlyList<RequestDto>> ListAllAsync(RequestQueueFilter filter, CancellationToken ct)
+    {
+        var q = Requests.Values.AsEnumerable();
+        q = filter.Status is { } s ? q.Where(r => r.Status == s) : q.Where(r => r.Status != RequestStatus.Closed);
+        if (!string.IsNullOrWhiteSpace(filter.SearchText))
+            q = q.Where(r => r.Description.Contains(filter.SearchText!, StringComparison.OrdinalIgnoreCase)
+                          || r.Location.Contains(filter.SearchText!, StringComparison.OrdinalIgnoreCase));
+        return Task.FromResult<IReadOnlyList<RequestDto>>(q.Select(ToDto).ToList());
+    }
+
+    public Task<RequestSummaryDto> GetSummaryAsync(CancellationToken ct)
+    {
+        var statuses = Enum.GetValues<RequestStatus>()
+                           .Cast<RequestStatus>()
+                           .ToDictionary(s => s.ToString(),
+                                         s => Requests.Values.Count(r => r.Status == s));
+
+        var total = statuses.Values.Sum();
+
+        var byCategory = Requests.Values
+                                 .GroupBy(r => Categories.First(c => c.Id == r.CategoryId).Name)
+                                 .OrderBy(g => g.Key)
+                                 .ToDictionary(g => g.Key, g => g.Count());
+
+        return Task.FromResult(new RequestSummaryDto(total, statuses, byCategory));
+    }
+
     private RequestDto ToDto(Request r) =>
         new(r.Id, Categories.First(c => c.Id == r.CategoryId).Name, r.Location, r.Description,
             r.Status.ToString(), r.RequesterId, r.AssignedStaffId, r.CreatedAt);
 }
-
 /// <summary>Real service + real validators + real Auth access control, with an in-memory repository.</summary>
 internal sealed class RequestHarness
 {
     public FakeRequestRepository Repo { get; } = new();
     public FakeUserService Users { get; } = new();
     public FixedClock Clock { get; } = new();
+    public FakeEventDispatcher Events { get; } = new();
     public SessionContext Session { get; } = new();
     public RequestService Service { get; }
 
@@ -111,8 +154,8 @@ internal sealed class RequestHarness
         });
 
         Service = new RequestService(Repo, new AccessControl(Session), Session, Users, Clock,
-            new SubmitRequestDtoValidator(), new AssignRequestDtoValidator(),
-            new UpdateRequestStatusDtoValidator(), new AddNoteDtoValidator());
+    new SubmitRequestDtoValidator(), new AssignRequestDtoValidator(),
+    new UpdateRequestStatusDtoValidator(), new AddNoteDtoValidator(), Events);
     }
 
     public void SignInAs(long userId) => Session.SignIn(Users.Users.Single(u => u.Id == userId));
