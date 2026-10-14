@@ -1,6 +1,6 @@
 namespace CivicConnect.Requests.Domain;
 
-/// <summary>Maps to request_history. Append-only (NFR-005): there are no setters and no edit methods.</summary>
+//Maps to request_history. Append-only (NFR-005): there are no setters and no edit methods.
 public sealed class RequestHistoryEntry
 {
     private RequestHistoryEntry() { }   // EF Core
@@ -16,7 +16,7 @@ public sealed class RequestHistoryEntry
         new() { OldStatus = oldStatus, NewStatus = newStatus, ChangedBy = changedBy, Timestamp = timestampUtc };
 }
 
-/// <summary>Maps to notes. Append-only: the application role has no UPDATE or DELETE on this table.</summary>
+//Maps to notes. Append-only: the application role has no UPDATE or DELETE on this table.
 public sealed class RequestNote
 {
     private RequestNote() { }   // EF Core
@@ -31,7 +31,7 @@ public sealed class RequestNote
         new() { AuthorId = authorId, Note = note, Timestamp = timestampUtc };
 }
 
-/// <summary>Maps to category (controlled list, FR-002).</summary>
+//Maps to category (controlled list, FR-002).
 public sealed class RequestCategory
 {
     private RequestCategory() { }   // EF Core

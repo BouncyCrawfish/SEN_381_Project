@@ -4,13 +4,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CivicConnect.Requests.Persistence;
 
-/// <summary>
 /// One short-lived DbContext per call (factory), which suits WinForms. Security notes:
 ///  - every value reaches PostgreSQL as a parameter (EF Core); no SQL is built from strings;
 ///  - search text is escaped for LIKE wildcards, so "%" and "_" cannot be used to scan everything;
 ///  - UPDATE only touches status and assigned_staff_id, the only request columns the
 ///    civicconnect_app role is granted (db/03_schema.sql); history and notes are INSERT-only.
-/// </summary>
 internal sealed class EfRequestRepository(IDbContextFactory<RequestsDbContext> factory) : IRequestRepository
 {
     public async Task<Request?> FindByIdAsync(long id, CancellationToken ct)
@@ -93,6 +91,48 @@ internal sealed class EfRequestRepository(IDbContextFactory<RequestsDbContext> f
         return await Project(db, query.OrderBy(r => r.CreatedAt)).ToListAsync(ct);
     }
 
+    public async Task<IReadOnlyList<RequestDto>> ListAllAsync(RequestQueueFilter filter, CancellationToken ct)
+    {
+        await using var db = await factory.CreateDbContextAsync(ct);
+        var query = ApplyFilter(db.Requests.AsNoTracking(), filter, hideClosedByDefault: false);
+        return await Project(db, query).OrderByDescending(r => r.CreatedAt).ToListAsync(ct);
+    }
+
+    public async Task<RequestSummaryDto> GetSummaryAsync(CancellationToken ct)
+    {
+        await using var db = await factory.CreateDbContextAsync(ct);
+
+        var byStatus = await db.Requests.AsNoTracking()
+            .GroupBy(r => r.Status).Select(g => new { Key = g.Key, Count = g.Count() }).ToListAsync(ct);
+        var byCategory = await (from r in db.Requests.AsNoTracking()
+                                join c in db.Categories.AsNoTracking() on r.CategoryId equals c.Id
+                                group r by c.Name into g
+                                select new { Key = g.Key, Count = g.Count() }).ToListAsync(ct);
+
+        // Every status appears (0 when empty) so the report always has the same shape.
+        var statuses = Enum.GetValues<RequestStatus>().ToDictionary(
+            s => s.ToString(), s => byStatus.FirstOrDefault(x => x.Key == s)?.Count ?? 0);
+        return new RequestSummaryDto(statuses.Values.Sum(), statuses,
+            byCategory.OrderBy(x => x.Key).ToDictionary(x => x.Key, x => x.Count));
+    }
+
+
+    //Shared by the staff queue and the manager list. Search text is a bound, escaped parameter.
+    private static IQueryable<Request> ApplyFilter(IQueryable<Request> query, RequestQueueFilter filter, bool hideClosedByDefault)
+    {
+        if (filter.Status is { } status)
+            query = query.Where(r => r.Status == status);
+        else if (hideClosedByDefault)
+            query = query.Where(r => r.Status != RequestStatus.Closed);
+
+        if (!string.IsNullOrWhiteSpace(filter.SearchText))
+        {
+            var pattern = "%" + EscapeLike(filter.SearchText!) + "%";
+            query = query.Where(r => EF.Functions.ILike(r.Description, pattern, "\\")
+                                  || EF.Functions.ILike(r.Location, pattern, "\\"));
+        }
+        return query;
+    }
     private static IQueryable<RequestDto> Project(RequestsDbContext db, IQueryable<Request> requests) =>
         from r in requests
         join c in db.Categories.AsNoTracking() on r.CategoryId equals c.Id

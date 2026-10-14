@@ -3,10 +3,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CivicConnect.Requests.Persistence;
 
-/// <summary>
 /// Maps request, request_history, notes and category. The schema is owned by db/*.sql, so do NOT
 /// generate EF migrations for this context (same rule as AuthDbContext).
-/// </summary>
+
 internal sealed class RequestsDbContext(DbContextOptions<RequestsDbContext> options) : DbContext(options)
 {
     public DbSet<Request> Requests => Set<Request>();

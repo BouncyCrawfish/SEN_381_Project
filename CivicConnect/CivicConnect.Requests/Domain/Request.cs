@@ -2,12 +2,11 @@ using CivicConnect.Common;
 
 namespace CivicConnect.Requests.Domain;
 
-/// <summary>
 /// Aggregate root for a service request. All changes go through methods that enforce the
 /// State Pattern rules, so a request can never be put into an illegal status from outside.
 /// Every successful transition appends a history entry (NFR-005) and, when given, a note (FR-012);
 /// the repository saves the request and those new rows in ONE transaction (ADR-002).
-/// </summary>
+
 public class Request
 {
     private readonly List<RequestHistoryEntry> _history = new();
@@ -24,7 +23,7 @@ public class Request
     public RequestStatus Status { get; private set; } = RequestStatus.Submitted;
     public DateTime CreatedAt { get; private set; }
 
-    /// <summary>PostgreSQL xmin: optimistic concurrency token (ADR-002).</summary>
+    //PostgreSQL xmin: optimistic concurrency token (ADR-002).
     public uint Version { get; private set; }
 
     public IReadOnlyList<RequestHistoryEntry> History => _history;
@@ -32,7 +31,7 @@ public class Request
 
     public IRequestState State => RequestStates.For(Status);
 
-    /// <summary>Creates a new Submitted request with its initial history entry.</summary>
+    //Creates a new Submitted request with its initial history entry.
     public static Request Submit(long categoryId, string location, string description, long requesterId, DateTime nowUtc)
     {
         if (categoryId <= 0) throw new ArgumentOutOfRangeException(nameof(categoryId));
@@ -53,7 +52,7 @@ public class Request
         return request;
     }
 
-    /// <summary>Rebuilds a request that already exists (persistence and tests). Does not add history.</summary>
+    //Rebuilds a request that already exists (persistence and tests). Does not add history.
     public static Request Restore(long id, long categoryId, string location, string description, long requesterId,
         RequestStatus status, long? assignedStaffId, DateTime createdAtUtc, uint version = 0) => new()
     {
@@ -93,11 +92,10 @@ public class Request
         return Result.Success();
     }
 
-    /// <summary>
     /// FR-011: moves the request to <paramref name="next"/> if the current state allows it.
     /// Assigned is refused here because it needs an assignee; use <see cref="Assign"/>.
     /// The assignee is NOT changed by later transitions, so resolving a request never steals it.
-    /// </summary>
+ 
     public virtual Result TransitionTo(RequestStatus next, long actorId, string? note, DateTime? nowUtc = null)
     {
         if (!CanTransitionTo(next))
@@ -109,7 +107,7 @@ public class Request
         return Result.Success();
     }
 
-    /// <summary>FR-012: a note that does not change the status. Closed requests are read-only.</summary>
+    //FR-012: a note that does not change the status. Closed requests are read-only.
     public Result AddNote(long authorId, string note, DateTime nowUtc)
     {
         if (string.IsNullOrWhiteSpace(note))

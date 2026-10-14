@@ -2,12 +2,11 @@ using CivicConnect.Common;
 
 namespace CivicConnect.Requests.Domain;
 
-/// <summary>
 /// Field limits in ONE place. Lengths that exist in db/03_schema.sql / 04_requests_module.sql are
 /// mirrored here so the DB constraint is a safety net and never the first thing a user hits.
 /// ASSUMPTION: MinDescriptionLength and MaxDescriptionLength are not stated in the PED; confirm them
 /// against FR-001 and update TC-07 if they change.
-/// </summary>
+
 public static class RequestRules
 {
     public const int MaxLocationLength = 200;      // request.location VARCHAR(200)

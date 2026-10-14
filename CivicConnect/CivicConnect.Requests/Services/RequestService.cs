@@ -6,12 +6,10 @@ using FluentValidation;
 
 namespace CivicConnect.Requests.Services;
 
-/// <summary>
 /// Application service for requests. Order of every operation (fail closed):
 ///   1. permission check (IAccessControl)  2. validate + trim input  3. row-level ownership rule
 ///   4. domain rule (State Pattern)         5. persist (one transaction).
 /// The acting user ALWAYS comes from the session, never from the DTO.
-/// </summary>
 public sealed class RequestService(
     IRequestRepository repository,
     IAccessControl access,
@@ -68,18 +66,45 @@ public sealed class RequestService(
         var check = access.Require(Permission.ViewStaffQueue);
         if (check.IsFailure) return Fail<IReadOnlyList<RequestDto>>(check.Error);
 
+        var prepared = PrepareFilter(filter);
+        if (prepared.IsFailure) return Fail<IReadOnlyList<RequestDto>>(prepared.Error);
+
+        long? mine = prepared.Value.AssignedToMeOnly ? session.CurrentUser!.Id : null;
+        var list = await repository.ListQueueAsync(prepared.Value, mine, ct);
+        return Result<IReadOnlyList<RequestDto>>.Success(list);
+    }
+
+    public async Task<Result<IReadOnlyList<RequestDto>>> GetAllRequestsAsync(RequestQueueFilter? filter = null, CancellationToken ct = default)
+    {
+        var check = access.Require(Permission.ViewAllRequests);
+        if (check.IsFailure) return Fail<IReadOnlyList<RequestDto>>(check.Error);
+
+        var prepared = PrepareFilter(filter);
+        if (prepared.IsFailure) return Fail<IReadOnlyList<RequestDto>>(prepared.Error);
+
+        var list = await repository.ListAllAsync(prepared.Value, ct);
+        return Result<IReadOnlyList<RequestDto>>.Success(list);
+    }
+
+    public async Task<Result<RequestSummaryDto>> GetSummaryAsync(CancellationToken ct = default)
+    {
+        var check = access.Require(Permission.ViewReports);
+        if (check.IsFailure) return Fail<RequestSummaryDto>(check.Error);
+
+        return Result<RequestSummaryDto>.Success(await repository.GetSummaryAsync(ct));
+    }
+
+    //Validates and cleans a list filter (status in range, search text trimmed and limited).
+    private static Result<RequestQueueFilter> PrepareFilter(RequestQueueFilter? filter)
+    {
         filter ??= new RequestQueueFilter();
         if (filter.Status is { } s && !Enum.IsDefined(s))
-            return Fail<IReadOnlyList<RequestDto>>(RequestErrors.Validation("Choose a valid status."));
+            return Result<RequestQueueFilter>.Failure(RequestErrors.Validation("Choose a valid status."));
         var search = filter.SearchText?.Trim();
         if (search is { Length: > RequestRules.MaxSearchTextLength })
-            return Fail<IReadOnlyList<RequestDto>>(RequestErrors.Validation(
+            return Result<RequestQueueFilter>.Failure(RequestErrors.Validation(
                 $"Search text must be at most {RequestRules.MaxSearchTextLength} characters."));
-
-        var cleaned = filter with { SearchText = string.IsNullOrEmpty(search) ? null : search };
-        long? mine = cleaned.AssignedToMeOnly ? session.CurrentUser!.Id : null;
-        var list = await repository.ListQueueAsync(cleaned, mine, ct);
-        return Result<IReadOnlyList<RequestDto>>.Success(list);
+        return Result<RequestQueueFilter>.Success(filter with { SearchText = string.IsNullOrEmpty(search) ? null : search });
     }
 
     public async Task<Result<RequestDetailDto>> GetRequestDetailAsync(long requestId, CancellationToken ct = default)
@@ -172,7 +197,7 @@ public sealed class RequestService(
         return await ChangeAsync(dto.RequestId, (r, actor) => r.AddNote(actor, dto.Note, Now), ct);
     }
 
-    /// <summary>Load, apply a domain operation as the signed-in user, save once. Maps lost updates to Conflict.</summary>
+    //Load, apply a domain operation as the signed-in user, save once. Maps lost updates to Conflict.
     private async Task<Result> ChangeAsync(long requestId, Func<Request, long, Result> operation, CancellationToken ct)
     {
         var request = await repository.FindByIdAsync(requestId, ct);
@@ -198,7 +223,7 @@ public sealed class RequestService(
     private static Result<T> Fail<T>(Error error) => Result<T>.Failure(error);
 }
 
-/// <summary>AuthErrors is internal to the Auth module, so the same two outcomes are asked of IAccessControl.</summary>
+//AuthErrors is internal to the Auth module, so the same two outcomes are asked of IAccessControl.
 internal static class AuthErrorsProxy
 {
     public static readonly Error NotAuthenticated =

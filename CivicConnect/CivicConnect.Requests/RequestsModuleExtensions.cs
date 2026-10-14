@@ -10,10 +10,9 @@ namespace CivicConnect.Requests;
 
 public static class RequestsModuleExtensions
 {
-    /// <summary>
     /// Call AFTER AddAuthModule: this module needs ISessionContext, IAccessControl and IUserService.
     /// <paramref name="connectionString"/> must use the least-privilege civicconnect_app role.
-    /// </summary>
+
     public static IServiceCollection AddRequestsModule(this IServiceCollection services, string connectionString)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
