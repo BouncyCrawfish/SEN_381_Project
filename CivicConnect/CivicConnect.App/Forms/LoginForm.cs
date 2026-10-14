@@ -2,7 +2,6 @@ using CivicConnect.Auth;
 
 namespace CivicConnect.App.Forms;
 
-/// <summary>
 /// Sign-in screen. Security notes:
 ///  - password box masks input and is capped at the module's max length;
 ///  - the password is cleared after EVERY attempt and when the form closes;
@@ -11,7 +10,6 @@ namespace CivicConnect.App.Forms;
 ///    (they can contain server names or connection details);
 ///  - nothing here logs, stores or remembers credentials.
 /// LIMITATION: .NET strings are immutable, so a password cannot be wiped from memory on demand.
-/// </summary>
 internal sealed class LoginForm : Form
 {
     private readonly IAuthService _auth;

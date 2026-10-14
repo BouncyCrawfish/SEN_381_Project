@@ -2,7 +2,6 @@ using CivicConnect.Auth;
 
 namespace CivicConnect.App.Forms;
 
-/// <summary>
 /// Requester self-registration. Security notes:
 ///  - there is NO role field: the module always creates a Requester, so the UI cannot even ask
 ///    for Staff/Manager (those accounts are provisioned by the DB owner role);
@@ -11,7 +10,7 @@ namespace CivicConnect.App.Forms;
 ///  - passwords are cleared after every attempt and when the form closes; the form cannot be
 ///    closed or double-submitted while the request is in flight;
 ///  - errors are the module's messages only; unexpected exceptions are never shown.
-/// </summary>
+
 internal sealed class RegisterForm : Form
 {
     private readonly IUserService _users;
@@ -131,12 +130,11 @@ internal sealed class RegisterForm : Form
             _status.Text = result.Error.Message;
             _password.Focus();
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             // TODO: log exception type/message (never the DTO or passwords) once logging exists.
             _password.Clear();
             _confirm.Clear();
-            System.Diagnostics.Debug.WriteLine(ex);
             _status.Text = "Registration is unavailable right now. Please try again later.";
         }
         finally

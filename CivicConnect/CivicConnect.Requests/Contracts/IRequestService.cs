@@ -1,15 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using CivicConnect.Requests.Domain;
 using CivicConnect.Common;
 
-namespace CivicConnect.Requests.Contracts
+namespace CivicConnect.Requests.Contracts;
+
+/// Requests module public interface (README "API / Module Interfaces"). Every method checks the
+/// signed-in user's permission itself, so the UI hiding a button is never the only protection.
+public interface IRequestService
 {
-    internal interface IRequestService
-    {
-        Task<Result<int>> SubmitRequestAsync(SubmitRequestDto dto);
-        Task<Result<IEnumerable<RequestDto>>> GetStaffQueueAsync();
-        Task<Result> UpdateRequestStatusAsync(int requestId, RequestStatus newStatus, int staffId, string notes);
-    }
+    Task<Result<IReadOnlyList<CategoryDto>>> ListCategoriesAsync(CancellationToken ct = default);
+    Task<Result<long>> SubmitRequestAsync(SubmitRequestDto dto, CancellationToken ct = default);
+    Task<Result<IReadOnlyList<RequestDto>>> GetMyRequestsAsync(CancellationToken ct = default);
+    Task<Result<IReadOnlyList<RequestDto>>> GetStaffQueueAsync(RequestQueueFilter? filter = null, CancellationToken ct = default);
+    //Manager view: every request including closed ones (ViewAllRequests).
+    Task<Result<IReadOnlyList<RequestDto>>> GetAllRequestsAsync(RequestQueueFilter? filter = null, CancellationToken ct = default);
+    //Manager report: counts by status and category (ViewReports).
+    Task<Result<RequestSummaryDto>> GetSummaryAsync(CancellationToken ct = default);
+    Task<Result<RequestDetailDto>> GetRequestDetailAsync(long requestId, CancellationToken ct = default);
+    Task<Result> AssignRequestAsync(AssignRequestDto dto, CancellationToken ct = default);
+    Task<Result> UpdateRequestStatusAsync(UpdateRequestStatusDto dto, CancellationToken ct = default);
+    Task<Result> AddNoteAsync(AddNoteDto dto, CancellationToken ct = default);
 }

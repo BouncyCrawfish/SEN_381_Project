@@ -8,7 +8,8 @@ Baseline: PED v2.4 (ADR-002, ADR-003, ADR-004, ADR-005; NFR-003, NFR-005, NFR-00
 | `00a_drop_database.sql`, `00b_drop_roles.sql` | Dev-only reset: drops the database, then the roles |
 | `01_roles.sql` | Creates the three login roles (run first, on the `postgres` database) |
 | `02_create_database.sql` | Creates `civicconnect_db` (run alone, on the `postgres` database) |
-| `03_schema.sql` | Tables, constraints, indexes, append-only trigger, grants, seed categories (run on `civicconnect_db`) |
+| `03_schema.sql` | Tables, constraints, indexes, append-only trigger, grants (run on `civicconnect_db`) |
+| `04_requests_module.sql` | Seed categories, length/owner constraints, assignee-must-be-Staff trigger (run on `civicconnect_db`, after 03) |
 
 ---
 
@@ -78,6 +79,10 @@ Run as the PostgreSQL superuser (`postgres`), in order. Works in **pgAdmin's Que
 psql -U postgres -d postgres       -v ON_ERROR_STOP=1 -f db/01_roles.sql
 psql -U postgres -d postgres       -v ON_ERROR_STOP=1 -f db/02_create_database.sql
 psql -U postgres -d civicconnect_db -v ON_ERROR_STOP=1 -f db/03_schema.sql
+```
+
+```bash
+psql -U postgres -d civicconnect_db -v ON_ERROR_STOP=1 -f db/04_requests_module.sql
 ```
 
 Requires PostgreSQL 16+. The scripts are **not re-runnable** on an existing setup. To reset a **dev** database (destroys all data), run on the `postgres` database:
@@ -155,3 +160,46 @@ Tests that prove these belong in the xUnit integration suite and should be linke
 | ADR-002 Atomicity and concurrency | `xmin` token; transaction handled in C# |
 | ADR-003 PostgreSQL + EF Core | PostgreSQL 16+ schema, string-mapped enums |
 | ADR-004 / ADR-005 | Intentionally implemented in C#, not in the database |
+
+---
+
+## 10. Staff and Manager accounts for testing (no passwords in the repo)
+
+Self-registration only creates Requesters, and the app role cannot change roles, so staff and managers are created by the owner side. `05_dev_seed_users.sql` creates four ready-made accounts. **You choose the password when you run it**; nothing secret is committed.
+
+```bash
+psql -U postgres -d civicconnect_db -v ON_ERROR_STOP=1 \
+     -v confirm_dev=yes -v dev_password="YourDevPassword-123" -f db/05_dev_seed_users.sql
+```
+
+| Email | Role | Use it to test |
+|---|---|---|
+| `requester@civicconnect.test` | Requester | Submit a request, see only your own requests |
+| `staff1@civicconnect.test` | Staff | Queue, assign, progress, resolve, close |
+| `staff2@civicconnect.test` | Staff | "Only the assignee can change status", assigning to another staff member |
+| `manager@civicconnect.test` | Manager | Read-only overview and all requests |
+
+The script refuses to run without `confirm_dev=yes`, with a password under 12 characters, or on any database other than `civicconnect_db`. The password is hashed inside PostgreSQL in the same format as the app (SHA-384 pre-hash + bcrypt work factor 12), so the normal login screen accepts it. Re-running it resets these four accounts. The `.test` domain is reserved and can never be a real address. **Never run it against production.**
+
+Promoting a self-registered account instead (as the owner role, then sign out and in again):
+
+```sql
+UPDATE users SET role = 'Staff' WHERE lower(email) = lower('someone@example.com');
+```
+
+## 11. Extra checks for 04_requests_module.sql
+
+| Check | Expected result |
+|---|---|
+| `UPDATE request SET assigned_staff_id = <a Requester id>` | Rejected by `trg_request_assignee_is_staff` |
+| Update a request to `Assigned` with `assigned_staff_id` NULL | Rejected by `request_assignee_present` |
+| Insert a note or description over 1000 characters | Rejected by the length CHECKs |
+| `UPDATE request SET description = 'x'` as `civicconnect_app` | Permission denied (column not granted) |
+
+## 12. Database security checks
+
+```bash
+psql -U postgres -d civicconnect_db -f db/tests/security_checks.sql
+```
+
+Runs as the `civicconnect_app` role and proves the database enforces its own rules (needs scripts 03, 04 and 05 applied). Every line marked `expect DENIED` must print an ERROR and every `expect OK` must not. Expected: 16 errors. Covered: assigning to a non-Staff user, a started request with no owner, editing protected columns, deleting requests, editing or deleting history and notes, oversized text, a history row that changes nothing, and the app role editing users or categories. It leaves one test request behind because the app role cannot delete rows.
