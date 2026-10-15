@@ -7,9 +7,13 @@ name: CI
 
 on:
   push:
-       branches: [ main, development ]
-     pull_request:
-       branches: [ main, development ]
+    branches:
+      - main
+      - development     # change this word if your development branch has a different name
+  pull_request:
+    branches:
+      - main
+      - development     # same name as above
   workflow_dispatch:        # lets you run it by hand from the Actions tab
 
 permissions:
