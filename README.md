@@ -2,7 +2,7 @@
 
 A community service-request management platform. CivicConnect replaces the current fragmented mix of email, phone calls, WhatsApp messages, spreadsheets and paper records with a single controlled system for submitting, tracking, actioning and reporting on service requests (facility faults, maintenance issues, lost property, IT support and similar).
 
-> **Project status: Milestone 2 (Architecture, Technology & Initial Design Baseline).** Architecture, data model, technology stack and initial design-pattern decisions are all decided and baselined. Application code has not been written yet — this is expected at this stage and is not a gap (see [Current Implementation Status](#current-implementation-status)).
+> **Project status: Milestone 3 (Controlled Construction, Integration, Quality & Release Readiness).** The Windows Forms application is built and runs against PostgreSQL for all three roles (Requester, Staff, Manager). Email notification and a few smaller items are deferred (see [Known Limitations / TODOs](#known-limitations--todos)).
 
 ---
 
@@ -29,52 +29,83 @@ A community service-request management platform. CivicConnect replaces the curre
 CivicConnect gives a community organisation a reliable, traceable and auditable way to manage service requests end to end:
 
 - **Requesters** submit, categorise and track the status of their own requests.
-- **Staff** view, search, assign, action and resolve requests assigned to them, through controlled status transitions.
-- **Management** get visibility into open, overdue and resolved work for accountability and reporting.
+- **Staff** view, search, assign, action and resolve requests through controlled status transitions.
+- **Management** get visibility into all requests, counts by status and category, and the full audit trail of status changes.
 
 The full business context, stakeholder analysis, requirements (FR-001–FR-017, NFR-001–008) and constraints are baselined in the [Project Engineering Document (PED)](#engineering-evidence-links).
 
 ## Current Implementation Status
 
-| Area | Status | Evidence |
+| Area | Status | Notes |
 |---|---|---|
-| Architecture | **Decided** — modular monolith across four modules (Requests, Audit log, Users and auth, Reporting) | ADR-001 |
-| Data model | **Decided** — five entities (User, Category, Request, RequestHistory, Comment), hybrid DB + application-layer integrity, optimistic concurrency on status updates | ADR-002 |
-| Technology stack | **Decided** — C# .NET 10 WinForms desktop app, EF Core 10, PostgreSQL 16+ | ADR-003 |
-| Design patterns | **Decided** — State Pattern for status transitions; Observer Pattern for audit/notification dispatch | ADR-004, ADR-005 |
-| Module interfaces & integration | **Decided** — `IRequestService`, `IUserService`, `IAuditLogService`, DTOs, FluentValidation, `Result<T>` error handling | §5.7 |
-| Application code | **Not started** — construction begins next; this is the current priority | — |
-| Automated tests / CI | **Not started** — xUnit v3 chosen as the test framework; not required at this milestone | ADR-003 |
+| Architecture | **Built** — modular monolith as .NET class libraries (Common, Auth, Requests, AuditLog, Notifications) plus the WinForms app | ADR-001. There is no separate Reporting project: management queries live in the Requests module and the audit trail in the AuditLog module |
+| Database | **Built** — PostgreSQL schema, roles, grants and dev seed data from the scripts in `db/` | ADR-002. Schema is owned by the SQL scripts; there are no EF migrations |
+| Users and auth | **Built** — registration (always a Requester), login with BCrypt hashes, role permission map, login lockout | See [Module Responsibilities](#module-responsibilities--design-patterns) |
+| Requests | **Built** — submit, my requests, staff queue with search and filter, request detail with history and notes, assign, status transitions (State Pattern), notes, optimistic concurrency, manager overview | ADR-004 |
+| Audit log | **Built** — read-only history service and query, manager **Audit trail** screen, domain-event dispatcher | History rows are written by the Requests module. See the [known issue](#known-limitations--todos) about `AuditLogEventHandler` |
+| Notifications | **Partly built** — in-app popup for the person who changes a request's status. **Email is deferred** | ADR-005, DEC-001. Test cases are listed in the PED (TC-03 to TC-14 in the PED test case table) |
+| Automated tests | **Built** — xUnit v3 tests for Auth, Requests, AuditLog and Notifications | Run on Windows only; no PostgreSQL integration tests yet |
+| CI pipeline | **Not started** | |
+
+### Screens by role
+
+| Role | Screens |
+|---|---|
+| Requester | Submit request, My requests, request detail (own requests only) |
+| Staff | Staff queue (search and filter), request detail with response panel (assign, change status, add note) |
+| Manager | Overview and all requests (counts by status and category, filterable list), **Audit trail** (every status change, filter by request, status and date range). Read-only: managers cannot change requests |
+
+Each screen is also protected in the service layer: hiding a button is a convenience, never the only check.
 
 ## Prerequisites
 
 - [.NET 10 SDK](https://dotnet.microsoft.com/) (target framework: `net10.0-windows`)
-- [Visual Studio 2026](https://visualstudio.microsoft.com/) (Windows — required for WinForms designer support)
-- [PostgreSQL 16+](https://www.postgresql.org/) — local instance or connection details for a hosted instance
+- [Visual Studio 2026](https://visualstudio.microsoft.com/) (Windows, required for WinForms designer support)
+- [PostgreSQL 16+](https://www.postgresql.org/) and pgAdmin 4 or `psql`
 - Windows 10/11 (WinForms is a Windows-only UI framework; there is no cross-platform client)
 
 ## Setup & Run Instructions
 
+**1. Clone and open**
+
 ```bash
-# 1. Clone the repository
-git clone <repo-url>
-cd civicconnect
-
-# 2. Restore dependencies
-dotnet restore
-
-# 3. Configure the database connection
-# copy appsettings.example.json to appsettings.json and set your PostgreSQL
-# connection string locally — appsettings.json is gitignored and must never be committed
-
-# 4. Apply EF Core migrations
-dotnet ef database update
-
-# 5. Run the application
-dotnet run --project src/CivicConnect.App
+git clone https://github.com/BouncyCrawfish/SEN_381_Project.git
+cd SEN_381_Project
+# open CivicConnect.slnx in Visual Studio 2026
 ```
 
-> Exact project/folder names above are illustrative until the solution is scaffolded — update this block once the actual `.sln`/`.csproj` layout exists.
+**2. Create the database.** Run the scripts in `db/` in order. Scripts 01 and 02 run on the `postgres` database, 03 to 05 on `civicconnect_db`. Full instructions, checks and troubleshooting are in [`db/README.md`](db/README.md).
+
+| Order | Script | Notes |
+|---|---|---|
+| 1 | `01_roles.sql` | Edit the three `CHANGE_ME_...` passwords **locally**. Never commit real passwords. Use a different password per role |
+| 2 | `02_create_db.sql` | Run on its own (`CREATE DATABASE` cannot run inside a transaction) |
+| 3 | `03_schema.sql` | Tables, constraints, indexes, append-only history, grants |
+| 4 | `04_requests_module.sql` | Seed categories and extra integrity rules |
+| 5 | `05_dev_seed_users.sql` | **Development only.** Throw-away Requester, Staff (two) and Manager accounts so every role can sign in. Read the header of the script and `db/README.md` section on seed users |
+
+`00a_drop_database.sql` and `00b_drop_roles.sql` reset a development database. Do not run them anywhere else.
+
+**3. Configure the connection string.** The app must connect as the least-privilege `civicconnect_app` role, never as `postgres`. Use one of:
+
+```bash
+# Option A: copy the example file and edit it (appsettings.json is gitignored)
+copy appsettings.example.json CivicConnect\CivicConnect.App\appsettings.json
+
+# Option B: user-secrets (kept outside the repo)
+dotnet user-secrets set "ConnectionStrings:CivicConnect" "Host=localhost;Port=5432;Database=civicconnect_db;Username=civicconnect_app;Password=<app password>" --project CivicConnect/CivicConnect.App
+
+# Option C: environment variable
+# ConnectionStrings__CivicConnect=Host=localhost;...
+```
+
+**4. Run**
+
+```bash
+dotnet run --project CivicConnect/CivicConnect.App
+```
+
+or set `CivicConnect.App` as the startup project in Visual Studio and press F5. Sign in with one of the dev seed accounts (the e-mail addresses are in the header of `db/05_dev_seed_users.sql`; see `db/README.md` for how the password is set).
 
 ## Technology / Runtime / Dependency Versions
 
@@ -82,110 +113,135 @@ dotnet run --project src/CivicConnect.App
 |---|---|---|---|
 | Client UI | C# WinForms (Visual Studio 2026) | .NET 10 (`net10.0-windows`) | ADR-003 |
 | Backend / domain | C# .NET 10 class libraries (modular monolith) | .NET 10 | ADR-001, ADR-003 |
-| ORM | Entity Framework Core | 10 | ADR-003 |
+| ORM | Entity Framework Core with `Npgsql.EntityFrameworkCore.PostgreSQL` | 10 / 10.0.3 | ADR-003 |
 | Database | PostgreSQL | 16+ | ADR-003 |
-| Testing | xUnit | v3 | ADR-003 |
-| Validation | FluentValidation | — | §5.7 |
-| Version control | GitHub | — | ADR-003 |
+| Password hashing | BCrypt.Net-Next | 4.2.0 | NFR-003 |
+| Validation | FluentValidation | 12.2.0 | PED §5.7 |
+| Config and DI | Microsoft.Extensions.Hosting | 10.0.12 | |
+| Testing | xUnit | v3 (4.0.2) | ADR-003 |
+| Version control | GitHub | n/a | ADR-003 |
 
 ## Repository Structure
-
-Folders map to the four architecture modules from ADR-001, using the interfaces decided in §5.7:
 
 ```
 /
 ├── README.md
-├── docs/
-│   ├── PED/                  # Project Engineering Document (PED v2.4)
+├── CivicConnect.slnx
+├── appsettings.example.json          # placeholder config, safe to commit
+├── Docs/
+│   ├── PED_v3.2.md                   # Project Engineering Document
+│   ├── Change_log.md                 # PED document control log
+│   └── (architecture and ERD diagrams)
 ├── db/
-│   ├── README.md                       # explains the scripts
-│   ├── 00a_drop_database.sql           # DEV ONLY reset
-│   ├── 00b_drop_roles.sql              # DEV ONLY reset
-│   ├── 01_roles.sql                    # placeholders only, no real passwords
-│   ├── 02_create_database.sql
-│   └── 03_schema.sql
-├── Civic Connect/
-│   ├── CivicConnect.App/         # WinForms UI (forms, presenters)
-│   ├── CivicConnect.Requests/    # Requests module — IRequestService, RequestAggregate,
-│   │                             #   IRequestState + state classes (ADR-004)
-│   ├── CivicConnect.AuditLog/    # Audit log module — IAuditLogService, AuditLogEventHandler,
-│   │                             #   domain event dispatching (ADR-005)
-│   ├── CivicConnect.Auth/        # Users and auth module — IUserService, roles
-│   ├── CivicConnect.Common/
-│   └── CivicConnect.Reporting/   # Reporting module — management/oversight queries
-├── tests/                    # xUnit v3 test projects
-├── appsettings.example.json  # placeholder config, safe to commit
-├── .git/
-│   ├── workflows/
-│   └── pull_request_template.md
-└── .gitignore                 
+│   ├── README.md                     # explains the scripts
+│   ├── 00a_drop_database.sql         # DEV ONLY reset
+│   ├── 00b_drop_roles.sql            # DEV ONLY reset
+│   ├── 01_roles.sql                  # placeholders only, no real passwords
+│   ├── 02_create_db.sql
+│   ├── 03_schema.sql
+│   ├── 04_requests_module.sql
+│   └── 05_dev_seed_users.sql         # DEV ONLY test accounts
+├── CivicConnect/
+│   ├── CivicConnect.App/             # WinForms UI: forms, theme, form factory, Program.cs (composition root)
+│   ├── CivicConnect.Common/          # shared kernel: Result<T>, UserRole, domain events, notification contract
+│   ├── CivicConnect.Auth/            # users and auth: IAuthService, IUserService, session, permissions, BCrypt
+│   ├── CivicConnect.Requests/        # requests: IRequestService, Request aggregate, State Pattern, EF persistence
+│   ├── CivicConnect.AuditLog/        # audit log: IAuditLogService (read), domain-event dispatcher
+│   └── CivicConnect.Notifications/   # notifications: in-app popup handler and delivery services
+└── Tests/
+    └── CivicConnect.Tests/           # xUnit v3: Auth, Requests, AuditLog, Notifications
 ```
-
-*(Illustrative until the solution is actually scaffolded — update once real project names exist.)*
 
 ## Database / Schema
 
-Five entities are baselined in ADR-002 and the PED's Data & Persistence Baseline section:
+Five tables are baselined in ADR-002 and the PED's Data & Persistence Baseline. The PED calls the notes entity "Comment"; in the database it is the `notes` table.
 
-| Entity | Purpose | Key Relationships |
+| Table | Purpose | Key relationships |
 |---|---|---|
-| `User` | Requesters, staff and managers; holds the role used for access control | Referenced by `Request.requester_id`, `Request.assigned_staff_id` |
-| `Category` | Controlled, bounded list of request categories | Referenced by `Request.category_id` |
-| `Request` | Core service-request record: status, category, requester, assignee | FK to `User`, `Category`; has many `RequestHistory`, `Comment` |
-| `RequestHistory` | Append-only log of every status change (creation, assignment, resolution, closure) | FK to `Request`; populated by `AuditLogEventHandler` (ADR-005) |
-| `Notes` | Staff-recorded actions/notes against a request | FK to `Request`, `User` |
+| `users` | Requesters, staff and managers; holds the role used for access control and the password hash | Referenced by `request.requester_id`, `request.assigned_staff_id` |
+| `category` | Controlled list of request categories (seeded by `04_requests_module.sql`) | Referenced by `request.category_id` |
+| `request` | Core service-request record: status, category, requester, assignee | FK to `users`, `category`; has many `request_history` and `notes` |
+| `request_history` | Append-only log of every status change (creation, assignment, resolution, closure). A trigger blocks updates, deletes and truncates | FK to `request`, `users` |
+| `notes` | Staff-recorded actions and notes against a request | FK to `request`, `users` |
 
-Integrity is enforced through a **hybrid model** (database constraints + application-layer checks), with **optimistic concurrency** using PostgreSQL's native `xmin` system column to prevent lost updates under concurrent edits (ADR-002, ADR-003). Migrations run via `dbContext.Database.Migrate()` on startup or via PostgreSQL setup scripts. The full ERD lives in `docs/architecture/`.
+Integrity follows a **hybrid model**: the database enforces structure (types, foreign keys, CHECK constraints, append-only history, least-privilege grants) and the C# layer enforces business rules (which status change is legal, who may do it). **Optimistic concurrency** uses PostgreSQL's `xmin` system column to prevent lost updates (ADR-002).
+
+The application connects as `civicconnect_app`, which has no `DELETE` and no DDL rights. A separate `civicconnect_owner` (migrations and category management) and a read-only `civicconnect_report` role exist. The `request_history` row for a status change is written by the Requests module in the **same transaction** as the change itself. See [`db/README.md`](db/README.md) for the full model, grants and verification queries.
 
 ## API / Module Interfaces
 
-CivicConnect is a single desktop application, not a networked API — there are no HTTP endpoints. Modules communicate through strongly typed C# interfaces (§5.7):
+CivicConnect is a single desktop application, not a networked API: there are no HTTP endpoints. Modules communicate through strongly typed C# interfaces:
 
 | Interface | Module | Responsibility |
 |---|---|---|
-| `IRequestService` | Requests | Create, query, assign and transition requests |
-| `IUserService` | Users and auth | Account and role lookups |
-| `IAuditLogService` | Audit log | Read access to `RequestHistory` / `Comment` |
-| `IDomainEventDispatcher` | Cross-cutting | Publishes domain events (e.g. `RequestStatusChangedEvent`) to subscribed handlers |
+| `IAuthService` | Auth | Sign in, sign out, change password |
+| `IUserService` | Auth | Register a requester, look up users, list staff |
+| `ISessionContext`, `IAccessControl` | Auth | Who is signed in; permission checks (fail closed) |
+| `IRequestService` | Requests | Submit, list, search, assign, change status, add notes, manager summary |
+| `IAuditLogService` | AuditLog | Read-only access to `request_history`: history of one request, or a query by request, user, status and date range (capped at 500 rows) |
+| `IDomainEventDispatcher` | Common (implemented in AuditLog) | Publishes domain events such as `RequestStatusChangedEvent` to registered handlers |
+| `INotificationService` | Common (implemented in Notifications) | Shows a message to the user (message box, or silent) |
 
-Data crosses these boundaries as strongly typed DTOs, validated by a FluentValidation pipeline before domain execution. Failures surface as `Result<T>` objects, with PostgreSQL concurrency conflicts (`DbUpdateConcurrencyException`) mapped to user-facing WinForms dialogs rather than raw exceptions.
+Data crosses these boundaries as DTOs, validated by FluentValidation before domain execution. Failures surface as `Result<T>` objects; the WinForms screens show a generic message instead of raw exceptions.
 
 ## Environment / Configuration
 
-- **Connection string** — stored in `appsettings.json`, which is gitignored. Never commit real values; `appsettings.example.json` holds placeholder keys only (NFR-003).
-- **Target environment** — Windows 10/11 desktop client, packaged via `dotnet publish -c Release -r win-x64`.
-- No other environment-specific secrets are required at this stage.
-
-> ⚠️ Authentication mechanism (e.g. password hashing / session handling within WinForms) is **not yet decided** — tracked as FEC-01. Because this is a desktop client connecting directly to PostgreSQL with no separate server/API tier, access control has to be enforced in the C# application layer itself rather than at a network boundary.
+- **Connection string**: read from `appsettings.json` (gitignored), user-secrets or the `ConnectionStrings__CivicConnect` environment variable. Never commit real values; `appsettings.example.json` holds placeholders only (NFR-003). For a non-local database add `SSL Mode=Require`.
+- **Database role**: the connection string must use `civicconnect_app`.
+- **Target environment**: Windows 10/11 desktop client, packaged via `dotnet publish -c Release -r win-x64`.
+- **Access control**: because this is a desktop client connecting directly to PostgreSQL with no server tier, the C# layer enforces roles (`RolePermissions`), and the database limits what a compromised client could do. The desktop client holds the app role's credentials; this accepted risk is described in `db/README.md` section 6.
 
 ## Module Responsibilities & Design Patterns
 
-| Module | Responsibility | Design Pattern Applied |
+| Module | Responsibility | Design pattern / mechanism |
 |---|---|---|
-| Requests | Request creation, status transitions, assignment, comments | **State Pattern** (`IRequestState` + `SubmittedState`, `AssignedState`, `InProgressState`, `ResolvedState`, `ClosedState`) — ADR-004 |
-| Audit log | Append-only history of status changes (NFR-005), notification triggering (FR-005) | **Observer Pattern** (`RequestStatusChangedEvent`, `IDomainEventDispatcher`, `AuditLogEventHandler`, `NotificationEventHandler`) — ADR-005 |
-| Users and auth | Accounts, roles, authorisation (NFR-003, NFR-008) | Authentication mechanism itself: *pending — see FEC-01* |
-| Reporting | Aggregate/oversight views for management (NFR-007) | EF Core LINQ queries via `IRequestService` — no dedicated pattern beyond module interfaces |
+| Auth | Accounts, roles, authorisation (NFR-003, NFR-008) | BCrypt password hashing; one permission map (`RolePermissions`); in-memory login lockout (5 failures locks an email for 5 minutes) |
+| Requests | Request creation, status transitions, assignment, notes, manager summary | **State Pattern** (`IRequestState` and one class per state): ADR-004. EF Core with optimistic concurrency |
+| AuditLog | Read side of the audit trail (NFR-005), event dispatcher, `AuditLogEventHandler` (see the deviation above) | **Observer Pattern** dispatcher (`IDomainEventDispatcher`): ADR-005 |
+| Notifications | Tell the person who changed a request what happened (FR-005) | **Observer Pattern** listener (`NotificationEventHandler`) over `INotificationService` |
 
-**Why these patterns:** the State Pattern replaces fragile procedural status checks with an explicit, testable class per state, enforcing valid transitions at compile time and automatically writing audit records on every transition. The Observer Pattern decouples the core request-update transaction from side effects (audit logging, email/in-app notifications per DEC-001), so a notification failure can never roll back a legitimate status update. Both trade some added indirection and extra small classes for that decoupling — see ADR-004/ADR-005 for the full trade-off discussion, and RSK-012 in the Risk Register for the associated over-engineering risk being tracked.
+**How a status change flows.** Staff act on a request in `RequestDetailForm`. `RequestService` checks the permission, validates the input, applies the State Pattern rule and saves the change together with its `request_history` row in one transaction. Only then does it publish a `RequestStatusChangedEvent`. The `NotificationEventHandler` turns that into an in-app popup for the staff member. A failing listener is swallowed after the save, so a notification problem can never undo a legitimate status update. A note on its own does not publish an event.
+
+**Deviation from the PED (needs attention).** The PED describes `AuditLogEventHandler` writing the history rows, but in the build the Requests module writes them itself in the same transaction (ADR-002). PED v3.2 states that `AuditLogEventHandler` is deliberately **not registered**, so that a status change produces exactly one history row. In the code as it currently stands, `AddAuditLogModule` **does** register it (`AuditLogModuleExstentions.cs`), so each status change should produce a second, duplicate row in `request_history` and in the Audit trail. Remove that one registration line (or move the responsibility into the handler and stop the Requests module writing history) before relying on the audit trail.
+
+**Why these patterns:** the State Pattern replaces fragile procedural status checks with an explicit, testable class per state. The Observer Pattern decouples the core request-update transaction from side effects (audit and notifications, per DEC-001). Both trade some added indirection for that decoupling; see ADR-004/ADR-005 and RSK-012 in the Risk Register.
 
 ## Testing / Running Checks
 
-No automated tests exist yet. **xUnit v3** is the chosen test framework (ADR-003); this section will document how to run the suite once tests are written. Expected first candidates, given the design decisions above: unit tests per `IRequestState` implementation, and tests verifying `AuditLogEventHandler`/`NotificationEventHandler` fire correctly on `RequestStatusChangedEvent`.
+Run all tests from Visual Studio's Test Explorer, or:
+
+```bash
+dotnet test Tests/CivicConnect.Tests
+```
+
+The test project targets `net10.0-windows` (the Notifications module uses WinForms), so the tests run on Windows only. Any future CI runner must be Windows.
+
+| Area | What is covered |
+|---|---|
+| Auth | Password hashing, login and lockout, registration, role permissions and access control |
+| Requests | Submission, State Pattern transitions, row-level security rules, concurrency conflict handling, status-change events |
+| AuditLog | History service and query, dispatcher, handler, history immutability |
+| Notifications | Notification handler wording, delivery services, DI registration, event-to-notification path |
+
+Tests use in-memory fakes for repositories, so they need no database. That also means they cannot catch EF Core query translation or SQL problems (a sort applied after building a DTO failed only when run against the real database). A PostgreSQL integration test suite is still to do. Showing the real popup needs a person to click it, so it is a manual check: as Staff, change a request's status and confirm the popup appears; adding only a note should not show one.
 
 ## Known Limitations / TODOs
 
-- No implementation, automated tests, or CI pipeline yet — expected from here onward, not required until Milestone 3.
-- Authentication/authorisation mechanism not yet selected — tracked as FEC-01.
-- Deployment target confirmed as a Windows desktop client + PostgreSQL, but whether PostgreSQL itself is self-hosted or hosted on a free-tier provider (Render/Railway) is not yet stated explicitly anywhere — see FEC-06.
-- NFR-002's performance threshold (≤2s for 200 requests) was a placeholder pending a hosting/technology decision (DEC-002); now that ADR-003 is decided, this figure needs to be reviewed against the actual desktop-to-database latency profile rather than the original hosted-web-API assumption it was written against.
-- It's not yet confirmed whether `Comment` creation (FR-012) dispatches a domain event through the same Observer Pattern as status changes — needs a decision from whoever owns the audit/notification design.
+- **Email notifications are deferred** because the project must use free services only (DEC-001). Today the only notification is an in-app popup on the computer of the person who made the change. A requester sees a new status only by opening My requests. Notifying requesters needs a persistent notification store, which is a database change.
+- **Overdue requests (FR-015)** are not implemented; the SLA threshold has not been decided.
+- **Duplicate history rows (known issue).** `AuditLogEventHandler` is registered in `AddAuditLogModule` while the Requests module also writes `request_history`, which contradicts PED v3.2. Confirm by changing one request's status as Staff and opening the Audit trail: you should see one row, not two. Fix by removing the registration.
+- **Listener failures are silent.** The event handler errors are swallowed after the change is saved, and the project has no logging yet.
+- **Audit trail permission** is checked on the manager tile and the Audit trail screen (`ViewReports`), not inside `IAuditLogService` itself.
+- **Login lockout** is held in memory, so a restart or a tampered client resets it.
+- **Desktop client credentials**: the client holds the app role's database credentials (accepted risk, `db/README.md` section 6).
+- **No CI pipeline** and no PostgreSQL integration tests yet; tests run on Windows only.
+- NFR-002's performance threshold (2 s for 200 requests) was a placeholder written for a hosted web API. It needs reviewing against the real desktop-to-database latency (DEC-002).
+- Whether PostgreSQL is self-hosted or on a free-tier provider is not stated explicitly anywhere (FEC-06).
+- Notes (FR-012) do not publish a domain event; only status changes do.
 
 ## Engineering Evidence Links
 
-- Project Engineering Document (PED v2.4): `docs/PED/`
-- Requirements Traceability Matrix (RTM): `docs/requirements/`
-- Architecture Decision Records (ADR-001 – ADR-005): `docs/decisions/`
-- Risk Register: `docs/risk/`
-
-*(Update these paths once the docs are actually committed at those locations.)*
+- Project Engineering Document: [`Docs/PED_v3.2.md`](Docs/PED_v3.2.md)
+- PED document control log: [`Docs/Change_log.md`](Docs/Change_log.md)
+- Requirements Traceability Matrix, Architecture Decision Records (ADR-001 to ADR-005), Engineering Decision Log and Risk Register: sections inside the PED
+- Database design, setup and verification: [`db/README.md`](db/README.md)
