@@ -19,7 +19,7 @@ public static class AuditLogModuleExtensions
         services.AddTransient<IAuditLogRepository, EfAuditLogRepository>();
         services.AddTransient<IAuditLogService, AuditLogService>();
 
-        services.AddSingleton<IDomainEventDispatcher, DomainEventDispatcher>();
+        services.AddTransient<IDomainEventHandler<RequestStatusChangedEvent>, AuditLogEventHandler>();
         services.AddSingleton<IDomainEventDispatcher, DomainEventDispatcher>();
         return services;
     }

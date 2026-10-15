@@ -8,6 +8,7 @@ namespace CivicConnect.Notifications
         public static IServiceCollection AddNotificationsModule(this IServiceCollection services)
         {
             services.AddSingleton<INotificationService, NullNotificationService>();
+            services.AddTransient<IDomainEventHandler<RequestStatusChangedEvent>, NotificationEventHandler>();
             return services;
         }
 
