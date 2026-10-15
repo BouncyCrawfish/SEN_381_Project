@@ -30,16 +30,20 @@ internal sealed class LoginForm : Form
 
         Text = "CivicConnect - Sign in";
         AutoScaleMode = AutoScaleMode.Dpi;
-        ClientSize = new Size(360, 330);
-        FormBorderStyle = FormBorderStyle.FixedDialog;
-        MaximizeBox = false;
+        FormBorderStyle = FormBorderStyle.Sizable;
+        MinimumSize = new Size(560, 520);
+        MaximizeBox = true;
         MinimizeBox = false;
         StartPosition = FormStartPosition.CenterScreen;
 
-        _layout.Dock = DockStyle.Fill;
-        _layout.Padding = new Padding(16);
+        // The card in the middle of the screen. Tag "card" = white panel with a border (Theme).
+        _layout.Tag = "card";
+        _layout.AutoSize = true;
+        _layout.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+        _layout.Anchor = AnchorStyles.None;
         _layout.ColumnCount = 1;
-        _layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        _layout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 380));
+        _layout.Controls.Add(new Label { Text = "Sign in to CivicConnect", Tag = "heading", AutoSize = true, Margin = new Padding(0, 0, 0, 8) });
 
         _email.MaxLength = 254;
         _email.AccessibleName = "Email address";
@@ -50,12 +54,13 @@ internal sealed class LoginForm : Form
         _password.AccessibleName = "Password";
 
         _status.AutoSize = true;
-        _status.MaximumSize = new Size(320, 0);
+        _status.MaximumSize = new Size(380, 0);
         _status.Margin = new Padding(0, 10, 0, 4);
 
         _signIn.Text = "&Sign in";
         _signIn.Dock = DockStyle.Fill;
-        _signIn.Height = 34;
+        _signIn.Height = 38;
+        _signIn.Tag = "primary";
         _signIn.Click += OnSignInClick;
 
         _createAccount.Text = "Create a requester account";
@@ -69,12 +74,29 @@ internal sealed class LoginForm : Form
         _layout.Controls.Add(_status);
         _layout.Controls.Add(_signIn);
         _layout.Controls.Add(_createAccount);
-        Controls.Add(_layout);
+        Controls.Add(CreateCenteringHost(_layout));
+        Theme.Apply(this);   // same look as the other screens, and opens maximized
 
         AcceptButton = _signIn;     // Enter submits
         ActiveControl = _email;
         FormClosing += OnFormClosing;
         FormClosed += (_, _) => _password.Clear();
+    }
+
+
+    // Full screen: the window is maximized (Theme.Apply) and the card is kept in the middle of it
+    // at any resolution. The title bar and close button stay, so the app can always be closed.
+    private static TableLayoutPanel CreateCenteringHost(Control card)
+    {
+        var host = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 3, RowCount = 3 };
+        host.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
+        host.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+        host.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
+        host.RowStyles.Add(new RowStyle(SizeType.Percent, 50));
+        host.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        host.RowStyles.Add(new RowStyle(SizeType.Percent, 50));
+        host.Controls.Add(card, 1, 1);
+        return host;
     }
 
     private void AddField(string label, TextBox input)
@@ -144,7 +166,6 @@ internal sealed class LoginForm : Form
 
     private void ShowMessage(string? text, bool isError)
     {
-        _status.ForeColor = isError ? Color.Firebrick : Color.SeaGreen;
-        _status.Text = text ?? string.Empty;
+        Theme.ShowMessage(_status, text, isError);
     }
 }
