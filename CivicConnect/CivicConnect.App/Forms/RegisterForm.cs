@@ -34,17 +34,21 @@ internal sealed class RegisterForm : Form
 
         Text = "CivicConnect - Create account";
         AutoScaleMode = AutoScaleMode.Dpi;
-        ClientSize = new Size(360, 470);
-        FormBorderStyle = FormBorderStyle.FixedDialog;
-        MaximizeBox = false;
+        FormBorderStyle = FormBorderStyle.Sizable;
+        MinimumSize = new Size(560, 680);
+        MaximizeBox = true;
         MinimizeBox = false;
         ShowInTaskbar = false;
         StartPosition = FormStartPosition.CenterParent;
 
-        _layout.Dock = DockStyle.Fill;
-        _layout.Padding = new Padding(16);
+        // The card in the middle of the screen. Tag "card" = white panel with a border (Theme).
+        _layout.Tag = "card";
+        _layout.AutoSize = true;
+        _layout.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+        _layout.Anchor = AnchorStyles.None;
         _layout.ColumnCount = 1;
-        _layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        _layout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 380));
+        _layout.Controls.Add(new Label { Text = "Create a requester account", Tag = "heading", AutoSize = true, Margin = new Padding(0, 0, 0, 8) });
 
         _name.MaxLength = 100;
         _name.AccessibleName = "Full name";
@@ -62,18 +66,19 @@ internal sealed class RegisterForm : Form
 
         _hint.Text = "Use at least 10 characters. A passphrase of several words works well.";
         _hint.AutoSize = true;
-        _hint.MaximumSize = new Size(320, 0);
-        _hint.ForeColor = SystemColors.GrayText;
+        _hint.MaximumSize = new Size(380, 0);
+        _hint.Tag = "muted";
         _hint.Margin = new Padding(0, 6, 0, 0);
 
         _status.AutoSize = true;
-        _status.MaximumSize = new Size(320, 0);
-        _status.ForeColor = Color.Firebrick;
+        _status.MaximumSize = new Size(380, 0);
+        _status.ForeColor = Theme.Danger;
         _status.Margin = new Padding(0, 10, 0, 4);
 
         _register.Text = "&Create account";
         _register.Dock = DockStyle.Fill;
-        _register.Height = 34;
+        _register.Height = 38;
+        _register.Tag = "primary";
         _register.Click += OnRegisterClick;
 
         AddField("&Full name", _name);
@@ -83,12 +88,30 @@ internal sealed class RegisterForm : Form
         _layout.Controls.Add(_hint);
         _layout.Controls.Add(_status);
         _layout.Controls.Add(_register);
-        Controls.Add(_layout);
+        Controls.Add(CreateCenteringHost(_layout));
+        Theme.Apply(this);   // same look as the other screens, and opens maximized
+        _status.ForeColor = Theme.Danger;   // Theme.Apply resets plain labels to dark text
 
         AcceptButton = _register;
         ActiveControl = _name;
         FormClosing += (_, e) => { if (_busy && DialogResult != DialogResult.OK) e.Cancel = true; };
         FormClosed += (_, _) => { _password.Clear(); _confirm.Clear(); };
+    }
+
+
+    // Full screen: the window is maximized (Theme.Apply) and the card is kept in the middle of it
+    // at any resolution. The title bar and close button stay, so the app can always be closed.
+    private static TableLayoutPanel CreateCenteringHost(Control card)
+    {
+        var host = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 3, RowCount = 3 };
+        host.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
+        host.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+        host.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
+        host.RowStyles.Add(new RowStyle(SizeType.Percent, 50));
+        host.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        host.RowStyles.Add(new RowStyle(SizeType.Percent, 50));
+        host.Controls.Add(card, 1, 1);
+        return host;
     }
 
     private void AddField(string label, TextBox input)
