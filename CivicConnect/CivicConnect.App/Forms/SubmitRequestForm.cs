@@ -62,7 +62,6 @@ internal sealed partial class SubmitRequestForm : Form
         }
         catch (Exception)
         {
-            // TODO: log the exception type/message (never user input) to a secure logger.
             Theme.ShowMessage(lblMessage, Ui.Unavailable, isError: true);
         }
         finally

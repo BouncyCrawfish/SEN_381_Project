@@ -13,8 +13,7 @@ internal interface IPasswordHasher
 /// </summary>
 internal sealed class BCryptPasswordHasher(int workFactor = BCryptPasswordHasher.DefaultWorkFactor) : IPasswordHasher
 {
-    // Each +1 doubles the cost. 12 is roughly a quarter second on a modern PC;
-    // re-measure on the team's real machines and record the figure in the ADR.
+    // Each +1 doubles the cost. 12 is roughly a quarter second on a modern PC.
     public const int DefaultWorkFactor = 12;
 
     public string Hash(string password) =>

@@ -2,7 +2,7 @@
 
 A community service-request management platform. CivicConnect replaces the current fragmented mix of email, phone calls, WhatsApp messages, spreadsheets and paper records with a single controlled system for submitting, tracking, actioning and reporting on service requests (facility faults, maintenance issues, lost property, IT support and similar).
 
-> **Project status: Milestone 3 complete (Controlled Construction, Integration, Quality & Release Readiness).** The Windows Forms application is built and runs against PostgreSQL for all three roles (Requester, Staff, Manager). Email notification, overdue requests (FR-015) and a few smaller items are deferred, and one known defect is open (duplicate audit rows, DEF-01). A GitHub Actions CI pipeline builds the solution and runs the tests on every push and pull request. See [Known Limitations / TODOs](#known-limitations--todos).
+> **Project status: Milestone 3 complete (Controlled Construction, Integration, Quality & Release Readiness).** The Windows Forms application is built and runs against PostgreSQL for all three roles (Requester, Staff, Manager). Email notification, overdue requests (FR-015) and a few smaller items are deferred, and the duplicate audit-row defect (DEF-01) is fixed. A GitHub Actions CI pipeline checks for committed secrets, builds, runs the tests, runs static analysis and checks dependencies on every push and pull request. The M3 release evidence (defects, technical debt, release readiness) is indexed in the PED. See [Known Limitations / TODOs](#known-limitations--todos).
 
 ---
 
@@ -42,10 +42,11 @@ The full business context, stakeholder analysis, requirements (FR-001 to FR-017,
 | Database | **Built**: PostgreSQL schema, roles, grants, seed categories and dev seed users from the scripts in `db/` | ADR-002. The schema is owned by the SQL scripts; there are no EF migrations |
 | Users and auth | **Built**: full-screen sign-in and registration (registration always creates a Requester), BCrypt password hashes, one role-permission map, login lockout | ADR-006, DEC-004. `ChangePasswordAsync` exists in the service, but there is no change-password screen |
 | Requests | **Built**: submit, my requests, staff queue with search and filter, request detail with history and notes, assign, status transitions (State Pattern), notes, optimistic concurrency, manager overview | ADR-002, ADR-004 |
-| Audit log | **Built**: read-only history service and query, manager **Audit trail** screen, domain-event dispatcher | History rows are written by the Requests module. See the [known defect](#known-limitations--todos) about `AuditLogEventHandler` |
+| Audit log | **Built**: read-only history service and query, manager **Audit trail** screen, domain-event dispatcher | History rows are written by the Requests module in the same transaction as the change; `AuditLogEventHandler` is deliberately not registered (DEF-01 fix) |
 | Notifications | **Partly built**: in-app popup for the person who changes a request's status. **Email is deferred** | ADR-005, DEC-001 |
-| Automated tests | **Built**: xUnit v3 tests for Auth, Requests, AuditLog and Notifications | Windows only; in-memory fakes, so no PostgreSQL integration tests |
-| CI pipeline | **Built**: GitHub Actions (`.github/workflows/ci.yml`) restores, builds in Release and runs the tests on a Windows runner for every push and pull request to `main` and the development branch | See [Continuous integration](#continuous-integration). No database tests run in CI |
+| Automated tests | **Built**: xUnit v3 tests for Auth, Requests, AuditLog and Notifications, plus a staff-queue load test (TC-21) | Windows only; mostly in-memory fakes. The two database tests run only when `CIVICCONNECT_TEST_CONNECTION` is set |
+| Staging | **Simulated**: tagged Release build published to a folder, database rebuilt from the scripts, configuration from an environment variable | [`Docs/STAGING.md`](Docs/STAGING.md) |
+| CI pipeline | **Built**: GitHub Actions (`.github/workflows/ci.yml`) secrets guard, Release build, tests, .NET static analysis and a vulnerable-package check on a Windows runner for every push and pull request to `main` and the development branch; Dependabot for updates | See [Continuous integration](#continuous-integration). No database tests run in CI |
 
 ### Screens by role
 
@@ -144,11 +145,13 @@ These passwords are public and exist only for a development database. Delete the
 ├── .gitignore                        # keeps secrets, dumps and build output out of Git
 ├── global.json                       # makes dotnet test use Microsoft.Testing.Platform (.NET 10 + xUnit v3)
 ├── .github/
+│   ├── dependabot.yml                # weekly dependency update pull requests
 │   └── workflows/
-│       └── ci.yml                    # CI pipeline: build and test on every push and pull request
+│       └── ci.yml                    # CI pipeline: secrets guard, build, tests, static analysis, dependency check
 ├── appsettings.example.json          # placeholder config, safe to commit
 ├── Docs/
-│   ├── PED_v3.5.md                   # Project Engineering Document
+│   ├── PED_v3.6.md                   # Project Engineering Document and M3 evidence index
+│   ├── STAGING.md                    # simulated staging: deploy, verify, roll back, deployment record
 │   ├── Change_log.md                 # PED document control log
 │   ├── Architechture.png             # architecture diagram
 │   └── ERD.png                       # entity relationship diagram
@@ -160,7 +163,8 @@ These passwords are public and exist only for a development database. Delete the
 │   ├── 02_create_db.sql
 │   ├── 03_schema.sql
 │   ├── 04_requests_module.sql
-│   └── 05_dev_seed_users.sql         # DEV ONLY test accounts
+│   ├── 05_dev_seed_users.sql         # DEV ONLY test accounts
+│   └── perf/                         # DEV/STAGING ONLY load-test data for TC-21 (seed and cleanup)
 ├── CivicConnect/
 │   ├── CivicConnect.App/             # WinForms UI: forms, theme, form factory, Program.cs (composition root)
 │   ├── CivicConnect.Common/          # shared kernel: Result<T>, UserRole, domain events, notification contract
@@ -169,7 +173,7 @@ These passwords are public and exist only for a development database. Delete the
 │   ├── CivicConnect.AuditLog/        # audit log: IAuditLogService (read), domain-event dispatcher
 │   └── CivicConnect.Notifications/   # notifications: in-app popup handler and delivery services
 └── Tests/
-    └── CivicConnect.Tests/           # xUnit v3: Auth, Requests, AuditLog, Notifications
+    └── CivicConnect.Tests/           # xUnit v3: Auth, Requests, AuditLog, Notifications, Performance
 ```
 
 ## Database / Schema
@@ -223,13 +227,7 @@ Data crosses these boundaries as DTOs, validated by FluentValidation before doma
 
 **How a status change flows.** Staff act on a request in `RequestDetailForm`. `RequestService` checks the permission, validates the input, applies the State Pattern rule and saves the change together with its `request_history` row in one transaction. Only then does it publish a `RequestStatusChangedEvent`. The `NotificationEventHandler` turns that into an in-app popup for the staff member. A failing listener is swallowed after the save, so a notification problem can never undo a legitimate status update. A note on its own does not publish an event.
 
-**Known defect DEF-01 (deviation from the PED).** The intended design (PED ADR-005) is that the Requests module writes history and `AuditLogEventHandler` is **not** registered. In the final code `AddAuditLogModule` (`CivicConnect.AuditLog/AuditLogModuleExstentions.cs`) **does** register it, so each status change is expected to write a second, duplicate row to `request_history` and the Audit trail. The fix is to delete this line:
-
-```csharp
-services.AddTransient<IDomainEventHandler<RequestStatusChangedEvent>, AuditLogEventHandler>();
-```
-
-The class and its tests can stay. Check the fix with manual test TC-13 (one history row per status change).
+**DEF-01 (fixed).** An earlier version registered `AuditLogEventHandler` as a second listener, so each status change wrote a duplicate `request_history` row. `AddAuditLogModule` no longer registers it; the class and its tests are kept in case history writing ever moves out of the Requests module. `AuditLogModuleRegistrationTests` (TC-22) guards against the registration coming back, and manual test TC-13 confirms one history row per status change on the real database.
 
 **Why these patterns:** the State Pattern replaces fragile procedural status checks with an explicit, testable class per state. The Observer Pattern decouples the core request-update transaction from side effects (notifications, per DEC-001). Both trade some added indirection for that decoupling; see ADR-004/ADR-005 and RSK-012 in the Risk Register.
 
@@ -247,12 +245,13 @@ The test project targets `net10.0-windows` (the Notifications module uses WinFor
 |---|---|---|---|
 | Auth | `PasswordHasherTests`, `AuthServiceTests`, `UserServiceTests`, `AccessControlTests` | Password hashing, login and lockout, change password, registration, role permissions and access control | TC-16 |
 | Requests | `RequestStateTest`, `RequestSubmissionTests`, `RequestSecurityTests`, `RequestNotificationTests` | State Pattern transitions, submission validation, row-level security, assignment rules, concurrency conflicts, status-change events | TC-03 to TC-06, TC-15, TC-17 |
-| AuditLog | `AuditLogServiceTests`, `AuditLogEventHandlerTests`, `DomainEventDispatcherTests`, `HistoryImmutabilityTests` | History service and query, handler, dispatcher, history immutability | TC-09, TC-18 |
+| AuditLog | `AuditLogServiceTests`, `AuditLogEventHandlerTests`, `DomainEventDispatcherTests`, `HistoryImmutabilityTests`, `AuditLogModuleRegistrationTests` | History service and query, handler, dispatcher, history immutability (database), DEF-01 regression | TC-09, TC-18, TC-22 |
 | Notifications | `NotificationEventHandlerTests`, `NotificationServicesTests`, `NotificationsModuleTests` | Notification wording, delivery services, DI registration, event-to-notification path | TC-07, TC-08 |
+| Performance | `StaffQueuePerformanceTests` | Staff queue response time against PostgreSQL: 20 timed calls, p95 within 2 s (database only) | TC-21 |
 
 Some test method names start with `TC06`, `TC07` or `TC08` for submission and state-table tests; those names predate the PED's test case table, so use the IDs in the table above when citing evidence.
 
-Tests use in-memory fakes for repositories, so they need no database. That also means they cannot catch EF Core query translation or SQL problems (a sort applied after building a DTO failed only when run against the real database). `HistoryImmutabilityTests` runs against PostgreSQL only when the `CIVICCONNECT_TEST_CONNECTION` environment variable is set; otherwise it is skipped. Manual UI checks (TC-10 to TC-14, TC-19, TC-20) are listed in the PED: for example, as Staff change a request's status and confirm the popup appears and the Audit trail shows one new row; adding only a note should not show a popup.
+Tests use in-memory fakes for repositories, so they need no database. That also means they cannot catch EF Core query translation or SQL problems (a sort applied after building a DTO failed only when run against the real database). `HistoryImmutabilityTests` and `StaffQueuePerformanceTests` run against PostgreSQL only when the `CIVICCONNECT_TEST_CONNECTION` environment variable is set (connection string for the `civicconnect_app` role); otherwise they are skipped. For TC-21, seed data with `db/perf/perf_seed_requests.sql` first; the timings are written to `perf-tc21-result.txt` next to the test DLL. `Docs/STAGING.md` shows the full procedure. Manual UI checks (TC-10 to TC-14, TC-19, TC-20) are listed in the PED: for example, as Staff change a request's status and confirm the popup appears and the Audit trail shows one new row; adding only a note should not show a popup.
 
 ### Continuous integration
 
@@ -263,17 +262,25 @@ Tests use in-memory fakes for repositories, so they need no database. That also 
 | Install the SDK | `actions/setup-dotnet` with .NET 10 |
 | Restore | `dotnet restore CivicConnect.slnx` |
 | Build | `dotnet build CivicConnect.slnx --configuration Release --no-restore` |
+| Secrets guard | Fails if a real `appsettings*.json`, `.env`, `.pfx/.p12`, `*.local.sql` or SSH key is tracked, or `db/01_roles.sql` holds a real password |
 | Test | `dotnet test --project Tests/CivicConnect.Tests/CivicConnect.Tests.csproj --configuration Release --no-build` |
+| Static analysis | Release build of the app and all modules with `-p:AnalysisLevel=latest-recommended`; security rules CA2100, CA3075, CA5350 and CA5351 fail the run, other analyzer warnings are reported |
+| Vulnerable package check | `dotnet list CivicConnect.slnx package --vulnerable --include-transitive`; fails if any package has a known vulnerability |
 
 - It runs on `windows-latest` because the app and test project target `net10.0-windows`.
-- It needs no secrets and gets a read-only token. `HistoryImmutabilityTests` is skipped in CI because `CIVICCONNECT_TEST_CONNECTION` is not set.
+- It needs no secrets and gets a read-only token. The database tests (`HistoryImmutabilityTests`, TC-21) are skipped in CI because `CIVICCONNECT_TEST_CONNECTION` is not set.
+- Dependabot (`.github/dependabot.yml`) opens weekly pull requests for NuGet and GitHub Actions updates, which go through the same checks.
+- If the vulnerable package check fails, update the named package in a pull request; if no fix exists yet, record it as an accepted risk in the PED.
 - A newer push to the same branch cancels a run that is still going.
 - To make a failing build block merging, turn on **Require status checks to pass** for `main` and the development branch in **Settings → Branches** and select **Build and test (Windows)**.
-- Before pushing, run the same three commands locally from the repository root; if they pass locally they should pass in CI. A failed run shows the error under the pull request's **Details** link.
+- Before pushing, run the restore, build and test commands locally from the repository root; if they pass locally they should pass in CI. A failed run shows the error under the pull request's **Details** link.
+
+### Staging
+
+The release candidate is checked in a simulated staging environment: the tagged commit is published as a Release build into its own folder, the database is rebuilt from the `db/` scripts, and the connection string comes only from an environment variable. Deployment, verification (TC-10 to TC-14, TC-19 to TC-21), rollback and the deployment record are in [`Docs/STAGING.md`](Docs/STAGING.md).
 
 ## Known Limitations / TODOs
 
-- **Duplicate history rows (DEF-01).** `AuditLogEventHandler` is still registered while the Requests module also writes `request_history`. Remove the registration (see above) before relying on the audit trail.
 - **Email notifications are deferred** because the project must use free services only (DEC-001). The only notification is an in-app popup on the computer of the person who made the change. A requester sees a new status only by opening My requests. Notifying requesters needs a persistent notification store, which is a database change.
 - **Overdue requests (FR-015)** are not implemented; the SLA threshold was never agreed.
 - **Manager filters and export.** The manager list filters by status and search but not by category (FR-016 partly met), and the audit trail cannot be exported (FR-017 asks for export).
@@ -282,16 +289,19 @@ Tests use in-memory fakes for repositories, so they need no database. That also 
 - **Desktop client credentials**: the client holds the app role's database credentials (accepted risk RSK-013).
 - **Listener failures are silent.** Event handler errors are swallowed after the change is saved, and the project has no logging.
 - **Audit trail permission** is checked on the manager tile and the Audit trail screen (`ViewReports`), not inside `IAuditLogService` itself.
-- **No database tests in CI.** The pipeline runs the in-memory unit tests only; there are no PostgreSQL integration tests, and tests run on Windows only (RSK-015).
-- NFR-002's performance threshold (2 s for 200 requests) was a placeholder written for a hosted web API and has not been measured against the desktop client (DEC-002). NFR-007 load testing has not been done.
+- **No database tests in CI.** The pipeline runs the in-memory tests only; the two PostgreSQL tests run on the staging machine, and tests run on Windows only (RSK-015).
+- **No paging.** The staff queue and the manager list load every matching request, so they slow down as open requests grow (TD-07). The audit-trail query is capped at 500 rows.
+- NFR-002's threshold (2 s) is still the DEC-002 placeholder. TC-21 measures the staff queue against it on one local machine; it says nothing about concurrent users or a hosted database.
 - PostgreSQL has only been run locally; no hosted database was set up (FEC-06).
 - Notes (FR-012) do not publish a domain event; only status changes do.
 
 ## Engineering Evidence Links
 
-- Project Engineering Document: [`Docs/PED_v3.5.md`](Docs/PED_v3.5.md)
+- Project Engineering Document: [`Docs/PED_v3.6.md`](Docs/PED_v3.6.md)
 - PED document control log: [`Docs/Change_log.md`](Docs/Change_log.md)
 - Requirements Traceability Matrix, end-to-end traces (FR-001, FR-006), test cases (TC-03 to TC-20), Architecture Decision Records (ADR-001 to ADR-006), Engineering Decision Log (DEC-001 to DEC-004) and Risk Register (RSK-001 to RSK-016): sections inside the PED
 - Architecture and ERD diagrams: [`Docs/Architechture.png`](Docs/Architechture.png), [`Docs/ERD.png`](Docs/ERD.png)
 - CI pipeline: [`.github/workflows/ci.yml`](.github/workflows/ci.yml) and its runs in the repository's **Actions** tab
+- M3 release evidence (submission information, baseline conformance, Defect Register, Technical Debt Register, Release Evidence Summary, residual risks): chapter "M3 release evidence" in the PED
+- Simulated staging and deployment record: [`Docs/STAGING.md`](Docs/STAGING.md)
 - Database design, setup and verification: [`db/README.md`](db/README.md)

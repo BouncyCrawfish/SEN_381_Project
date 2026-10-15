@@ -5,7 +5,7 @@ namespace CivicConnect.App.Forms;
 
 /// Staff work queue (FR-007, FR-008). The service refuses anyone without the staff-queue permission,
 /// so opening this form as a requester shows an error instead of data. Shows how long the load took,
-/// which is the evidence for NFR-002 / PERF-01.
+/// which is the evidence for NFR-002.
 internal sealed partial class StaffQueueForm : Form
 {
     private const string AllOpen = "All open";

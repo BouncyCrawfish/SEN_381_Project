@@ -1,7 +1,7 @@
 # CivicConnect Database (`civicconnect_db`)
 
 PostgreSQL 16+ database scripts for the SEN381 CivicConnect project.
-Baseline: PED v3.5 (ADR-002, ADR-003, ADR-004, ADR-005, ADR-006; NFR-003, NFR-005, NFR-008).
+Baseline: PED v3.6 (ADR-002, ADR-003, ADR-004, ADR-005, ADR-006; NFR-003, NFR-005, NFR-008).
 
 | File | Purpose |
 |---|---|
@@ -11,6 +11,7 @@ Baseline: PED v3.5 (ADR-002, ADR-003, ADR-004, ADR-005, ADR-006; NFR-003, NFR-00
 | `03_schema.sql` | Tables, constraints, indexes, append-only trigger, grants (run on `civicconnect_db`) |
 | `04_requests_module.sql` | Seed categories, length/owner constraints, assignee-must-be-Staff trigger (run on `civicconnect_db`, after 03) |
 | `05_dev_seed_users.sql` | **Development only.** Four test accounts (Requester, two Staff, Manager) with known passwords (run on `civicconnect_db`, after 04) |
+| `perf/perf_seed_requests.sql`, `perf/perf_cleanup.sql` | **Development/staging only.** Adds, then removes, 1000 open `PERF-TEST` requests for the TC-21 load test (run on `civicconnect_db`, after 05) |
 
 ---
 

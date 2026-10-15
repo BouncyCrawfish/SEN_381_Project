@@ -19,7 +19,10 @@ public static class AuditLogModuleExtensions
         services.AddTransient<IAuditLogRepository, EfAuditLogRepository>();
         services.AddTransient<IAuditLogService, AuditLogService>();
 
-        services.AddTransient<IDomainEventHandler<RequestStatusChangedEvent>, AuditLogEventHandler>();
+        // DEF-01 fix: AuditLogEventHandler is NOT registered. RequestService already writes the
+        // request_history row in the same transaction as the status change (ADR-002), so a second
+        // writer here produced duplicate history rows. The handler class and its tests are kept as a
+        // ready listener in case history writing ever moves out of the Requests module (ADR-005).
         services.AddSingleton<IDomainEventDispatcher, DomainEventDispatcher>();
         return services;
     }
