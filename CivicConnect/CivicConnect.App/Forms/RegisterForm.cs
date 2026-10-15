@@ -155,7 +155,6 @@ internal sealed class RegisterForm : Form
         }
         catch (Exception)
         {
-            // TODO: log exception type/message (never the DTO or passwords) once logging exists.
             _password.Clear();
             _confirm.Clear();
             _status.Text = "Registration is unavailable right now. Please try again later.";

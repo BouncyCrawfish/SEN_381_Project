@@ -1,10 +1,37 @@
 
-Project Engineering document (PED\_ v3.5)
+Project Engineering document (PED\_ v3.6)
 
 SEN 381
 
+# M3 submission information
+
+| Item | Value |
+|---|---|
+| Team | [team number/name] |
+| Team members | Paul Edward van Zyl, Freerk van den Bos, Regardt Osler |
+| GitHub repository | https://github.com/BouncyCrawfish/SEN_381_Project |
+| M3 release candidate | Tag `[v3.0-m3]`, commit `[full commit hash]` on `main` |
+| PED version | v3.6 (continuation of PED v2.4 into the M3 v3.x series; submitted as PDF) |
+| RTM location | This document, section "Requirements Traceability Matrix (RTM)", with test cases in "Test cases and verification evidence" |
+| CI and test evidence | GitHub Actions runs: https://github.com/BouncyCrawfish/SEN_381_Project/actions (workflow `.github/workflows/ci.yml`); release candidate run: [link to the run for the tagged commit] |
+| Staging / test environment | Simulated staging on a team Windows machine, described in `Docs/STAGING.md`; demonstrated live during the M3 presentation |
+| Date submitted | [date] |
+
+
 # Contents
 
+- [M3 submission information](#m3-submission-information)
+- [M3 release evidence](#m3-release-evidence)
+  - [1. M3 overview](#1-m3-overview)
+  - [2. M2 baseline conformance](#2-m2-baseline-conformance)
+  - [3. Controlled changes](#3-controlled-changes)
+  - [4. Construction and configuration](#4-construction-and-configuration)
+  - [5. CI and automated verification](#5-ci-and-automated-verification)
+  - [6. Quality strategy applied](#6-quality-strategy-applied)
+  - [7. Black-box, integration and system validation](#7-black-box-integration-and-system-validation)
+  - [8. Performance](#8-performance)
+  - [9. Defects and quality interpretation](#9-defects-and-quality-interpretation)
+  - [10. Release readiness](#10-release-readiness)
 - [Document Control Log](changelog/README.md)
 - [Problem Statement & business need](#problem-statement--business-need)
 - [Stakeholder analysis](#stakeholder-analysis)
@@ -89,6 +116,156 @@ SEN 381
 - [References](#references)
 - [AI usage Register](#ai-usage-register)
 - [Sign off](#sign-off)
+
+# M3 release evidence
+
+This chapter is the M3 evidence index. It follows the structure of section 6 of the M3 brief and points to the evidence in the repository and in the other sections of this document instead of repeating it. Items in square brackets are results the team records after running the checks; nothing in this chapter claims a result that has not been recorded.
+
+## 1. M3 overview
+
+The release candidate is the WinForms desktop application with five modules (Auth, Requests, AuditLog, Notifications and the shared Common library) over the PostgreSQL schema in `db/`. It covers the full core request lifecycle for all three roles: requester registration and sign-in, request submission and tracking (FR-001 to FR-004), staff queue, assignment, status changes and notes (FR-007 to FR-013), manager overview and audit trail (FR-014, FR-016, FR-017), and role-based access control throughout (FR-006). FR-005 is implemented as an in-app notification only; FR-015 (overdue requests) is deferred. The implementation status of each requirement is in the RTM.
+
+## 2. M2 baseline conformance
+
+| M2 decision | Implemented as planned | Deviation (see section 3) |
+|---|---|---|
+| ADR-001 modular monolith, four modules | Yes: one .NET class library per module, one composition root (`Program.cs`), dependencies point one way | Reporting is not a separate project; Notifications and a shared Common library were added (C-01) |
+| ADR-002 hybrid integrity, optimistic concurrency, atomic request + history | Yes: CHECK constraints, foreign keys, append-only trigger and grants in `db/`; `xmin` concurrency token; request and history saved in one transaction | None |
+| ADR-003 .NET 10 WinForms, EF Core 10, PostgreSQL 16+, xUnit v3, GitHub | Yes | None |
+| ADR-004 State Pattern for status transitions | Yes: `IRequestState` and one class per status in `RequestStates.cs` | None |
+| ADR-005 Observer Pattern for side effects | Yes for notifications (`NotificationEventHandler`) | History is written by the Request aggregate, not by `AuditLogEventHandler` (C-02) |
+| Data baseline (five entities) | Yes | "Comment" is the `notes` table (C-03) |
+| 5.7 module interfaces, DTOs, FluentValidation, `Result<T>` | Yes; final interface table in section 5.7 | Extra interfaces added (`ISessionContext`, `IAccessControl`, `INotificationService`, `IFormFactory`) |
+| FEC-01 authentication mechanism (open at M2) | Decided in M3 as ADR-006 and DEC-004 | New decision (C-04) |
+| DEC-001 in-app and email notifications | In-app only | Email deferred under the cost constraint (C-05) |
+
+## 3. Controlled changes
+
+| ID | Original decision | Implementation evidence / problem | Revised decision | Consequence | Record |
+|---|---|---|---|---|---|
+| C-01 | ADR-001: Requests, Audit log, Users and auth, Reporting | Reporting needed only read queries over request data; notifications needed a home that did not depend on Requests | Manager queries live in the Requests module; audit trail in AuditLog; separate Notifications project; shared Common library | One fewer project to maintain; Requests carries reporting queries | ADR-001 implementation note (v3.4) |
+| C-02 | ADR-005: `AuditLogEventHandler` writes history on each event | Writing history in a listener after the save would break the ADR-002 rule that a request and its history are saved atomically; registering both writers caused DEF-01 | The Request aggregate writes history in the same transaction; `AuditLogEventHandler` is kept but not registered | Atomic history; one fewer listener; handler kept for a possible later move | ADR-005 implementation notes (v3.2, v3.4, v3.6); DEF-01 |
+| C-03 | ERD entity "Comment" | Schema script created `notes` | Keep `notes`; document the mapping | Naming difference only | Data baseline note (v3.4) |
+| C-04 | FEC-01 left the authentication mechanism open | Desktop client connects directly to PostgreSQL; DB CHECK accepts bcrypt/argon2 only | bcrypt, in-memory session and lockout, one permission matrix | Residual risks RSK-013, RSK-014 | ADR-006, DEC-004 |
+| C-05 | DEC-001: in-app and email notifications | Email needs an external service, which conflicts with the free-services constraint | In-app popup for the person who made the change; email and requester notifications deferred | FR-005 only partly met | DEC-001 v3.2 update; TD-01 |
+
+## 4. Construction and configuration
+
+- **Repository strategy:** work happens on feature/fix branches merged by pull request into the `development` branch; `development` is merged into `main` for the release candidate, which is tagged. [Confirm: branch protection on `main` and `development`, two approvals per substantive PR, links to two example PRs with review comments.]
+- **Secrets and configuration:** no real credentials are committed. The connection string comes from user-secrets, the `ConnectionStrings__CivicConnect` environment variable or a gitignored `appsettings.json`; `appsettings.example.json` holds placeholders. Database role passwords are set locally (`01_roles.local.sql` is gitignored). The only passwords in the repository are the public development-account passwords in `db/05_dev_seed_users.sql`. CI enforces this with the secrets guard (section 5).
+- **Least privilege:** the application connects as `civicconnect_app` (no DELETE, no DDL, cannot change roles); see `db/README.md` section 3.
+- **Implementation notes:** the schema is owned by the SQL scripts (no EF migrations). `Program.cs` is the only composition root; each module registers itself with one `Add...Module` method.
+
+## 5. CI and automated verification
+
+`.github/workflows/ci.yml` runs on GitHub Actions (`windows-latest`) for every push and pull request to `main` and `development`.
+
+| Step | What it checks | Fails the run when |
+|---|---|---|
+| Secrets guard | Tracked files and `db/01_roles.sql` | A real `appsettings*.json`, `.env`, `.pfx/.p12`, `*.local.sql` or SSH key is committed, or `01_roles.sql` holds a password that is not a `CHANGE_ME_` placeholder |
+| Build | The whole solution in Release | Any compile error |
+| Tests | The xUnit v3 suite (database tests skip themselves) | Any test fails |
+| Static analysis | Microsoft .NET analyzers at the recommended level over the application and all modules | A security rule fires: CA2100 (SQL injection), CA3075 (insecure XML), CA5350/CA5351 (weak cryptography). Other analyzer warnings are reported, not blocking |
+| Vulnerable package check | `dotnet list package --vulnerable --include-transitive` | Any NuGet package has a known vulnerability |
+
+Dependabot (`.github/dependabot.yml`) opens weekly pull requests for NuGet and GitHub Actions updates, so updates pass through the same checks. **Quality gate:** with branch protection requiring "Build and test (Windows)", a failing step blocks merging. Evidence: [link to a green run for the release candidate]; [link to a failed run, e.g. the first run that failed on the YAML syntax error (DEF-03)]. **What a green run does not prove:** behaviour against the real database (only the skipped database tests cover that), UI behaviour, and performance.
+
+## 6. Quality strategy applied
+
+Verification effort followed risk, not test count:
+
+| Risk | Why it matters | Stronger verification applied |
+|---|---|---|
+| Unauthorised access or data exposure (RSK-004, RSK-013, NFR-008) | Requester contact details and staff actions must be role-gated | 21 `RequestSecurityTests`, `AccessControlTests` matrix, TC-12 and TC-20 manual checks |
+| Invalid or lost status changes (FR-011, ADR-002) | The core workflow and its audit trail | State Pattern tests including a full transition table, lost-update conflict test, TC-13 |
+| Audit trail integrity (NFR-005, DEF-01) | Accountability depends on exactly one immutable row per change | Append-only trigger and grants, `HistoryImmutabilityTests` against PostgreSQL, `AuditLogModuleRegistrationTests` (DEF-01 regression), TC-13 |
+| Credential handling (NFR-003) | Passwords and database credentials | `PasswordHasherTests`, lockout tests, CI secrets guard |
+| Query translation and database behaviour (RSK-015) | In-memory fakes cannot find SQL problems (DEF-02) | Manual system checks on staging; TC-21 against PostgreSQL |
+
+## 7. Black-box, integration and system validation
+
+Automated tests are counted once per meaningful case; legitimate overlap between categories is allowed by the brief.
+
+| Category (M3 minimum) | Evidence | Count |
+|---|---|---|
+| Unit/component (5) | `PasswordHasherTests`, `AccessControlTests`, `RequestStateTest`, `NotificationEventHandlerTests`, `NotificationServicesTests`, `AuditLogServiceTests`, `AuditLogEventHandlerTests`, `DomainEventDispatcherTests` | Well above 5 |
+| Black-box functional (5) | `RequestSubmissionTests` (TC-15), `RequestStateTest` transition cases (TC-03 to TC-05), lockout boundary in `AuthServiceTests` (TC-16) | Above 5 |
+| API/integration (3) | Module boundaries through dependency injection: `RequestNotificationTests` (Requests to dispatcher to listener, TC-06), `NotificationsModuleTests` (TC-08), `AuditLogModuleRegistrationTests` (TC-22), `RequestSecurityTests` (Requests with Auth session and access control, TC-17); against real PostgreSQL: `HistoryImmutabilityTests` (TC-09) and TC-21 | Above 3; only the last two use the real database |
+| E2E/system (2) | Manual journeys on the staging build: TC-19, TC-20, TC-13, TC-10/TC-11, TC-14 | [record executed count] |
+| Negative/unauthorised (3) | Signed-out and wrong-role cases in `RequestSecurityTests` and `AccessControlTests`; wrong password and lockout in `AuthServiceTests`; invalid input in `RequestSubmissionTests` | Above 3 |
+| High-priority requirements/risks (5) | FR-006, FR-010, FR-011, NFR-003, NFR-005, NFR-008 (see RTM) | 6 |
+| Performance (1) | TC-21 | 1 |
+
+**Black-box techniques used:** equivalence partitioning (valid and invalid categories, blank versus filled fields, TC-15), boundary value analysis (description and location lengths at and around their limits, TC-15; the fifth failed login, TC-16), state transition testing (every allowed and blocked transition, TC-03 to TC-05) and a decision table (`TC08_StateTransitionTable_MatchesTheAcceptanceCriteria`, TC-05). Test case details, expected results and status are in "Test cases and verification evidence".
+
+## 8. Performance
+
+TC-21 (`Tests/CivicConnect.Tests/Performance/StaffQueuePerformanceTests.cs`) times the staff queue, the screen staff use most and the one NFR-002 is about. It signs in as a Staff user through the real Auth module and calls `IRequestService.GetStaffQueueAsync` against PostgreSQL: 3 warm-up calls, then 20 measured calls in sequence, with the open requests seeded by `db/perf/perf_seed_requests.sql` (1000 by default). Target: 95th percentile within 2 s and no failed calls; the 2 s figure is the NFR-002 placeholder from DEC-002, not a measured business requirement.
+
+| Field | Value |
+|---|---|
+| Environment | [machine, CPU, RAM, PostgreSQL version, local database] |
+| Data | [number of open requests returned per call] |
+| Result | [min / median / p95 / max in ms, failed calls] from `perf-tc21-result.txt` |
+| Interpretation | [within target or not] |
+
+**What this does not prove:** concurrent users, network latency to a hosted database, UI rendering time, or behaviour at municipal scale. The queue loads every open request with no paging (TD-07), so response time is expected to grow with the number of open requests.
+
+## 9. Defects and quality interpretation
+
+### Defect register
+
+| ID | Defect | Severity / impact | Found by | Status | Fix | Regression evidence |
+|---|---|---|---|---|---|---|
+| DEF-01 | Each status change wrote two `request_history` rows: `AuditLogEventHandler` was registered while `RequestService` also writes history | High: duplicate audit rows undermine NFR-005 and FR-017 | Documentation review against the code (v3.4) | Fixed in v3.6 [confirm with TC-13] | Registration removed from `AddAuditLogModule` | `AuditLogModuleRegistrationTests` (TC-22); TC-13 manual |
+| DEF-02 | Manager overview failed with "Something went wrong": `ListAllAsync` sorted after projecting to a DTO, which EF Core could not translate | High: FR-014 screen unusable | Manual run against PostgreSQL (v3.2) | Fixed in v3.2 | Sort moved before the projection | TC-14 manual [result] |
+| DEF-03 | First CI run failed with a YAML syntax error on line 8 of `ci.yml` after the branch triggers were edited | Medium: no CI feedback until fixed | GitHub Actions (CI) | Fixed in v3.5 | Branch triggers rewritten as a list | Next CI run [link] |
+
+### Technical debt register
+
+| ID | Debt | Why it was accepted | Consequence if left | Linked |
+|---|---|---|---|---|
+| TD-01 | No email and no requester notifications (no notification store) | Free-services constraint | FR-005 only partly met | DEC-001 |
+| TD-02 | Overdue requests not implemented | SLA threshold never agreed | FR-015 unmet | FR-015 |
+| TD-03 | No category filter on the manager list; no audit-trail export | Schedule | FR-016 partly met; FR-017 export missing | FR-016, FR-017 |
+| TD-04 | No change-password screen, session timeout or password reset | Schedule | Users cannot rotate passwords from the app | ADR-006 |
+| TD-05 | Login lockout held in memory | Schema has no failed-attempt columns | Lockout resets on restart | RSK-014 |
+| TD-06 | Desktop client connects directly to PostgreSQL | ADR-003 architecture | A tampered client can bypass C# checks | RSK-013 |
+| TD-07 | Staff queue and manager list load every matching request (no paging) | Small data volumes in M3 | Response time grows with open requests | NFR-002, NFR-007, TC-21 |
+| TD-08 | Automated tests use in-memory fakes; few database tests | Time; no database in CI | SQL/translation defects found late (DEF-02) | RSK-015 |
+| TD-09 | Event listener failures are swallowed; no logging | Simplicity | Failures are invisible in operation | FEC-03 |
+| TD-10 | Audit-trail permission checked in the UI, not inside `IAuditLogService` | Only one caller today | A new caller could skip the check | NFR-008 |
+| TD-11 | Test method prefixes `TC06`/`TC07`/`TC08` clash with this document's IDs | Names predate the table | Confusing evidence references | Test cases section |
+| TD-12 | Misspelt file names (`AuditLogModuleExstentions.cs`, `IDomainEventDispacther.cs`, `Architechture.png`) | Low priority | Harder to search the code | NFR-006 |
+
+## 10. Release readiness
+
+### Release Evidence Summary
+
+| Evidence area | Result | Interpretation | Concern / action |
+|---|---|---|---|
+| Build and CI | [Pass/Fail, run link] | [what the checks demonstrate] | Block release if the gate fails |
+| Automated regression | [N passed / N total; N skipped (database tests)] | Core rules, permissions and transitions protected | Investigate any failure |
+| API/integration | [result of module and database tests] | Module boundaries cooperate; database denies history edits | Database coverage is thin (TD-08) |
+| System/E2E | [TC-13, TC-19, TC-20, TC-10/11, TC-14 results on staging] | [does the critical journey complete?] | Record any failure as a defect |
+| Static/security | [analyzer and vulnerable-package results, secrets guard] | [findings and severity] | Fix, mitigate or record |
+| Performance | [TC-21 p95 and failures] | Against the 2 s placeholder, local database | TD-07 paging |
+| Known defects | DEF-01 fixed (pending TC-13), DEF-02 fixed, DEF-03 fixed | [any open defect and its impact] | Block if a high-severity defect is open |
+| Acceptance | RTM: FR-001 to FR-013 implemented; FR-005, FR-016, FR-017 partial; FR-015 deferred | Core lifecycle met; known gaps listed | Gaps recorded as TD-01 to TD-03 |
+
+### Classification
+
+**Proposed: CONDITIONALLY READY**, to be confirmed by the team once the results above are recorded. Reasoning: the core lifecycle is implemented for all three roles and protected by automated tests and CI gates, and the known limitations (TD-01 to TD-03, deferred FR-015) are non-blocking and documented. The classification becomes **NOT READY** if the CI run for the release candidate fails, if TC-13 still shows two history rows, or if a high-severity defect is found during the staging checks.
+
+### Residual risk statement
+
+| Residual risk | Why it remains | Current mitigation | Next action / owner |
+|---|---|---|---|
+| A tampered desktop client bypasses C# authorisation | Clients hold the app role's database credentials (RSK-013) | Least-privilege grants, append-only history, assignee trigger | Thin API tier or row-level security before any real release / [owner] |
+| Slow staff queue at real volumes | No paging; TC-21 used one local machine (TD-07) | Indexed status and date columns | Add paging and re-run TC-21 on representative hardware / [owner] |
+| Database defects missed by tests | Most tests use in-memory fakes (RSK-015) | Manual staging checks, two database tests | PostgreSQL integration job in CI / [owner] |
+| Data loss | No automated backups (RSK-009) | Manual `pg_dump` before staging deployments | Scheduled backups for any hosted database / [owner] |
+| Requesters miss status changes | No email or requester notifications (TD-01) | Status visible in My requests | Notification store and email channel / [owner] |
 
 # Problem Statement & business need
 
@@ -295,7 +472,7 @@ Preferring free-tier hosting limits which security protections are available by 
 | Manager /Should          | FR-015        | NFR-007                                          | Requests module (manager queries) | Request (overdue-threshold queries)                                  | IRequestService overdue-threshold query via EF Core LINQ.                                                                                                                                                                                         | C# .NET WinForm (VS 2026), EF Core 10, PostgreSQL 16+ (ADR-003) | Not implemented: the overdue/SLA threshold was never agreed. | None | Deferred (threshold not decided) | ADR-003                   |
 | Manager/Could            | FR-016        | NFR-007                                          | Requests module (manager queries) | Request, Category (grouped read)                                     | IRequestService grouped read query via EF Core LINQ.                                                                                                                                                                                              | C# .NET WinForm (VS 2026), EF Core 10, PostgreSQL 16+ (ADR-003) | `ManagerDashboardForm`: counts grouped by status and by category; list filtered by status and free-text search. No category filter on the list. | TC-14 (manual, list loads); no automated test | Partially implemented | ADR-003                   |
 | Manager/Should           | FR-017        | NFR-005, NFR-007                                 | Audit log module | RequestHistory, Comment (read for accountability)                    | IAuditLogService read RequestHistory/Comment populated via Observer Pattern.                                                                                                                                                                      | C# .NET WinForm (VS 2026), EF Core 10, PostgreSQL 16+ (ADR-003) | `IAuditLogService` / `AuditLogService` / `EfAuditLogRepository` (CivicConnect.AuditLog); `AuditTrailForm` opened from `ManagerDashboardForm`, gated by `ViewReports`. No export function. | TC-09 (automated), TC-10 to TC-12 (manual) | Implemented except export (manual test pending) | ADR-003                   |
-| Constraints/Must         | NFR-001-\>008 | All (NFR-002,003,005,007,008 formalised as ASRs) | All modules (Auth, Requests, AuditLog, Notifications, shared Common) | Crosscutting see ASR section for per NDR data impact                 | Collectively supported by State Pattern, Observer Pattern and Module Integration Decisions.                                                                                                                                                       | C# .NET WinForm (VS 2026), EF Core 10, PostgreSQL 16+ (ADR-003) | NFR-003/008: bcrypt hashes checked by `users_hash_format`, no secrets in the repository (.gitignore, `appsettings.example.json`, user-secrets), `User` and the hash internal to the Auth module, least-privilege `civicconnect_app` role, requester contact details hidden from requesters. NFR-005: `request_history` append-only (trigger + no UPDATE/DELETE grant), audit trail screen. NFR-006: one project per module. NFR-002, NFR-004 and NFR-007: not measured. | NFR-003/008: TC-16, TC-17. NFR-005: TC-09 (database case runs only with `CIVICCONNECT_TEST_CONNECTION`), TC-10/TC-13 (manual). NFR-001, 002, 004, 006, 007: no evidence recorded. | Approved (ASRs formalised); NFR-003, 005, 008 implemented; NFR-002 and NFR-007 not measured | ADR-001 to ADR-006, RSK-013 to RSK-016 |
+| Constraints/Must         | NFR-001-\>008 | All (NFR-002,003,005,007,008 formalised as ASRs) | All modules (Auth, Requests, AuditLog, Notifications, shared Common) | Crosscutting see ASR section for per NDR data impact                 | Collectively supported by State Pattern, Observer Pattern and Module Integration Decisions.                                                                                                                                                       | C# .NET WinForm (VS 2026), EF Core 10, PostgreSQL 16+ (ADR-003) | NFR-003/008: bcrypt hashes checked by `users_hash_format`, no secrets in the repository (.gitignore, `appsettings.example.json`, user-secrets), `User` and the hash internal to the Auth module, least-privilege `civicconnect_app` role, requester contact details hidden from requesters. NFR-005: `request_history` append-only (trigger + no UPDATE/DELETE grant), audit trail screen. NFR-006: one project per module. NFR-002, NFR-004 and NFR-007: not measured. | NFR-003/008: TC-16, TC-17, CI secrets guard and static/security checks. NFR-005: TC-09 (database case runs only with `CIVICCONNECT_TEST_CONNECTION`), TC-22, TC-10/TC-13 (manual). NFR-002/007: TC-21 (not yet executed). NFR-001, 004, 006: no evidence recorded. | Approved (ASRs formalised); NFR-003, 005, 008 implemented; NFR-002 and NFR-007 measured by TC-21 once executed | ADR-001 to ADR-006, RSK-013 to RSK-016 |
 
 # End-to-end traceability
 
@@ -325,7 +502,7 @@ Preferring free-tier hosting limits which security protections are available by 
 
 # Test cases and verification evidence
 
-Automated cases are xUnit v3 tests in `CivicConnect.Tests` (target `net10.0-windows`, Windows only). From v3.5 they also run in the GitHub Actions CI workflow on every push and pull request; a CI run is the evidence to cite for their status once recorded. Manual cases are performed in the running application. Status is recorded only for what has been run. **v3.4 note:** some test method names in the code use the prefixes `TC06`, `TC07` and `TC08` for request submission and state-table tests; those names predate this table and do not match TC-06 to TC-08 below. The IDs in this table are the ones to cite. Automated rows TC-15 to TC-18 were added in v3.4 from the test classes in the final repository; their run result has not yet been recorded here.
+Automated cases are xUnit v3 tests in `CivicConnect.Tests` (target `net10.0-windows`, Windows only). From v3.5 they also run in the GitHub Actions CI workflow on every push and pull request; a CI run is the evidence to cite for their status once recorded. Manual cases are performed in the running application. Status is recorded only for what has been run. **v3.4 note:** some test method names in the code use the prefixes `TC06`, `TC07` and `TC08` for request submission and state-table tests; those names predate this table and do not match TC-06 to TC-08 below. The IDs in this table are the ones to cite. Automated rows TC-15 to TC-18 were added in v3.4 from the test classes in the final repository, and TC-21 and TC-22 in v3.6; their run result has not yet been recorded here. In CI the database cases (TC-09 database part, TC-21) are skipped because no database connection is configured; they run on the staging machine (`Docs/STAGING.md`).
 
 ## Automated test cases
 
@@ -340,6 +517,8 @@ Automated cases are xUnit v3 tests in `CivicConnect.Tests` (target `net10.0-wind
 | TC-16 | Users and auth: hash is never plaintext and passes the `users_hash_format` CHECK; salted; 72-byte limit removed; malformed hash fails closed; work factor at least 12; login ignores email case; identical error for wrong password and unknown email; 5 failures lock the email until the lockout expires; change-password rules; DTOs never print a password; registration always creates a Requester; duplicate email rejected; role-permission matrix; signed-out user has no access | As described | FR-006, NFR-003, NFR-008, ADR-006, DEC-004 | PasswordHasherTests (6), AuthServiceTests (10), UserServiceTests (6), AccessControlTests (4) | Result not yet recorded |
 | TC-17 | Request security and workflow rules: signed-out user refused; requester cannot use staff actions; manager cannot change requests; staff cannot submit; requester sees and opens only their own requests and never sees contact details or staff notes; staff detail shows contact details, history and notes; full journey records every step; only Staff can be assignees; only the assignee changes status; resolving needs a note; lost update reported as a conflict; staff queue hides Closed and filters by status and search | As described | FR-003, FR-004, FR-006 to FR-013, NFR-005, NFR-008, ADR-002, ADR-004 | RequestSecurityTests (21) | Result not yet recorded |
 | TC-18 | Domain event dispatcher: calls every registered handler; no handlers does nothing; the original exception surfaces, not a reflection wrapper | As described | ADR-005 | DomainEventDispatcherTest (3) | Result not yet recorded |
+| TC-21 | Performance: signed in as Staff, time `GetStaffQueueAsync` against PostgreSQL with the open requests seeded by `db/perf/perf_seed_requests.sql`; 3 warm-up and 20 measured calls | 95th percentile within 2 s (NFR-002 placeholder, DEC-002) and no failed calls | NFR-002, NFR-007 | StaffQueuePerformanceTests (runs only when `CIVICCONNECT_TEST_CONNECTION` is set) | Not yet executed |
+| TC-22 | DEF-01 regression: `AddAuditLogModule` does not register `AuditLogEventHandler`; with the Notifications and AuditLog modules registered, a status change has exactly one listener (`NotificationEventHandler`) | No `AuditLogEventHandler`; exactly one handler | NFR-005, FR-017, ADR-005, DEF-01 | AuditLogModuleRegistrationTests (2) | Result not yet recorded |
 
 ## Manual test cases
 
@@ -348,7 +527,7 @@ Automated cases are xUnit v3 tests in `CivicConnect.Tests` (target `net10.0-wind
 | TC-10 | Log in as Manager, open the manager dashboard, click Audit trail | The audit trail opens with entries newest first | FR-017, NFR-005 | Not yet executed |
 | TC-11 | In the audit trail, filter by request number, status and date range | The list narrows correctly. An invalid id, or From after To, shows a clear message | FR-017, NFR-005 | Not yet executed |
 | TC-12 | Log in as a Requester or Staff user | There is no way to open the audit trail. If it is forced open, the access check fails closed | FR-006, NFR-008 | Not yet executed |
-| TC-13 | As Staff, change the status of a request | A notification pop-up appears, and the audit trail shows the new history row exactly once (no duplicate) | FR-005, FR-010, FR-011, NFR-005, ADR-005 | Not yet executed. Expected to fail on the history part until DEF-01 is fixed (see ADR-005 implementation note) |
+| TC-13 | As Staff, change the status of a request | A notification pop-up appears, and the audit trail shows the new history row exactly once (no duplicate) | FR-005, FR-010, FR-011, NFR-005, ADR-005 | Not yet executed. Confirms the DEF-01 fix (v3.6) on the real database |
 | TC-14 | Log in as Manager and open the overview of all requests | The list loads without a Something went wrong error (regression for the ListAllAsync sorting defect fixed in v3.2) | FR-014 | Not yet executed |
 | TC-19 | Start the app; register a new requester; sign in with it; sign out; sign in five times with a wrong password, then with the right one | Login and register open full screen; registration creates a Requester; wrong password gives the same message as an unknown email; after five failures the account is locked for five minutes | FR-006, NFR-003, ADR-006 | Not yet executed |
 | TC-20 | Sign in as each dev seed user (Requester, Staff, Manager) | Each role sees only its own tiles on the home screen; closing the home screen signs the user out | FR-006, NFR-008, DEC-004 | Not yet executed |
@@ -373,8 +552,8 @@ Automated cases are xUnit v3 tests in `CivicConnect.Tests` (target `net10.0-wind
 | RSK-012 | State Pattern and Observer Pattern add several extra classes and an indirect, harder-to-trace execution flow. Acknowledged as a trade-off in both design decisions themselves           | Design                     | M        | L-M     | Medium       | Keep state/handler classes small and clearly named, add inline comments at each dispatch point, review at the M3 checkpoint whether the pattern is earning its complexity for the areas actually build.                                                               | If the added indirection genuinely slows debugging or onboarding beyond what the team can sustain, simply by collapsing rarely used state classes or merging trivial event handlers. Documented as a controlled ADR amendment.                             |
 | RSK-013 | The desktop client connects directly to PostgreSQL, so the `civicconnect_app` credentials exist on every client machine and authorisation and login lockout are enforced only in C#. A tampered or modified client could bypass role checks and the lockout. | Security | M | H | High | Least-privilege grants (no DELETE, no DDL, no UPDATE of role, append-only RequestHistory); `User` type and password hash kept `internal` to the module; connection string kept out of the repository (NFR-003); accepted risk recorded in db/README section 6 and ADR-006. | If the risk becomes unacceptable, introduce a thin API tier or PostgreSQL row-level security as a controlled architecture change via ADR, not an informal edit. |
 | RSK-014 | Authentication has known gaps at M3: lockout is in memory only (resets on restart, the schema has no failed-attempt columns), no login audit trail, no session timeout, no password-reset flow, no common-password check, and the role is a snapshot taken at login. | Security/Quality | M | M | Medium | Gaps recorded in the module README and ADR-006; password length rules (10 to 128) and bcrypt work factor 12; lockout applies to both login and change-password. | Raise a change request (Appendix E template) for durable lockout columns, a login-event table and session timeout, and re-run the NFR-003 tests before release. |
-| RSK-015 | Automated tests use in-memory fakes, so EF Core query translation, SQL and grant problems are found only when the app is run (the ListAllAsync defect in v3.2 was found this way). The CI workflow (v3.5) runs the unit tests on every push and pull request, but it does not run any test against PostgreSQL. | Quality | M | M | Medium | CI build and tests on every change (`.github/workflows/ci.yml`), required to pass before merging once branch protection is switched on; run the manual cases TC-10 to TC-14, TC-19 and TC-20 against `civicconnect_db` before release; the history-immutability test runs against PostgreSQL when `CIVICCONNECT_TEST_CONNECTION` is set. | Add a PostgreSQL job to the CI workflow that runs the `db/` scripts and sets `CIVICCONNECT_TEST_CONNECTION`, then add integration tests for the EF Core repositories. |
-| RSK-016 | Duplicate audit history (defect DEF-01): `AddAuditLogModule` registers `AuditLogEventHandler` while `RequestService` already writes `request_history` in the same transaction, so each status change is expected to write two history rows, which weakens NFR-005 and FR-017 evidence. | Quality/Auditability | H | M | High | Remove the `AuditLogEventHandler` registration from `AuditLogModuleExstentions.cs` (the class and its tests can stay); confirm with TC-13. | If history writing should move to the handler instead, stop the `Request` aggregate writing history and re-run TC-03, TC-06, TC-09 and TC-13; record the change in ADR-005. |
+| RSK-015 | Automated tests use in-memory fakes, so EF Core query translation, SQL and grant problems are found only when the app is run (the ListAllAsync defect in v3.2 was found this way). The CI workflow (v3.5) runs the unit tests on every push and pull request, but it does not run any test against PostgreSQL. **v3.6:** TC-21 adds a second test against PostgreSQL (run on staging, not in CI). | Quality | M | M | Medium | CI build and tests on every change (`.github/workflows/ci.yml`), required to pass before merging once branch protection is switched on; run the manual cases TC-10 to TC-14, TC-19 and TC-20 against `civicconnect_db` before release; the history-immutability test runs against PostgreSQL when `CIVICCONNECT_TEST_CONNECTION` is set. | Add a PostgreSQL job to the CI workflow that runs the `db/` scripts and sets `CIVICCONNECT_TEST_CONNECTION`, then add integration tests for the EF Core repositories. |
+| RSK-016 | Duplicate audit history (defect DEF-01): `AddAuditLogModule` registered `AuditLogEventHandler` while `RequestService` already writes `request_history` in the same transaction, so each status change wrote two history rows. **v3.6: fixed** (registration removed); remaining risk is a regression if the handler is registered again. | Quality/Auditability | L | M | Low | Regression test `AuditLogModuleRegistrationTests` (TC-22) runs in CI on every change; TC-13 confirms one row per change on the real database. | If history writing should move to the handler instead, stop the `Request` aggregate writing history and re-run TC-03, TC-06, TC-09 and TC-13; record the change in ADR-005. |
 
 **2. Highest-priority risk to defend (recommend RSK-004 or RSK-005):**
 
@@ -390,7 +569,7 @@ Automated cases are xUnit v3 tests in `CivicConnect.Tests` (target `net10.0-wind
 | FEC-02 | Data migration & integrity | Legacy or pilot data collected early must be portable into whatever schema M2 selects | Database technology choice, schema design | Format and volume of any existing/pilot data | Locked-in choices made for convenience now could block a sound M2 schema decision | Partially resolved. Data and persistence baseline is now baselined per the Data & Persistence section, and ADR-002 sets hybrid DB and application-layer integrity enforcement with optimistic concurrency. <br>**Status:** In Progress |
 | FEC-03 | Observability & tracking | Citizens need to see report status; this is a functional expectation, not just an ops concern | Logging/monitoring approach, status-change audit trail | Whether status history needs to be query able/reportable for municipal accountability | Without early NFRs on this, status tracking risks being bolted on rather than designed in | Still open as originally scoped but now has an architectural home. NFR-005 formalized as an ASR, RequestHistory entity defined as append-only. Logging/monitoring tools itself remains a forward consideration for M3. <br>**Status:** Still open, narrowed scope <br>**v3.4 update:** The audit trail is implemented (append-only `request_history`, manager Audit trail screen, FR-017). Application logging is still not implemented, and listener failures are swallowed silently. <br>**Status:** Partially resolved |
 | FEC-04 | Scalability under uneven load | Report volume will spike after major weather events or infrastructure failures, not evenly | Deployment environment, architecture (M2) | Expected peak vs baseline volumes (no real data yet) | Under-provisioning is a public-facing failure mode — visible and reputationally costly | Partially resolved. NFR-007 formalized as an ASR, Data 7 Persistence baseline explicitly addresses scalability/availability/backup-recovery at the architectural level. Actual load-test evidence remains a forward consideration for M3. <br>**Status:** In Progress |
-| FEC-05 | Automated testing & CI | Requirements must be written testable now so M2/M3 CI can actually verify them | Test strategy, CI pipeline design | Which NFRs are realistically automatable vs manual | Untestable requirements written now become unverifiable requirements later | Partially resolved in M3. An xUnit v3 suite now exists (see Test cases and verification evidence, TC-03 to TC-09) and runs on Windows only. No CI pipeline is configured yet, and the manual UI cases (TC-10 to TC-14) are not yet executed. <br>**Status:** In Progress <br>**v3.4 update:** The suite now also covers Auth (TC-16), request submission (TC-15), request security (TC-17) and the dispatcher (TC-18). Still no CI pipeline and no PostgreSQL integration tests (RSK-015). <br>**Status:** In Progress <br>**v3.5 update:** CI pipeline added: GitHub Actions (`.github/workflows/ci.yml`) builds the solution and runs the xUnit v3 suite on a Windows runner for every push and pull request to `main` and the development branch. Not yet covered: database integration tests in CI, and the first successful run is still to be recorded. <br>**Status:** Largely resolved |
+| FEC-05 | Automated testing & CI | Requirements must be written testable now so M2/M3 CI can actually verify them | Test strategy, CI pipeline design | Which NFRs are realistically automatable vs manual | Untestable requirements written now become unverifiable requirements later | Partially resolved in M3. An xUnit v3 suite now exists (see Test cases and verification evidence, TC-03 to TC-09) and runs on Windows only. No CI pipeline is configured yet, and the manual UI cases (TC-10 to TC-14) are not yet executed. <br>**Status:** In Progress <br>**v3.4 update:** The suite now also covers Auth (TC-16), request submission (TC-15), request security (TC-17) and the dispatcher (TC-18). Still no CI pipeline and no PostgreSQL integration tests (RSK-015). <br>**Status:** In Progress <br>**v3.5 update:** CI pipeline added: GitHub Actions (`.github/workflows/ci.yml`) builds the solution and runs the xUnit v3 suite on a Windows runner for every push and pull request to `main` and the development branch. Not yet covered: database integration tests in CI, and the first successful run is still to be recorded. <br>**Status:** Largely resolved <br>**v3.6 update:** CI now also runs a secrets guard, .NET static analysis with blocking security rules, and a vulnerable-package check; Dependabot is configured. <br>**Status:** Largely resolved (database tests still not in CI) |
 | FEC-06 | Deployment constraints | Municipal/government hosting may carry compliance, uptime or procurement constraints unknown yet | Hosting/infrastructure decision (M2+) | Whether the client has a mandated hosting environment or budget ceiling | Committing to assumptions now may not survive client constraints later | Largely resolved. ADR-003 and the Deployment Compatibility Notes confirm Windows 10/11 desktop client distributed as a packaged executable, connecting to a PostgreSQL 16+ instance. <br>**Status:** Mostly Resolved <br>**v3.4 update:** No change: the client is run from Visual Studio or `dotnet run` against a local PostgreSQL 16+ instance; a hosted database was not set up. <br>**Status:** Open for any deployment beyond development |
 | FEC-07 | Maintainability post-handover | The client (a municipality) will operate this after the team graduates/moves on | Documentation depth, architecture simplicity vs sophistication trade-off | Client's technical capacity to maintain the system long-term | Building something only the current team can maintain creates unsustainable technical debt | Still open as a documentation depth/simplicity trade-off, but ADR-001’s rational already speaks to it. Full assessment deferred to M3 debt review. <br>**Status:** Still open, informed by ADR-001 |
 
@@ -538,6 +717,8 @@ Later consequence: TBD.
 
 - **Implementation note (v3.4, defect DEF-01)**: the v3.2 note above describes the intended design, but the final code does **not** match it: `AddAuditLogModule` (`AuditLogModuleExstentions.cs`) still registers `AuditLogEventHandler` as a listener for `RequestStatusChangedEvent`. Because `RequestService` also writes `request_history` in the same transaction, each status change is expected to produce two history rows. Fix: remove that registration line. Tracked as RSK-016 and checked by TC-13.
 
+- **Implementation note (v3.6)**: DEF-01 fixed. The `AuditLogEventHandler` registration was removed from `AddAuditLogModule`, so the code now matches the v3.2 note: only `NotificationEventHandler` listens for `RequestStatusChangedEvent`. Regression test: `AuditLogModuleRegistrationTests` (TC-22).
+
 ## Decision Record: ADR-006
 
 - Context: CivicConnect is a WinForms desktop client connecting directly to PostgreSQL with no server or API tier (ADR-003), so authentication and role enforcement must live in the C# application layer. The database already refuses plaintext passwords through the `users_hash_format` CHECK, which accepts bcrypt (`$2a$`, `$2b$`, `$2y$`) or Argon2 hashes only. Resolves FEC-01.
@@ -566,7 +747,7 @@ Later consequence: TBD.
 
 - **Build & Version Control:** GitHub repository
 
-- **Continuous Integration (v3.5):** GitHub Actions workflow `.github/workflows/ci.yml` on a `windows-latest` runner (the app and tests target `net10.0-windows`). It restores, builds the solution in Release and runs the xUnit v3 suite on every push and pull request to `main` and the development branch. `global.json` in the repository root opts `dotnet test` into Microsoft.Testing.Platform, which the .NET 10 SDK requires for xUnit v3. The workflow uses a read-only token and needs no secrets.
+- **Continuous Integration (v3.5):** GitHub Actions workflow `.github/workflows/ci.yml` on a `windows-latest` runner (the app and tests target `net10.0-windows`). It restores, builds the solution in Release and runs the xUnit v3 suite on every push and pull request to `main` and the development branch. `global.json` in the repository root opts `dotnet test` into Microsoft.Testing.Platform, which the .NET 10 SDK requires for xUnit v3. The workflow uses a read-only token and needs no secrets. **v3.6:** the workflow also runs a secrets guard, Microsoft .NET analyzers (security rules CA2100, CA3075, CA5350, CA5351 block the run) and a vulnerable NuGet package check; Dependabot (`.github/dependabot.yml`) proposes weekly dependency updates.
 
 - **IDE & Development Environment:** Visual Studio 2026
 
@@ -671,6 +852,8 @@ Later consequence: TBD.
 - **v3.2 note**: only NotificationEventHandler is registered as a listener. AuditLogEventHandler is implemented but not registered, to avoid duplicate request_history rows (see ADR-005 implementation note).
 
 - **v3.4 note**: in the final code both handlers are registered (see ADR-005, defect DEF-01). Only `NotificationEventHandler` should be.
+
+- **v3.6 note**: fixed; only `NotificationEventHandler` is registered (DEF-01, TC-22).
 
 # Initial Module Interface & Integration Decisions
 
@@ -900,10 +1083,7 @@ Zhu, Q.-H., Tang, H., Huang, J.-J. & Hou, Y., 2021. Task scheduling for multi-cl
 | Freerk van den Bos | Drafting of version control log & README | Claude | Generating the version control log & README. | Checked to verify that all drafted content is accurate to the PED. |
 | Regardt Osler | Generating architecture & ERD diagrams | Claude | Generating architecture & ERD diagrams based on given information. | Checked the validity of diagrams and changed the diagrams to match the overall look and feel of the document. Changed the colors used in the diagram to match the overall look and feel of the document. |
 | **MILESTONE 3** | 
-| Paul Edward van Zyl | Users and auth module (08/10/2026 to 15/10/2026): (1) `CivicConnect.Common` and `CivicConnect.Auth` (login, bcrypt hashing, registration, role checks, lockout, validators, EF Core mapping); (2) xUnit test suite for the module; (3) `CivicConnect.App` project with full-screen login and registration forms; (4) `.gitignore` and `appsettings.example.json`; (5) draft ADR-006 and module README | Claude | Generated the C# code, tests, forms, ignore rules, config template, ADR draft and README from the PED, `db/` scripts and Master Project Brief. Iterated on build, restore and test errors that I reported. Explained project layout, NuGet packages and dotnet commands. Claude could not compile or run the code in its environment, so nothing it produced was verified by the tool itself. | Rejected/changed: first `.gitignore` was too broad (ignored folder names such as out, artifacts, publish and logs, and file types such as .db, .sqlite, .key, .pem, .crt and .bak that could match needed files), so it was cut down to secrets, dumps and generated output and tested against a mock repository layout. Fixed: CS0411 in `Validators.cs` (Cascade used inside helper methods); xUnit v2 and v3 both installed (CS0433), v2 removed to match ADR-003; test project named `xUnit` caused a circular dependency (NU1108), renamed to `CivicConnect.Tests`; stale solution path after the rename (MSB3202); CS0122 because the Auth code was not in its own project with `InternalsVisibleTo` [describe final fix]; .NET 10 test runner opt-in via `global.json`; connection-string-not-found at startup [describe the cause and fix]. Accepted: 26 xUnit1051 warnings (cancellation-token suggestion) because they do not affect results. Verified: [`dotnet build` clean on date; `dotnet test` N passed / N total; forms exercised against the real `civicconnect_db` (login, wrong password, lockout, registration, duplicate email); hash starts with `$2a$` and passes `users_hash_format`]. Checked the permission matrix against [the PED requirements] and [changed X]. Evidence: PR #[28+29] / commit [hash]. |
-| Paul Edward van Zyl | PED v3.3 text and AI Usage Register entries for the Users and auth module (15/10/2026): RTM rows, FR-006 end-to-end trace, RSK-013/014, FEC-01 update, ADR-006, DEC-004, module-interface paragraph, Document Control Log row | Claude | Drafted the wording in the PED's existing table and record formats from the uploaded PED, README, change log and `db/` scripts. | Checked against [the actual code and PED v3.2]; replaced placeholders with real results; renumbered IDs where already used [state]; rejected/changed [state anything you changed]. |
-| Paul Edward van Zyl | Final documentation update (15/10/2026): README.md, PED v3.4 and Document Control Log row, checked against the final repository | Claude | Compared the README and PED with the final code, `db/` scripts and tests; updated the RTM evidence columns, FR-001 trace, added the FR-006 trace, test cases TC-15 to TC-20, RSK-015/016, FEC updates, ADR-001/005/006 notes, the final interface table and the README. Found that `AuditLogEventHandler` is still registered (DEF-01). | Checked against [the code; state what you checked]. Test results are not claimed: the TC-15 to TC-18 status reads "Result not yet recorded" until the team runs `dotnet test` and records the result. [State anything you changed or rejected.] |
-| Paul Edward van Zyl | CI pipeline (15/10/2026): GitHub Actions workflow `.github/workflows/ci.yml`, `global.json`, step-by-step setup instructions, and the README/PED v3.5 updates describing it | Claude | Drafted the workflow (Windows runner, .NET 10 SDK, restore, Release build, `dotnet test`, read-only token, cancel superseded runs) and `global.json`; explained how to add it on a branch from the development branch, open a pull request and protect the branch; updated the documentation. | Changed: branch triggers extended from `main` only to `main` and the development branch, because the team works on the development branch. Verified: [commands run locally before pushing; first CI run result and link; branch protection switched on, yes/no]. |
+| Paul Edward van Zyl | Milestone 3 contributions (08/10/2026 to 15/10/2026): (1) Users and auth module: `CivicConnect.Common` and `CivicConnect.Auth` (login, bcrypt hashing, registration, role checks, lockout, validators, EF Core mapping), its xUnit tests, draft ADR-006 and module README; (2) `CivicConnect.App` full-screen login and registration forms; (3) `.gitignore` and `appsettings.example.json`; (4) CI pipeline (`.github/workflows/ci.yml` with secrets guard, build, tests, static analysis and vulnerable-package check), `global.json` and Dependabot; (5) DEF-01 fix with regression test TC-22, performance test TC-21 with `db/perf/` scripts, and `Docs/STAGING.md`; (6) documentation: README, `db/README.md`, PED v3.3 to v3.6 (RTM, traces, test cases, risks, FECs, ADR-006, DEC-004, interface table, M3 submission information and M3 release evidence chapters) and Document Control Log rows; (7) removal of leftover AI instruction comments from the code | Claude | Generated the code, tests, forms, scripts, CI workflow, staging guide and documentation from the PED, `db/` scripts, Master Project Brief and M3 brief, following the PED's existing formats. Iterated on build, restore, test and CI errors that I reported. Compared the project against the M3 brief and against the code to find gaps and stale documentation (it found DEF-01). Explained project layout, NuGet packages, dotnet commands and GitHub Actions setup. Listed every comment it proposed to delete so I could review the list. Claude could not compile or run anything in its environment, so nothing it produced was verified by the tool itself. | Rejected/changed: the first `.gitignore` was too broad (it ignored folder names such as out, artifacts, publish and logs, and file types such as .db, .sqlite, .key, .pem, .crt and .bak that could match needed files), so it was cut down to secrets, dumps and generated output and tested against a mock repository layout; CI branch triggers extended from `main` only to `main` and `development`, because the team works on `development`; in the comment cleanup I kept the usage note in `perf_seed_requests.sql` and the `FormFactory` comment (typo fixed), and the unresolvable "PERF-01" reference was removed. Fixed with AI help: CS0411 in `Validators.cs` (Cascade used inside helper methods); xUnit v2 and v3 both installed (CS0433), v2 removed to match ADR-003; test project named `xUnit` caused a circular dependency (NU1108), renamed to `CivicConnect.Tests`; stale solution path after the rename (MSB3202); CS0122 because the Auth code was not in its own project, fixed by moving it into the `CivicConnect.Auth` class library with `InternalsVisibleTo CivicConnect.Tests`; .NET 10 test runner opt-in via `global.json`; YAML syntax error in `ci.yml` (DEF-03); connection-string-not-found at startup [describe the cause and fix]. Accepted: 26 xUnit1051 warnings (cancellation-token suggestion) because they do not affect results. Verified: [`dotnet build` and `dotnet test` results locally and in CI (run link); forms exercised against the real `civicconnect_db` (login, wrong password, lockout, registration, duplicate email); permission matrix checked against the PED requirements; TC-13 shows one history row; TC-21 timings; staging record filled in; documentation checked against the code]. Evidence: PR #28, #29 / commit [hash]. |
 | Freerk van den Bos | Database baseline and supporting documentation (06/10/2026): (1) `db/` setup scripts (dev reset, roles, create database, schema); (2) `db/README.md`; (3) commit message, v3.0 Document Control Log row and PR description; (4) suggested repository/project structure | Claude | Generated the PostgreSQL scripts for `civicconnect_db` from the ERD and PED (tables, constraints, indexes, `xmin` concurrency, append-only history trigger, least-privilege roles and grants) and iterated on errors reported by the team. Drafted the database README, the commit/changelog/PR wording from the project's existing conventions, and a proposed folder layout mapped to the PED architecture. | Rejected: first version's business-rule triggers, row-level security, views and stored functions, because they duplicated the State Pattern and Observer logic in C# (ADR-004/005, hybrid strategy). Changed: roles aligned to Requester/Staff/Manager; statuses aligned to the PED workflow; script split into three files after psql-only commands failed in pgAdmin; schema-ownership and aborted-transaction errors fixed; email format check re-added at team request. Verified: [complete: PostgreSQL version, scripts run in own environment, checks from `db/README.md` section 8 executed and results; README and PR text checked against the scripts and PED; placeholders replaced; folder layout adopted/adjusted/rejected]. Evidence: PR #[ ] / commit [hash]. |
 | Regardt Osler | Manager audit trail screen, in-app notifications, compile-error fixes in the AuditLog and Notifications modules, README and PED v3.2 update (15/10/2026) | Claude | Helped with UI design, Helped with debugging, generated code for request models, helped me to understand how modular monolith works in parcticse. Generated and helped visualise edits to Markdown files| [Regardt to complete: what was verified, changed or rejected] |
 # Sign off

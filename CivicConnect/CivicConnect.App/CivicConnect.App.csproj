@@ -30,6 +30,4 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.12" />
   </ItemGroup>
 
-  <!-- NuGet: dotnet add package Microsoft.Extensions.Hosting  (config + dependency injection) -->
-
 </Project>

@@ -21,8 +21,7 @@ public enum Permission
 }
 
 /// <summary>
-/// The ONE place that decides what each role may do. ASSUMPTION: derived from the Master Brief
-/// capability lists; confirm against the PED requirements and adjust here (and in the tests).
+/// The ONE place that decides what each role may do.
 /// This is coarse-grained. Row-level rules ("a requester sees only their own requests") belong to
 /// the Requests module, which should compare ISessionContext.CurrentUser.Id to the record owner.
 /// </summary>

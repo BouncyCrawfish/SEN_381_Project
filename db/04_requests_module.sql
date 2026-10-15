@@ -39,7 +39,7 @@ ALTER TABLE request_history
 --    DELIBERATE, NARROW EXCEPTION to "no business-rule triggers": the C# service already checks
 --    this, but the desktop client holds the app credentials (README section 6 accepted risk), so a
 --    tampered client could otherwise assign work to a requester or manager. The workflow itself
---    (which status change is legal) stays in C# (ADR-004). Drop this trigger if the team disagrees.
+--    (which status change is legal) stays in C# (ADR-004).
 CREATE FUNCTION enforce_assignee_is_staff() RETURNS TRIGGER
 LANGUAGE plpgsql
 SET search_path = public, pg_temp      -- fixed path: no object hijacking through a user schema

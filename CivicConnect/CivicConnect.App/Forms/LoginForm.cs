@@ -127,8 +127,7 @@ internal sealed class LoginForm : Form
         }
         catch (Exception)
         {
-            // Database unreachable, etc. Deliberately generic. TODO: log the exception type/message
-            // (never the DTO or credentials) to a secure logger once logging exists.
+            // Database unreachable, etc. Deliberately generic.
             _password.Clear();
             ShowMessage("Sign-in is unavailable right now. Please try again later.", isError: true);
         }

@@ -62,7 +62,6 @@ CREATE TABLE request (
     status VARCHAR(20) NOT NULL DEFAULT 'Submitted',
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     -- Optimistic concurrency (ADR-002) uses PostgreSQL's built-in xmin column.
-    -- EF Core: [Timestamp] public uint Version { get; set; }  -> maps to "xmin".
 
     CONSTRAINT request_description_not_blank CHECK (btrim(description) <> ''),
     CONSTRAINT request_location_not_blank CHECK (btrim(location) <> ''),
@@ -140,5 +139,4 @@ GRANT SELECT, INSERT ON notes TO civicconnect_app;   -- no UPDATE/DELETE
 GRANT SELECT (id, name, role) ON users TO civicconnect_report;
 GRANT SELECT ON category, request, request_history, notes TO civicconnect_report;
 
---NO SAMPLE DATA YET
 COMMIT;
