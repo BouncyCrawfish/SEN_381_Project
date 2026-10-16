@@ -7,15 +7,10 @@ SEN 381
 
 | Item | Value |
 |---|---|
-| Team | [team number/name] |
+| Team | It Depends |
 | Team members | Paul Edward van Zyl, Freerk van den Bos, Regardt Osler |
 | GitHub repository | https://github.com/BouncyCrawfish/SEN_381_Project |
-| M3 release candidate | Tag `[v3.0-m3]`, commit `[full commit hash]` on `main` |
-| PED version | v3.6 (continuation of PED v2.4 into the M3 v3.x series; submitted as PDF) |
-| RTM location | This document, section "Requirements Traceability Matrix (RTM)", with test cases in "Test cases and verification evidence" |
-| CI and test evidence | GitHub Actions runs: https://github.com/BouncyCrawfish/SEN_381_Project/actions (workflow `.github/workflows/ci.yml`); release candidate run: [link to the run for the tagged commit] |
-| Staging / test environment | Simulated staging on a team Windows machine, described in `Docs/STAGING.md`; demonstrated live during the M3 presentation |
-| Date submitted | [date] |
+
 
 
 # Contents
@@ -191,7 +186,7 @@ Automated tests are counted once per meaningful case; legitimate overlap between
 | Unit/component (5) | `PasswordHasherTests`, `AccessControlTests`, `RequestStateTest`, `NotificationEventHandlerTests`, `NotificationServicesTests`, `AuditLogServiceTests`, `AuditLogEventHandlerTests`, `DomainEventDispatcherTests` | Well above 5 |
 | Black-box functional (5) | `RequestSubmissionTests` (TC-15), `RequestStateTest` transition cases (TC-03 to TC-05), lockout boundary in `AuthServiceTests` (TC-16) | Above 5 |
 | API/integration (3) | Module boundaries through dependency injection: `RequestNotificationTests` (Requests to dispatcher to listener, TC-06), `NotificationsModuleTests` (TC-08), `AuditLogModuleRegistrationTests` (TC-22), `RequestSecurityTests` (Requests with Auth session and access control, TC-17); against real PostgreSQL: `HistoryImmutabilityTests` (TC-09) and TC-21 | Above 3; only the last two use the real database |
-| E2E/system (2) | Manual journeys on the staging build: TC-19, TC-20, TC-13, TC-10/TC-11, TC-14 | [record executed count] |
+| E2E/system (2) | Manual journeys on the staging build: TC-19, TC-20, TC-13, TC-10/TC-11, TC-14 |  Black-box tests run by a person on the staging build (`Docs/STAGING.md`) against the real `civicconnect_db`, using the development accounts from `db/05_dev_seed_users.sql`. Expected results were written from the requirements and acceptance criteria before the tests were run. TC-13, TC-19 and TC-20 are also the system (E2E) cases, because each goes through the whole application down to the database. Screenshots are stored in `Docs/evidence/` under the test ID.  |
 | Negative/unauthorised (3) | Signed-out and wrong-role cases in `RequestSecurityTests` and `AccessControlTests`; wrong password and lockout in `AuthServiceTests`; invalid input in `RequestSubmissionTests` | Above 3 |
 | High-priority requirements/risks (5) | FR-006, FR-010, FR-011, NFR-003, NFR-005, NFR-008 (see RTM) | 6 |
 | Performance (1) | TC-21 | 1 |
