@@ -10,10 +10,10 @@ SEN 381
 | Team | It Depends |
 | Team members | Paul Edward van Zyl, Freerk van den Bos, Regardt Osler |
 | GitHub repository | https://github.com/BouncyCrawfish/SEN_381_Project |
-| Final commit / tag / release | Tag `v4.0-final` on `main`, commit `[full commit hash]`: the merge of `development` into `main` (two approvals) that contains the DEF-04 bug fix (pull request #43), PED v4.0 and the v4.0 technical-debt fixes. This is the version demonstrated and assessed. The M3 release candidate was commit `73e2fe2` on `development`. |
+| Final commit / tag / release | Tag `v4.0-final` on `main`, commit `dfbd7c5554f3c1ad8eb54cab9c1be8e1bdee4b9c`: the final commit of the merge of `development` into `main` (two approvals) that contains the DEF-04 bug fix (pull request #43), PED v4.0 and the v4.0 technical-debt fixes. This is the version demonstrated and assessed. The M3 release candidate was commit `73e2fe2` on `development`. |
 | PED version | v4.0 Final (PED v3.6 finalised; earlier versions are recorded in the Document Control Log) |
 | Final RTM location | This document, section "Requirements Traceability Matrix (RTM)" (the Status column holds the final status), with the final scope reflection in "Final project closure", sections 2 and 3 |
-| Final CI evidence | GitHub Actions run for the final commit: [link to the CI run for the final commit] |
+| Final CI evidence | GitHub Actions run for the final commit: https://github.com/BouncyCrawfish/SEN_381_Project/actions/runs/39148791822 (CI run #13, triggered by pull request #44 from branch Final-changes, succeeded on 18/10/2026 in 1 min 44 s; job “Build and test (Windows)”: https://github.com/BouncyCrawfish/SEN_381_Project/actions/runs/39148791822/job/117738000020). It ran on the PR #44 head commit dfbd7c5. |
 | Final product access / demonstration | Windows desktop application built from the final tag and run against a local `civicconnect_db` rebuilt from the `db/` scripts, following `Docs/STAGING.md`. Demonstrated live at the final presentation with the development accounts in `db/05_dev_seed_users.sql`. There is no hosted instance. |
 | Final deployment state | Remained in simulated staging: evidence-based no-go for production (Final project closure, section 6) |
 | Date submitted | 18/10/2026 |
@@ -199,12 +199,12 @@ Every in-scope M1 requirement and its acceptance criterion, with its final statu
 | FR-015 | Manager identifies overdue requests against an SLA threshold | Should / In scope | NOT IMPLEMENTED | Not met | RTM; TD-02 | The age/SLA threshold was never agreed, and no approved change removed the requirement, so it counts as not met. Stakeholder effect: managers cannot see which requests are late; the "overdue" count in the M1 scope is missing from the dashboard. |
 | FR-016 | Manager filters/groups requests by category, status and other dimensions | Should / In scope | PARTIALLY IMPLEMENTED | Partially met | RTM; TC-14 (manual); TD-03 | Counts by status and by category and a status filter on the list exist; the list cannot be filtered by category. Not prioritised because the core workflow came first. |
 | FR-017 | Manager sees who changed what and when, and can export it | Should / In scope | PARTIALLY IMPLEMENTED | Partially met | RTM; TC-09, TC-10, TC-11, TC-13; TD-03 | The audit trail is visible and filterable; export is missing. |
-| NFR-001 | Usability: a first-time requester submits without help | Must / In scope | NOT VERIFIED | Not met | [result of the NFR-001 usability check, section 3] | The submission form is implemented (FR-001), but the usability test in the acceptance criterion was never run, so it cannot be claimed. |
+| NFR-001 | Usability: a first-time requester submits without help | Must / In scope | NOT VERIFIED | Not met | No usability check run before submission (section 3) | The submission form is implemented (FR-001), but the usability test in the acceptance criterion was never run, so it cannot be claimed. |
 | NFR-002 | Performance: staff list within the agreed response time | Should / In scope | IMPLEMENTED | Met | TC-21; section 8 of the M3 evidence | p95 7.6 ms against the 2 s DEC-002 threshold over 20 measured calls with 1003 open requests; conditions recorded. Local database only. |
 | NFR-003 | Security: no secrets in the repository, credentials protected | Must / In scope | IMPLEMENTED | Met | TC-16; CI secrets guard; static analysis | Delivered: bcrypt hashes, no committed credentials, CI blocks secret files. |
 | NFR-004 | Availability: strategy recorded, outages noted | Should / In scope | PARTIALLY IMPLEMENTED | Partially met | Data baseline "Availability"; `Docs/STAGING.md` | The availability strategy is recorded; no outage log was kept during testing and demonstration. |
 | NFR-005 | Auditability: immutable, attributed history | Must / In scope | IMPLEMENTED | Met | TC-09 (database cases), TC-22, TC-10, TC-13 | Delivered: append-only trigger and grants, one row per change (DEF-01 fixed). |
-| NFR-006 | Maintainability: a newcomer finds the main logic quickly | Could / In scope | NOT VERIFIED | Not met | [result of the NFR-006 walkthrough, section 3] | The structure exists (one project per module, README); the walkthrough by an outsider was never run. |
+| NFR-006 | Maintainability: a newcomer finds the main logic quickly | Could / In scope | NOT VERIFIED | Not met | No walkthrough run before submission (section 3) | The structure exists (one project per module, README); the walkthrough by an outsider was never run. |
 | NFR-007 | Scalability: no fixed-size assumptions as volume grows | Should / In scope | PARTIALLY IMPLEMENTED | Partially met | TC-21; TD-07 | Load test passed at about 1000 open requests, but the lists have no paging and the audit-trail query is capped at 500 rows, which is a fixed-size assumption. |
 | NFR-008 | Only authorised roles see requester contact details | Must / In scope | IMPLEMENTED | Met | TC-16, TC-17; TC-12, TC-20 (manual) | Delivered in the application; RSK-013 remains for tampered clients. |
 
@@ -243,8 +243,8 @@ Every in-scope M1 requirement and its acceptance criterion, with its final statu
 
 | Check | Procedure | Result | Effect on the score |
 |---|---|---|---|
-| NFR-001 usability | Someone who has never used CivicConnect registers and submits a valid request without help, then says what happens next; record the time and any help needed | [Pass/Fail, who, date] | +1.0 if passed |
-| NFR-006 walkthrough | Someone outside the team finds the request-submission, staff-action and reporting code using only the repository and README; record the time taken | [Pass/Fail, who, time taken] | +1.0 if passed |
+| NFR-001 usability | Someone who has never used CivicConnect registers and submits a valid request without help, then says what happens next; record the time and any help needed | Not run before submission (18/10/2026) | +1.0 if passed |
+| NFR-006 walkthrough | Someone outside the team finds the request-submission, staff-action and reporting code using only the repository and README; record the time taken | Not run before submission (18/10/2026) | +1.0 if passed |
 
 If both checks pass, the score becomes 21.5 / 25 = 86.0%. Update this section with the actual results; do not count a check that was not run.
 
@@ -265,11 +265,11 @@ If both checks pass, the score becomes 21.5 / 25 = 86.0%. Update this section wi
 
 | Check on the final commit | Expected | Result |
 |---|---|---|
-| CI run (secrets guard, build, tests, static analysis, vulnerable packages) | Green; 145 tests (143 plus the two DEF-04 regression tests) with 0 failed and 3 skipped (database tests); no CS0169 or Node.js 20 warnings, and no xUnit1051 warning in the two test files fixed in v4.0 | [link, passed/failed/skipped, warnings] |
-| Local full test run with `CIVICCONNECT_TEST_CONNECTION` set | 145 passed, 0 skipped | [result, date] |
-| Staging smoke test of the final build: TC-13, TC-14, TC-20, and DEF-04 (as `staff1@civicconnect.test`, add a note with "Add note only" to an InProgress request, then choose Resolved, enter a resolution note and click Resolve) | As in the manual test table; for DEF-04 the request becomes Resolved and the resolution note appears in its history | [result, date] |
+| CI run (secrets guard, build, tests, static analysis, vulnerable packages) | Green; 145 tests (143 plus the two DEF-04 regression tests) with 0 failed and 3 skipped (database tests); no CS0169 or Node.js 20 warnings, and no xUnit1051 warning in the two test files fixed in v4.0 | Pass: CI run #13 (https://github.com/BouncyCrawfish/SEN_381_Project/actions/runs/39148791822), all steps green. Tests: 0 failed (a failing test fails the run). Warnings: 10 xUnit1051 annotations, all in test files not changed in v4.0 (AuthServiceTests, AuditLogServiceTests, DomainEventDispatcherTest, NotificationsModuleTests); no CS0169 or Node.js 20 warning shown. |
+| Local full test run with `CIVICCONNECT_TEST_CONNECTION` set | 145 passed, 0 skipped | Pass, 18/10/2026 |
+| Staging smoke test of the final build: TC-13, TC-14, TC-20, and DEF-04 (as `staff1@civicconnect.test`, add a note with "Add note only" to an InProgress request, then choose Resolved, enter a resolution note and click Resolve) | As in the manual test table; for DEF-04 the request becomes Resolved and the resolution note appears in its history | Pass, 18/10/2026 |
 
-**Strongest and weakest evidence (from the RTM):** the strongest is FR-011 / NFR-005: a full state-transition table test, a database trigger tested against PostgreSQL, a DEF-01 regression test and a manual check on the real database all agree. The weakest are NFR-001 and NFR-006 (no evidence recorded) and FR-005, whose criterion is only partly met. **Regressions:** none known; [confirm after the re-runs above].
+**Strongest and weakest evidence (from the RTM):** the strongest is FR-011 / NFR-005: a full state-transition table test, a database trigger tested against PostgreSQL, a DEF-01 regression test and a manual check on the real database all agree. The weakest are NFR-001 and NFR-006 (no evidence recorded) and FR-005, whose criterion is only partly met. **Regressions:** none; all re-runs above passed.
 
 ## 5. M3 to final closure
 
@@ -280,12 +280,12 @@ If both checks pass, the score becomes 21.5 / 25 = 86.0%. Update this section wi
 | DEF-03 CI YAML error (Medium) | Fixed and closed | Every CI run since v3.5 |
 | DEF-04 resolution note lost (found after M3) | Fixed in v4.0 (pull request #43) | Two regression tests in `RequestSecurityTests`; resolve step in the final smoke test (section 4) |
 | M3 classification "CONDITIONALLY READY" | Conditions met: the release candidate CI run was green (run #6), TC-13 showed one history row, and no high-severity defect was found on staging. Final release decision: section 6 | Release Evidence Summary |
-| 11 non-blocking CI warnings (TD-13) | Repaid in v4.0 | [final CI run link] |
+| 11 non-blocking CI warnings (TD-13) | Repaid in v4.0 | CI run #13 (https://github.com/BouncyCrawfish/SEN_381_Project/actions/runs/39148791822): the CS0169 and Node.js 20 warnings are gone; 10 xUnit1051 warnings remain in other test files |
 | Residual risks (RSK-013 tampered client, slow queue at volume, database defects missed by tests, data loss, requesters miss changes) | Retained; each is now future work with its consequence stated. RSK-013 and RSK-009 block production | Risk register "Final risk status"; section 8 |
 | Technical debt TD-01 to TD-13 | TD-11, TD-12, TD-13 repaid in v4.0; TD-01 to TD-10 retained with their consequence | Technical debt register (final status column) |
 | Incomplete integration | None: all modules are composed in one application and one solution, and CI builds and tests them together | CI run; `Program.cs` |
 | Release/staging evidence | M3 staging evidence reused, because apart from DEF-04 the v4.0 changes do not change runtime behaviour; smoke test, including the DEF-04 resolve step, re-run on the final build | Section 4; `Docs/STAGING.md` |
-| PostgreSQL version for TC-21 (section 8 of the M3 evidence) | Still to record | [version] |
+| PostgreSQL version for TC-21 (section 8 of the M3 evidence) | Recorded: PostgreSQL 16+ | Section 8 of the M3 evidence |
 
 ## 6. Final deployment and go-live decision
 
@@ -307,14 +307,14 @@ The integrity controls are not the blocker: the audit trail is append-only at th
 
 | Field | Value |
 |---|---|
-| Date and time | [date and time] |
+| Date and time | 18/10/2026 |
 | Deployed by | Paul van Zyl |
-| Release tag / commit | v4.0-final / [full commit hash] |
+| Release tag / commit | v4.0-final / dfbd7c5554f3c1ad8eb54cab9c1be8e1bdee4b9c |
 | PostgreSQL version | 16+ |
-| Database rebuilt from scripts | [yes/no] |
+| Database rebuilt from scripts | Yes |
 | Configuration source | `ConnectionStrings__CivicConnect` environment variable |
-| Smoke checks (TC-13, TC-14, TC-20, DEF-04 resolve step) | [result] |
-| Problems found | [none / defect IDs] |
+| Smoke checks (TC-13, TC-14, TC-20, DEF-04 resolve step) | Pass, 18/10/2026 |
+| Problems found | None |
 
 ## 7. Significant decisions and their final consequences
 
@@ -359,7 +359,7 @@ In the order the team would do them if the project continued:
 ## 10. Evidence links
 
 - Repository and history: https://github.com/BouncyCrawfish/SEN_381_Project (branches `development` and `main`, pull requests #1 to #42 and the final merge)
-- CI workflow and runs: `.github/workflows/ci.yml`; https://github.com/BouncyCrawfish/SEN_381_Project/actions (M3 release candidate run #6: https://github.com/BouncyCrawfish/SEN_381_Project/actions/runs/38811087944; final run: [link])
+- CI workflow and runs: `.github/workflows/ci.yml`; https://github.com/BouncyCrawfish/SEN_381_Project/actions (M3 release candidate run #6: https://github.com/BouncyCrawfish/SEN_381_Project/actions/runs/38811087944; final run #13: https://github.com/BouncyCrawfish/SEN_381_Project/actions/runs/39148791822)
 - Tests: `Tests/CivicConnect.Tests/` (xUnit v3); test case table in "Test cases and verification evidence"; manual evidence screenshots in `Docs/evidence/`
 - Performance: `Tests/CivicConnect.Tests/Performance/StaffQueuePerformanceTests.cs`, `db/perf/`, section 8 of the M3 release evidence
 - Staging and deployment: `Docs/STAGING.md`
@@ -453,7 +453,7 @@ TC-21 (`Tests/CivicConnect.Tests/Performance/StaffQueuePerformanceTests.cs`) tim
 
 | Field | Value |
 |---|---|
-| Environment | Freerk's Windows laptop (64-bit): AMD Ryzen 7 6800HS at 3.20 GHz, 16 GB RAM; PostgreSQL [version] on the same machine (local database, no network latency); run on 16/10/2026 at 18:52 |
+| Environment | Freerk's Windows laptop (64-bit): AMD Ryzen 7 6800HS at 3.20 GHz, 16 GB RAM; PostgreSQL 16+ on the same machine (local database, no network latency); run on 16/10/2026 at 18:52 |
 | Data | 1003 open requests returned per call: the 1000 rows from `db/perf/perf_seed_requests.sql` plus 3 existing requests |
 | Result | 20 measured calls after 3 warm-up calls, 0 failed. Min 4.9 ms, median 5.6 ms, p95 7.6 ms, max 11.2 ms (from `perf-tc21-result.txt`; screenshot `Docs/evidence/TC-21.png`) |
 | Interpretation | Within target: p95 of 7.6 ms is far below the 2 s placeholder, with no failures, so loading about 1000 open requests through the real Auth and Requests modules and EF Core is not a bottleneck on one machine. The measurement covers the service call and the database query only, not drawing the grid in the WinForms screen. Because the database is local and only one user was simulated, the result says nothing about network latency to a hosted database or several staff using the queue at once. The queue has no paging (TD-07), so time grows with the number of open requests; a repeat with a larger seed would show how fast. |
@@ -466,10 +466,10 @@ TC-21 (`Tests/CivicConnect.Tests/Performance/StaffQueuePerformanceTests.cs`) tim
 
 | ID | Defect | Severity / impact | Found by | Status | Fix | Regression evidence | Final status (v4.0) |
 |---|---|---|---|---|---|---|---|
-| DEF-01 | Each status change wrote two `request_history` rows: `AuditLogEventHandler` was registered while `RequestService` also writes history | High: duplicate audit rows undermine NFR-005 and FR-017 | Documentation review against the code (v3.4) | Fixed in v3.6; confirmed by TC-13 (Pass) | Registration removed from `AddAuditLogModule` | `AuditLogModuleRegistrationTests` (TC-22); TC-13 manual | Closed: TC-22 passes in the final CI run [link]; no regression |
-| DEF-02 | Manager overview failed with "Something went wrong": `ListAllAsync` sorted after projecting to a DTO, which EF Core could not translate | High: FR-014 screen unusable | Manual run against PostgreSQL (v3.2) | Fixed in v3.2 | Sort moved before the projection | TC-14 manual: Pass | Closed: TC-14 in the final smoke test [result] |
+| DEF-01 | Each status change wrote two `request_history` rows: `AuditLogEventHandler` was registered while `RequestService` also writes history | High: duplicate audit rows undermine NFR-005 and FR-017 | Documentation review against the code (v3.4) | Fixed in v3.6; confirmed by TC-13 (Pass) | Registration removed from `AddAuditLogModule` | `AuditLogModuleRegistrationTests` (TC-22); TC-13 manual | Closed: TC-22 passes in the final CI run https://github.com/BouncyCrawfish/SEN_381_Project/actions/runs/39148791822 (CI run #13); no regression |
+| DEF-02 | Manager overview failed with "Something went wrong": `ListAllAsync` sorted after projecting to a DTO, which EF Core could not translate | High: FR-014 screen unusable | Manual run against PostgreSQL (v3.2) | Fixed in v3.2 | Sort moved before the projection | TC-14 manual: Pass | Closed: TC-14 in the final smoke test: Pass, 18/10/2026 |
 | DEF-03 | First CI run failed with a YAML syntax error on line 8 of `ci.yml` after the branch triggers were edited | Medium: no CI feedback until fixed | GitHub Actions (CI) | Fixed in v3.5 | Branch triggers rewritten as a list | Next CI run (https://github.com/BouncyCrawfish/SEN_381_Project/actions/runs/38784571497) | Closed: every later CI run starts |
-| DEF-04 | Staff who added a note with "Add note only" and then resolved the request got "A resolution note is required": the form had one shared note box, which was cleared after the note was saved, so the status change sent an empty note | Medium: FR-013 resolve step failed in the UI; staff could work around it by typing the note again before resolving | Using the application after M3 (18/10/2026) | Fixed in v4.0 (pull request #43) | Separate "Resolution note (required)" box shown when resolving and sent with the status change; general note now optional; the service still enforces the rule | `Resolving_WithANote_Succeeds_AndRecordsTheResolutionNote`, `Resolving_AfterAddingANoteSeparately_StillNeedsAResolutionNote` (TC-17) | Closed: [final CI run link; DEF-04 smoke check result] |
+| DEF-04 | Staff who added a note with "Add note only" and then resolved the request got "A resolution note is required": the form had one shared note box, which was cleared after the note was saved, so the status change sent an empty note | Medium: FR-013 resolve step failed in the UI; staff could work around it by typing the note again before resolving | Using the application after M3 (18/10/2026) | Fixed in v4.0 (pull request #43) | Separate "Resolution note (required)" box shown when resolving and sent with the status change; general note now optional; the service still enforces the rule | `Resolving_WithANote_Succeeds_AndRecordsTheResolutionNote`, `Resolving_AfterAddingANoteSeparately_StillNeedsAResolutionNote` (TC-17) | Closed: both regression tests pass in CI run #13 (https://github.com/BouncyCrawfish/SEN_381_Project/actions/runs/39148791822) |
 
 ### Technical debt register
 
@@ -487,7 +487,7 @@ TC-21 (`Tests/CivicConnect.Tests/Performance/StaffQueuePerformanceTests.cs`) tim
 | TD-10 | Audit-trail permission checked in the UI, not inside `IAuditLogService` | Only one caller today | A new caller could skip the check | NFR-008 | Retained: still only one caller, so no current exposure |
 | TD-11 | Test method prefixes `TC06`/`TC07`/`TC08` clash with this document's IDs | Names predate the table | Confusing evidence references | Test cases section | Repaid in v4.0: `TC06_*`/`TC07_*` renamed `TC15_*` and `TC08_StateTransitionTable_*` renamed `TC05_*`; names now match this document |
 | TD-12 | Misspelt file names (`AuditLogModuleExstentions.cs`, `IDomainEventDispacther.cs`, `Architechture.png`) | Low priority | Harder to search the code | NFR-006 | Repaid in v4.0: files renamed to `AuditLogModuleExtensions.cs`, `IDomainEventDispatcher.cs`, `Architecture.png` (and `AuditLogEventHandlerTests.cs`) |
-| TD-13 | CI warnings in run #6: 6 unused designer fields in `ManagerDashboardForm.Designer.cs`, 4 xUnit1051 warnings, and `actions/checkout@v4` / `actions/setup-dotnet@v4` targeting deprecated Node.js 20 (GitHub forces them onto Node.js 24) | Non-blocking, found at the end of M3 | Dead code stays in the form; the workflow breaks when GitHub removes Node.js 20 support | Static/security evidence, CI | Repaid in v4.0 for the warnings listed from run #6: unused fields removed, cancellation tokens passed in `UserServiceTests` and `AuditLogEventHandlerTests`, actions updated to v5. Other test files may still raise low-severity xUnit1051 warnings (the earlier local build reported 26); any that remain are retained. [confirm in the final CI run] |
+| TD-13 | CI warnings in run #6: 6 unused designer fields in `ManagerDashboardForm.Designer.cs`, 4 xUnit1051 warnings, and `actions/checkout@v4` / `actions/setup-dotnet@v4` targeting deprecated Node.js 20 (GitHub forces them onto Node.js 24) | Non-blocking, found at the end of M3 | Dead code stays in the form; the workflow breaks when GitHub removes Node.js 20 support | Static/security evidence, CI | Repaid in v4.0 for the warnings listed from run #6: unused fields removed, cancellation tokens passed in `UserServiceTests` and `AuditLogEventHandlerTests`, actions updated to v5. Other test files may still raise low-severity xUnit1051 warnings (the earlier local build reported 26); any that remain are retained. Confirmed in CI run #13: no CS0169 or Node.js 20 warning; 10 xUnit1051 warnings remain in `AuthServiceTests`, `AuditLogServiceTests`, `DomainEventDispatcherTest` and `NotificationsModuleTests` (low severity, retained). |
 
 ## 10. Release readiness
 
@@ -1363,7 +1363,7 @@ Zhu, Q.-H., Tang, H., Huang, J.-J. & Hou, Y., 2021. Task scheduling for multi-cl
 | Freerk van den Bos | Database baseline and supporting documentation (06/10/2026): (1) `db/` setup scripts (dev reset, roles, create database, schema); (2) `db/README.md`; (3) commit message, v3.0 Document Control Log row and PR description; (4) suggested repository/project structure | Claude | Generated the PostgreSQL scripts for `civicconnect_db` from the ERD and PED (tables, constraints, indexes, `xmin` concurrency, append-only history trigger, least-privilege roles and grants) and iterated on errors reported by the team. Drafted the database README, the commit/changelog/PR wording from the project's existing conventions, and a proposed folder layout mapped to the PED architecture. | Rejected: first version's business-rule triggers, row-level security, views and stored functions, because they duplicated the State Pattern and Observer logic in C# (ADR-004/005, hybrid strategy). Changed: roles aligned to Requester/Staff/Manager; statuses aligned to the PED workflow; script split into three files after psql-only commands failed in pgAdmin; schema-ownership and aborted-transaction errors fixed; email format check re-added at team request. Evidence: PR #36 / commit a6b4886. |
 | Regardt Osler | Manager audit trail screen, in-app notifications, compile-error fixes in the AuditLog and Notifications modules, README and PED v3.2 update (15/10/2026) | Claude | Helped with UI design, Helped with debugging, generated code for request models, helped me to understand how modular monolith works in practice. Generated and helped visualise edits to Markdown files| Evidence: PR #31 / commit d920db3 |
 | **MILESTONE 4** | 
-| Paul Edward van Zyl | PED v4.0 and the v4.0 technical-debt fixes (18/10/2026): (1) "Final submission information" and "Final project closure (M4)" chapter (final product, M1 scope to final delivery, Scope Completion Percentage, final acceptance evidence, M3 closure, go-live decision, decision consequences, limitations, reflection); (2) final status in the RTM and in the Defect, Technical Debt and Risk registers, v4.0 notes on DEC-001, DEC-002 and DEC-004, and the Document Control Log row; (3) TD-11, TD-12 and TD-13 fixes; README and `db/README.md` updates | Claude | Compared PED v3.6 and the repository with the M4 brief, drafted the closure chapter and final statuses from the existing evidence, calculated the Scope Completion Percentage, and selected only debt fixes that cannot change runtime behaviour (renames, unused fields, test cancellation tokens, CI action versions). It listed every changed line for review and left placeholders for results that had not been recorded. Claude could not compile or run anything in its environment. | Verified: [build and test result on the final commit and CI run link]. Changed/confirmed by the team: [go-live decision, scope statuses, reflection wording]. |
+| Paul Edward van Zyl | PED v4.0 and the v4.0 technical-debt fixes (18/10/2026): (1) "Final submission information" and "Final project closure (M4)" chapter (final product, M1 scope to final delivery, Scope Completion Percentage, final acceptance evidence, M3 closure, go-live decision, decision consequences, limitations, reflection); (2) final status in the RTM and in the Defect, Technical Debt and Risk registers, v4.0 notes on DEC-001, DEC-002 and DEC-004, and the Document Control Log row; (3) TD-11, TD-12 and TD-13 fixes; README and `db/README.md` updates | Claude | Compared PED v3.6 and the repository with the M4 brief, drafted the closure chapter and final statuses from the existing evidence, calculated the Scope Completion Percentage, and selected only debt fixes that cannot change runtime behaviour (renames, unused fields, test cancellation tokens, CI action versions). It listed every changed line for review and left placeholders for results that had not been recorded. Claude could not compile or run anything in its environment. | Verified: CI run #13 on the final commit `dfbd7c5` passed all steps (https://github.com/BouncyCrawfish/SEN_381_Project/actions/runs/39148791822); the remaining 10 xUnit1051 warnings are recorded under TD-13. Changed/confirmed by the team: the go-live decision, scope statuses and reflection were reviewed and approved by all three members (Sign off, 18/10/2026). |
 # Sign off
 
 PED v4.0 Final describes the final release identified in "Final submission information".
