@@ -38,6 +38,7 @@ internal sealed partial class RequestDetailForm : Form
 
         lblTitle.Text = $"Request #{requestId}";
         txtNote.MaxLength = RequestRules.MaxNoteLength;
+        txtResolutionNote.MaxLength = RequestRules.MaxNoteLength;
 
         // Requesters never see the staff-only parts (the service also withholds the data).
         lblNotesHeading.Visible = _canSeeStaffSide;
@@ -127,6 +128,7 @@ internal sealed partial class RequestDetailForm : Form
         var status = Enum.Parse<RequestStatus>(r.Status);
         var next = RequestStates.For(status).AllowedNext.Where(s => s != RequestStatus.Assigned).Select(s => s.ToString()).ToList();
         cboNextStatus.DataSource = next;
+        UpdateResolutionNoteVisibility();
         var submitted = status == RequestStatus.Submitted;
         cboStaff.Enabled = submitted;
         btnAssign.Enabled = submitted;
@@ -145,11 +147,35 @@ internal sealed partial class RequestDetailForm : Form
         return _requests.AssignRequestAsync(new AssignRequestDto(_requestId, staffId, txtNote.Text));
     }, "Request assigned.");
 
-    private async void btnApplyStatus_Click(object? sender, EventArgs e) => await RunAsync(() =>
+    private async void btnApplyStatus_Click(object? sender, EventArgs e)
     {
         var status = cboNextStatus.SelectedItem is string s ? Enum.Parse<RequestStatus>(s) : RequestStatus.Submitted;
-        return _requests.UpdateRequestStatusAsync(new UpdateRequestStatusDto(_requestId, status, txtNote.Text));
-    }, "Status updated.");
+
+        // Resolving has its own required note, so the requester always learns what was done.
+        // The service enforces this too; this check just gives a friendlier, earlier message.
+        if (status == RequestStatus.Resolved && string.IsNullOrWhiteSpace(txtResolutionNote.Text))
+        {
+            Theme.ShowMessage(lblMessage, "Enter a resolution note first: describe what was done to fix the problem.", isError: true);
+            txtResolutionNote.Focus();
+            return;
+        }
+
+        var note = status == RequestStatus.Resolved ? txtResolutionNote.Text : txtNote.Text;
+        await RunAsync(
+            () => _requests.UpdateRequestStatusAsync(new UpdateRequestStatusDto(_requestId, status, note)),
+            status == RequestStatus.Resolved ? "Request resolved." : "Status updated.");
+    }
+
+    private void cboNextStatus_SelectedIndexChanged(object? sender, EventArgs e) => UpdateResolutionNoteVisibility();
+
+    /// <summary>The resolution note box only appears when the chosen next status is Resolved.</summary>
+    private void UpdateResolutionNoteVisibility()
+    {
+        var resolving = cboNextStatus.SelectedItem is string s && s == nameof(RequestStatus.Resolved);
+        lblResolutionNote.Visible = resolving;
+        txtResolutionNote.Visible = resolving;
+        btnApplyStatus.Text = resolving ? "&Resolve" : "Apply &status";
+    }
 
     private async void btnAddNote_Click(object? sender, EventArgs e) => await RunAsync(
         () => _requests.AddNoteAsync(new AddNoteDto(_requestId, txtNote.Text)), "Note added.");
@@ -171,6 +197,7 @@ internal sealed partial class RequestDetailForm : Form
             }
 
             txtNote.Clear();
+            txtResolutionNote.Clear();
             SetBusy(false);
             await ReloadAsync();
             Theme.ShowMessage(lblMessage, successMessage, isError: false);

@@ -41,6 +41,8 @@ namespace CivicConnect.App.Forms
             this.lblMoveTo = new System.Windows.Forms.Label();
             this.cboNextStatus = new System.Windows.Forms.ComboBox();
             this.btnApplyStatus = new System.Windows.Forms.Button();
+            this.lblResolutionNote = new System.Windows.Forms.Label();
+            this.txtResolutionNote = new System.Windows.Forms.TextBox();
             this.lblNote = new System.Windows.Forms.Label();
             this.txtNote = new System.Windows.Forms.TextBox();
             this.btnAddNote = new System.Windows.Forms.Button();
@@ -241,12 +243,16 @@ namespace CivicConnect.App.Forms
             this.tlpRespond.Controls.Add(this.lblMoveTo, 0, 3);
             this.tlpRespond.Controls.Add(this.cboNextStatus, 0, 4);
             this.tlpRespond.Controls.Add(this.btnApplyStatus, 1, 4);
-            this.tlpRespond.Controls.Add(this.lblNote, 0, 5);
-            this.tlpRespond.Controls.Add(this.txtNote, 0, 6);
-            this.tlpRespond.Controls.Add(this.btnAddNote, 0, 7);
+            this.tlpRespond.Controls.Add(this.lblResolutionNote, 0, 5);
+            this.tlpRespond.Controls.Add(this.txtResolutionNote, 0, 6);
+            this.tlpRespond.Controls.Add(this.lblNote, 0, 7);
+            this.tlpRespond.Controls.Add(this.txtNote, 0, 8);
+            this.tlpRespond.Controls.Add(this.btnAddNote, 0, 9);
             this.tlpRespond.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tlpRespond.Name = "tlpRespond";
-            this.tlpRespond.RowCount = 8;
+            this.tlpRespond.RowCount = 10;
+            this.tlpRespond.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tlpRespond.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tlpRespond.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tlpRespond.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tlpRespond.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -312,6 +318,7 @@ namespace CivicConnect.App.Forms
             this.cboNextStatus.Margin = new System.Windows.Forms.Padding(0, 0, 8, 16);
             this.cboNextStatus.Name = "cboNextStatus";
             this.cboNextStatus.TabIndex = 5;
+            this.cboNextStatus.SelectedIndexChanged += new System.EventHandler(this.cboNextStatus_SelectedIndexChanged);
             //
             // btnApplyStatus
             //
@@ -323,14 +330,36 @@ namespace CivicConnect.App.Forms
             this.btnApplyStatus.Text = "Apply &status";
             this.btnApplyStatus.Click += new System.EventHandler(this.btnApplyStatus_Click);
             //
+            // lblResolutionNote
+            //
+            this.lblResolutionNote.AutoSize = true;
+            this.tlpRespond.SetColumnSpan(this.lblResolutionNote, 2);
+            this.lblResolutionNote.Margin = new System.Windows.Forms.Padding(0, 0, 0, 4);
+            this.lblResolutionNote.Name = "lblResolutionNote";
+            this.lblResolutionNote.TabIndex = 7;
+            this.lblResolutionNote.Text = "Resolution note (required) - what was done to fix it?";
+            this.lblResolutionNote.Visible = false;
+            //
+            // txtResolutionNote
+            //
+            this.tlpRespond.SetColumnSpan(this.txtResolutionNote, 2);
+            this.txtResolutionNote.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.txtResolutionNote.Margin = new System.Windows.Forms.Padding(0, 0, 0, 16);
+            this.txtResolutionNote.MinimumSize = new System.Drawing.Size(0, 90);
+            this.txtResolutionNote.Multiline = true;
+            this.txtResolutionNote.Name = "txtResolutionNote";
+            this.txtResolutionNote.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.txtResolutionNote.TabIndex = 8;
+            this.txtResolutionNote.Visible = false;
+            //
             // lblNote
             //
             this.lblNote.AutoSize = true;
             this.tlpRespond.SetColumnSpan(this.lblNote, 2);
             this.lblNote.Margin = new System.Windows.Forms.Padding(0, 0, 0, 4);
             this.lblNote.Name = "lblNote";
-            this.lblNote.TabIndex = 7;
-            this.lblNote.Text = "Note (required when resolving)";
+            this.lblNote.TabIndex = 9;
+            this.lblNote.Text = "Note (optional)";
             //
             // txtNote
             //
@@ -340,7 +369,7 @@ namespace CivicConnect.App.Forms
             this.txtNote.Multiline = true;
             this.txtNote.Name = "txtNote";
             this.txtNote.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.txtNote.TabIndex = 8;
+            this.txtNote.TabIndex = 10;
             //
             // btnAddNote
             //
@@ -349,7 +378,7 @@ namespace CivicConnect.App.Forms
             this.btnAddNote.Margin = new System.Windows.Forms.Padding(0);
             this.btnAddNote.Name = "btnAddNote";
             this.btnAddNote.Size = new System.Drawing.Size(120, 40);
-            this.btnAddNote.TabIndex = 9;
+            this.btnAddNote.TabIndex = 11;
             this.btnAddNote.Tag = "secondary";
             this.btnAddNote.Text = "Add &note only";
             this.btnAddNote.Click += new System.EventHandler(this.btnAddNote_Click);
@@ -416,6 +445,8 @@ namespace CivicConnect.App.Forms
         private System.Windows.Forms.Label lblMoveTo;
         private System.Windows.Forms.ComboBox cboNextStatus;
         private System.Windows.Forms.Button btnApplyStatus;
+        private System.Windows.Forms.Label lblResolutionNote;
+        private System.Windows.Forms.TextBox txtResolutionNote;
         private System.Windows.Forms.Label lblNote;
         private System.Windows.Forms.TextBox txtNote;
         private System.Windows.Forms.Button btnAddNote;
