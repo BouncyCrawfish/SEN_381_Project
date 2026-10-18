@@ -1,0 +1,1379 @@
+
+Project Engineering document (PED\_ v4.0 Final)
+
+SEN 381
+
+# Final submission information
+
+| Item | Value |
+|---|---|
+| Team | It Depends |
+| Team members | Paul Edward van Zyl, Freerk van den Bos, Regardt Osler |
+| GitHub repository | https://github.com/BouncyCrawfish/SEN_381_Project |
+| Final commit / tag / release | Tag `v4.0-final` on `main`, commit `dfbd7c5554f3c1ad8eb54cab9c1be8e1bdee4b9c`: the final commit of the merge of `development` into `main` (two approvals) that contains the DEF-04 bug fix (pull request #43), PED v4.0 and the v4.0 technical-debt fixes. This is the version demonstrated and assessed. The M3 release candidate was commit `73e2fe2` on `development`. |
+| PED version | v4.0 Final (PED v3.6 finalised; earlier versions are recorded in the Document Control Log) |
+| Final RTM location | This document, section "Requirements Traceability Matrix (RTM)" (the Status column holds the final status), with the final scope reflection in "Final project closure", sections 2 and 3 |
+| Final CI evidence | GitHub Actions run for the final commit: https://github.com/BouncyCrawfish/SEN_381_Project/actions/runs/39148791822 (CI run #13, triggered by pull request #44 from branch Final-changes, succeeded on 18/10/2026 in 1 min 44 s; job “Build and test (Windows)”: https://github.com/BouncyCrawfish/SEN_381_Project/actions/runs/39148791822/job/117738000020). It ran on the PR #44 head commit dfbd7c5. |
+| Final product access / demonstration | Windows desktop application built from the final tag and run against a local `civicconnect_db` rebuilt from the `db/` scripts, following `Docs/STAGING.md`. Demonstrated live at the final presentation with the development accounts in `db/05_dev_seed_users.sql`. There is no hosted instance. |
+| Final deployment state | Remained in simulated staging: evidence-based no-go for production (Final project closure, section 6) |
+| Date submitted | 18/10/2026 |
+
+# M3 submission information (history)
+
+| Item | Value |
+|---|---|
+| Team | It Depends |
+| Team members | Paul Edward van Zyl, Freerk van den Bos, Regardt Osler |
+| GitHub repository | https://github.com/BouncyCrawfish/SEN_381_Project |
+| M3 release candidate | Commit `73e2fe24e5c3b445b9f952b97d7dbe00ff3e889f` on the `development` branch: the merge of pull request #42 (`PED-and-comment-updates`, 15/10/2026 23:39), the last pull request into `development` before submission. On the lecturer's instruction there is no release into `main` for M3; `main` receives the final release in the next milestone. Commits on `development` after this one change only `Docs/PED_v3.6.md`. |
+| PED version | v3.6 (continuation of PED v2.4 into the M3 v3.x series; submitted as PDF) |
+| RTM location | This document, section "Requirements Traceability Matrix (RTM)", with test cases in "Test cases and verification evidence" |
+| CI and test evidence | GitHub Actions runs: https://github.com/BouncyCrawfish/SEN_381_Project/actions (workflow `.github/workflows/ci.yml`); release candidate run: https://github.com/BouncyCrawfish/SEN_381_Project/actions/runs/38811087944 (CI run #6, triggered by pull request #42 from branch `PED-and-comment-updates`, succeeded on 15/10/2026 in 1 min 40 s; job "Build and test (Windows)": https://github.com/BouncyCrawfish/SEN_381_Project/actions/runs/38811087944/job/116684180583). It ran on the PR #42 head commit `2c2d766`, whose file tree is identical to the release candidate merge commit `73e2fe2`. |
+| Staging / test environment | Simulated staging on a team Windows machine, described in `Docs/STAGING.md`; demonstrated live during the M3 presentation |
+| Date submitted | 16/10/2026 |
+
+
+
+# Contents
+
+- [Final submission information](#final-submission-information)
+- [M3 submission information (history)](#m3-submission-information-history)
+- [Final project closure (M4)](#final-project-closure-m4)
+  - [1. Final product and version](#1-final-product-and-version)
+  - [2. M1 scope to final delivery](#2-m1-scope-to-final-delivery)
+  - [3. Scope Completion Percentage](#3-scope-completion-percentage)
+  - [4. Final acceptance and quality evidence](#4-final-acceptance-and-quality-evidence)
+  - [5. M3 to final closure](#5-m3-to-final-closure)
+  - [6. Final deployment and go-live decision](#6-final-deployment-and-go-live-decision)
+  - [7. Significant decisions and their final consequences](#7-significant-decisions-and-their-final-consequences)
+  - [8. Known limitations and future work](#8-known-limitations-and-future-work)
+  - [9. Project reflection](#9-project-reflection)
+  - [10. Evidence links](#10-evidence-links)
+- [M3 release evidence](#m3-release-evidence)
+  - [1. M3 overview](#1-m3-overview)
+  - [2. M2 baseline conformance](#2-m2-baseline-conformance)
+  - [3. Controlled changes](#3-controlled-changes)
+  - [4. Construction and configuration](#4-construction-and-configuration)
+  - [5. CI and automated verification](#5-ci-and-automated-verification)
+  - [6. Quality strategy applied](#6-quality-strategy-applied)
+  - [7. Black-box, integration and system validation](#7-black-box-integration-and-system-validation)
+  - [8. Performance](#8-performance)
+  - [9. Defects and quality interpretation](#9-defects-and-quality-interpretation)
+  - [10. Release readiness](#10-release-readiness)
+- [Document Control Log](Change_log.md)
+- [Problem Statement & business need](#problem-statement--business-need)
+- [Stakeholder analysis](#stakeholder-analysis)
+- [Scope baseline](#scope-baseline)
+  - [In scope](#in-scope)
+    - [Request submission & tracking](#request-submission--tracking)
+    - [Staff assignment and status management](#staff-assignment-and-status-management)
+    - [Management reporting & oversight](#management-reporting--oversight)
+    - [Access control](#access-control)
+  - [Out of scope](#out-of-scope)
+  - [Deferred / future scope](#deferred--future-scope)
+  - [Exclusion defence](#exclusion-defence)
+- [Requirements & acceptance criteria](#requirements--acceptance-criteria)
+  - [Functional Requirements (FRs)](#functional-requirements-frs)
+  - [Non-Functional Requirements (NFRs):](#non-functional-requirements-nfrs)
+  - [Acceptance criteria:](#acceptance-criteria)
+- [Constraints](#constraints)
+  - [Scope constraint](#scope-constraint)
+  - [Schedule constraint](#schedule-constraint)
+  - [Cost/Resources constraint](#costresources-constraint)
+  - [Quality constraint](#quality-constraint)
+  - [Security Constraint](#security-constraint)
+  - [Trade-off](#trade-off)
+- [Requirements Traceability Matrix (RTM)](#requirements-traceability-matrix-rtm)
+- [End-to-end traceability](#end-to-end-traceability)
+- [Test cases and verification evidence](#test-cases-and-verification-evidence)
+- [Risk register](#risk-register)
+- [Forward engineering considerations](#forward-engineering-considerations)
+- [ASR’s & quality drivers](#asrs--quality-drivers)
+  - [NFR-002 (Performance: staff list view response time)](#nfr-002-performance-staff-list-view-response-time)
+  - [NFR-003 (Security: data in transit/credentials, nothing sensitive in repo)](#nfr-003-security-data-in-transitcredentials-nothing-sensitive-in-repo)
+  - [NFR-005 (Auditability: immutable action log)](#nfr-005-auditability-immutable-action-log)
+  - [NFR-007 (Scalability: data model/queries hold up as volume grows)](#nfr-007-scalability-data-modelqueries-hold-up-as-volume-grows)
+  - [NFR-008 (Compliance/Data Handling: role-gated sensitive data)](#nfr-008-compliancedata-handling-role-gated-sensitive-data)
+- [Architecture diagrams](#architecture-diagrams)
+  - [Justifications](#justifications)
+    - [Why not a standard monolith](#why-not-a-standard-monolith)
+    - [Why not microservices](#why-not-microservices)
+    - [Why modular monolith](#why-modular-monolith)
+  - [Architecture diagram](#architecture-diagram)
+  - [Architecture vs. technology, logical modules vs. physical deployment tiers](#architecture-vs-technology-logical-modules-vs-physical-deployment-tiers)
+- [Architecture Decision Record(ADR)](#architecture-decision-recordadr)
+  - [Decision ID: ADR-001](#decision-id-adr-001)
+  - [Decision ID: ADR-002](#decision-id-adr-002)
+  - [Decision Record: ADR-003](#decision-record-adr-003)
+  - [Decision Record: ADR-004](#decision-record-adr-004)
+  - [Decision Record: ADR-005](#decision-record-adr-005)
+  - [Decision Record: ADR-006](#decision-record-adr-006)
+- [Technology-Stack Decision](#technology-stack-decision)
+  - [Stack Overview](#stack-overview)
+  - [Technology Comparison Evidence](#technology-comparison-evidence)
+    - [Frontend Selection Evidence](#frontend-selection-evidence)
+    - [Backend & Runtime Selection Evidence](#backend--runtime-selection-evidence)
+    - [Persistence Engine Selection Evidence](#persistence-engine-selection-evidence)
+- [Deployment Compatibility Notes Tied to the Stack](#deployment-compatibility-notes-tied-to-the-stack)
+- [Initial Design-Pattern Decisions](#initial-design-pattern-decisions)
+  - [Design Decision 1: Request Status State Machine & Workflow Transitions](#design-decision-1-request-status-state-machine--workflow-transitions)
+  - [Design Decision 2: Audit Trail Event Dispatching & Notification Triggering](#design-decision-2-audit-trail-event-dispatching--notification-triggering)
+- [Initial Module Interface & Integration Decisions](#initial-module-interface--integration-decisions)
+- [Data and persistence baseline](#data-and-persistence-baseline)
+  - [Data Entities, Relationships and Ownership](#data-entities-relationships-and-ownership)
+  - [Foreign key structure](#foreign-key-structure)
+  - [Lifecycle implications](#lifecycle-implications)
+  - [ERD diagram](#erd-diagram)
+  - [Persistence model classification](#persistence-model-classification)
+    - [Structure and relationships](#structure-and-relationships)
+    - [Access patterns](#access-patterns)
+    - [Integrity and consistency](#integrity-and-consistency)
+    - [Sensitivity](#sensitivity)
+    - [Expected growth](#expected-growth)
+    - [Conclusion](#conclusion)
+  - [A2-Informed Transaction and Validation Strategy](#a2-informed-transaction-and-validation-strategy)
+  - [Database-Level SPOF, Scalability, Availability and Backup/Recovery](#database-level-spof-scalability-availability-and-backuprecovery)
+    - [Scalability](#scalability)
+    - [Availability](#availability)
+    - [Backup/recovery](#backuprecovery)
+- [Engineering decision log](#engineering-decision-log)
+  - [Decision ID: DEC-001](#decision-id-dec-001)
+  - [Decision ID: DEC-002](#decision-id-dec-002)
+  - [Decision ID: DEC-003](#decision-id-dec-003)
+  - [Decision ID: DEC-004](#decision-id-dec-004)
+- [References](#references)
+- [AI usage Register](#ai-usage-register)
+- [Sign off](#sign-off)
+
+# Final project closure (M4)
+
+This chapter closes the project and is the final evidence index. It follows the M4 brief: final product, M1 scope to final delivery, Scope Completion Percentage, final acceptance evidence, M3 issue closure, go-live decision, decision consequences, limitations and reflection. It does not replace the earlier chapters. The M3 release evidence and the M1 to M3 sections below are kept as the project history; where the final state differs, they carry a "v4.0" note or a final-status column. No new functionality was built for M4.
+
+## 1. Final product and version
+
+The final product is the CivicConnect Windows Forms desktop application identified in "Final submission information": five .NET 10 projects (Auth, Requests, AuditLog, Notifications and the shared Common library) composed in `CivicConnect.App`, over the PostgreSQL schema in `db/`. It is the M3 release candidate plus one defect fix (DEF-04) and the documentation and low-risk technical-debt changes listed below.
+
+**Critical user journeys in the final version:**
+
+| Journey | Requirements | Final state |
+|---|---|---|
+| Requester registers, signs in, submits a request and tracks its status and history | FR-001 to FR-004, FR-006 | Complete and stable |
+| Staff open the queue, assign a request, move it through Assigned, InProgress, Resolved and Closed, and add notes; each change writes one audit row and shows an in-app notification | FR-007 to FR-013, NFR-005 | Complete and stable |
+| Manager views counts by status and category, the list of all requests and the audit trail | FR-014, FR-016, FR-017 | Complete except a category filter on the list and audit export |
+
+**Overall product status:** the core request lifecycle (submit, assign, action, resolve, report) works for all three roles in one integrated application. The remaining gaps are requester alerts (FR-005), overdue requests (FR-015), the category filter and audit export (FR-016, FR-017), and the security and operational work that blocks production (Final project closure, section 6).
+
+**What changed between the M3 release candidate (`73e2fe2`) and the final version:**
+
+| Change | Type | Effect on the running application | Record |
+|---|---|---|---|
+| Resolving a request: `RequestDetailForm` has a separate "Resolution note (required)" box, shown only when the next status is Resolved and sent with the status change; the general note box is now "Note (optional)"; clearer validator message; two regression tests added to `RequestSecurityTests` | Defect fix (FR-012, FR-013) | Yes: staff can resolve a request after adding a separate note, and are told clearly where the resolution note goes. The service still enforces the rule | DEF-04; pull request #43 (commit `324a6bd`, merged as `65c5e4e` on 18/10/2026) |
+| PED v3.6 finalised as v4.0 (this chapter, final statuses in the RTM and registers); README and `db/README.md` point to v4.0 | Documentation | None | Document Control Log v4.0 |
+| Test methods `TC06_*` and `TC07_*` renamed `TC15_*`, `TC08_StateTransitionTable_*` renamed `TC05_*`, so the names match this document's test case IDs | Tests | None; the assertions are unchanged | TD-11 |
+| Misspelt files renamed: `AuditLogModuleExstentions.cs` to `AuditLogModuleExtensions.cs`, `IDomainEventDispacther.cs` to `IDomainEventDispatcher.cs`, `AuditLogEventhandlerTests.cs` to `AuditLogEventHandlerTests.cs`, `Docs/Architechture.png` to `Docs/Architecture.png` | Maintainability | None; the class and interface names inside were already correct, and the projects compile every `.cs` file in their folders | TD-12 |
+| `TestContext.Current.CancellationToken` passed in `UserServiceTests` and `AuditLogEventHandlerTests` (xUnit1051) | Tests | None | TD-13 |
+| Six unused column fields removed from `ManagerDashboardForm.Designer.cs` (CS0169: declared but never created or used) | Application code | None | TD-13 |
+| CI actions updated to `actions/checkout@v5` and `actions/setup-dotnet@v5` (Node.js 24) | CI | None | TD-13 |
+| A "temporary" comment on the manager dashboard's `Debug.WriteLine` reworded (the call runs in Debug builds only) | Comment | None | Leftover from M3 |
+
+## 2. M1 scope to final delivery
+
+Every in-scope M1 requirement and its acceptance criterion, with its final status. The priorities are the M1 baseline from the FR and NFR tables. (The RTM's Source/Priority column differs for FR-004, FR-014 and FR-016; the M1 tables are the baseline used here.) Final status uses the M4 categories IMPLEMENTED, PARTIALLY IMPLEMENTED, NOT IMPLEMENTED and CHANGED/REMOVED THROUGH APPROVED CHANGE; "NOT VERIFIED" marks an NFR whose acceptance check was never run, which is counted as not met.
+
+| M1 scope item / requirement | Description | M1 priority / status | Final status | Acceptance criteria status | Evidence | Conclusion / reason for variance |
+|---|---|---|---|---|---|---|
+| FR-001 | Requester submits a service request (category, description, location, contact details) | Must / In scope | IMPLEMENTED | Met | RTM; TC-15, TC-17; TC-19 (manual) | Delivered as committed. |
+| FR-002 | Category chosen from a controlled list | Must / In scope | IMPLEMENTED | Met | RTM; TC-15 | Delivered as committed. |
+| FR-003 | Requester sees the status of own requests | Must / In scope | IMPLEMENTED | Met | RTM; TC-17 | Delivered as committed. |
+| FR-004 | Requester sees a list/history of own requests | Must / In scope | IMPLEMENTED | Met | RTM; TC-17 | Delivered as committed. |
+| FR-005 | Requester is alerted when a request is accepted, rejected, updated or completed (in-app/email) | Must / In scope | CHANGED THROUGH APPROVED CHANGE; PARTIALLY IMPLEMENTED | Partially met | RTM; TC-06 to TC-08; TC-13 (manual); C-05, DEC-001 v3.2 update; TD-01 | The change is shown in My requests (FR-003), but the requester is not alerted: the in-app popup reaches only the person who made the change, and email was deferred under the free-services constraint (C-05). Stakeholder effect: requesters must check for updates themselves, which weakens the "my request was not lost" need. |
+| FR-006 | Role-based access: only authenticated, authorised users act on requests | Must / In scope | IMPLEMENTED | Met | RTM; TC-16, TC-17; TC-12, TC-19, TC-20 (manual); trace FR-006 | Delivered. Enforced in C#, so a tampered client remains a residual risk (RSK-013, section 6). |
+| FR-007 | Staff see the requests relevant to them | Must / In scope | IMPLEMENTED | Met | RTM; TC-17 | Delivered as committed. |
+| FR-008 | Staff search, filter and sort requests | Should / In scope | IMPLEMENTED | Met | RTM; TC-17 | Delivered: status filter, free-text search, "assigned to me". |
+| FR-009 | Staff see full request details and history | Must / In scope | IMPLEMENTED | Met | RTM; TC-17 | Delivered as committed. |
+| FR-010 | Staff assign or accept a request | Must / In scope | IMPLEMENTED | Met | RTM; TC-03 to TC-06, TC-17; TC-13 (manual) | Delivered as committed. |
+| FR-011 | Only legitimate status transitions are allowed and recorded | Must / In scope | IMPLEMENTED | Met | RTM; TC-03 to TC-05, TC-17, TC-22; TC-13 (manual) | Delivered. Strongest evidence in the project (section 4). |
+| FR-012 | Staff record notes against a request | Must / In scope | IMPLEMENTED | Met | RTM; TC-06, TC-17 | Delivered as committed. |
+| FR-013 | Staff resolve or close a request | Must / In scope | IMPLEMENTED | Met | RTM; TC-03 to TC-05, TC-17; DEF-04 | Delivered; resolving requires a note. DEF-04 (the note was lost when added separately first) was fixed in v4.0. |
+| FR-014 | Manager sees aggregate activity (counts by status) | Must / In scope | IMPLEMENTED | Met | RTM; TC-14 (manual) | Delivered after the DEF-02 fix. |
+| FR-015 | Manager identifies overdue requests against an SLA threshold | Should / In scope | NOT IMPLEMENTED | Not met | RTM; TD-02 | The age/SLA threshold was never agreed, and no approved change removed the requirement, so it counts as not met. Stakeholder effect: managers cannot see which requests are late; the "overdue" count in the M1 scope is missing from the dashboard. |
+| FR-016 | Manager filters/groups requests by category, status and other dimensions | Should / In scope | PARTIALLY IMPLEMENTED | Partially met | RTM; TC-14 (manual); TD-03 | Counts by status and by category and a status filter on the list exist; the list cannot be filtered by category. Not prioritised because the core workflow came first. |
+| FR-017 | Manager sees who changed what and when, and can export it | Should / In scope | PARTIALLY IMPLEMENTED | Partially met | RTM; TC-09, TC-10, TC-11, TC-13; TD-03 | The audit trail is visible and filterable; export is missing. |
+| NFR-001 | Usability: a first-time requester submits without help | Must / In scope | NOT VERIFIED | Not met | No usability check run before submission (section 3) | The submission form is implemented (FR-001), but the usability test in the acceptance criterion was never run, so it cannot be claimed. |
+| NFR-002 | Performance: staff list within the agreed response time | Should / In scope | IMPLEMENTED | Met | TC-21; section 8 of the M3 evidence | p95 7.6 ms against the 2 s DEC-002 threshold over 20 measured calls with 1003 open requests; conditions recorded. Local database only. |
+| NFR-003 | Security: no secrets in the repository, credentials protected | Must / In scope | IMPLEMENTED | Met | TC-16; CI secrets guard; static analysis | Delivered: bcrypt hashes, no committed credentials, CI blocks secret files. |
+| NFR-004 | Availability: strategy recorded, outages noted | Should / In scope | PARTIALLY IMPLEMENTED | Partially met | Data baseline "Availability"; `Docs/STAGING.md` | The availability strategy is recorded; no outage log was kept during testing and demonstration. |
+| NFR-005 | Auditability: immutable, attributed history | Must / In scope | IMPLEMENTED | Met | TC-09 (database cases), TC-22, TC-10, TC-13 | Delivered: append-only trigger and grants, one row per change (DEF-01 fixed). |
+| NFR-006 | Maintainability: a newcomer finds the main logic quickly | Could / In scope | NOT VERIFIED | Not met | No walkthrough run before submission (section 3) | The structure exists (one project per module, README); the walkthrough by an outsider was never run. |
+| NFR-007 | Scalability: no fixed-size assumptions as volume grows | Should / In scope | PARTIALLY IMPLEMENTED | Partially met | TC-21; TD-07 | Load test passed at about 1000 open requests, but the lists have no paging and the audit-trail query is capped at 500 rows, which is a fixed-size assumption. |
+| NFR-008 | Only authorised roles see requester contact details | Must / In scope | IMPLEMENTED | Met | TC-16, TC-17; TC-12, TC-20 (manual) | Delivered in the application; RSK-013 remains for tampered clients. |
+
+**Out-of-scope and deferred M1 items (not counted as failed scope):**
+
+| M1 item | M1 status | Final status | Conclusion |
+|---|---|---|---|
+| SMS/push notifications | Out of scope (cost) | Still excluded | Correctly outside the committed scope (exclusion defence, DEC-001) |
+| Native mobile application | Out of scope (schedule, capability) | Still excluded | Correctly outside the committed scope |
+| Multi-language support | Out of scope (schedule) | Still excluded | Correctly outside the committed scope |
+| Advanced analytics/BI dashboards | Out of scope | Still excluded | Correctly outside the committed scope |
+| SLA-based auto-escalation of overdue requests | Deferred / future | Still deferred | Not part of the committed scope; depends on FR-015, which is itself not implemented |
+| Integration with external helpdesk systems | Deferred / future | Still deferred | Correctly outside the committed scope |
+| Fine-grained, configurable category management | Deferred / future | Still deferred | Categories are a fixed seeded list (FR-002), as committed |
+
+## 3. Scope Completion Percentage
+
+**Method (M4 brief):** each of the 25 approved M1 acceptance criteria (FR-001 to FR-017 and NFR-001 to NFR-008) scores Met = 1.0, Partially met = 0.5, Not met = 0.0. No requirement was removed from the baseline by an approved change, so the denominator stays 25. FR-005 was changed through C-05 / DEC-001 (email deferred), but its criterion is still scored against the original wording.
+
+| Group | Criteria | Met | Partially met | Not met | Score |
+|---|---|---|---|---|---|
+| Functional (FR-001 to FR-017) | 17 | 13 | 3 (FR-005, FR-016, FR-017) | 1 (FR-015) | 14.5 |
+| Non-functional (NFR-001 to NFR-008) | 8 | 4 | 2 (NFR-004, NFR-007) | 2 (NFR-001, NFR-006 not verified) | 5 |
+| **Total** | **25** | **17** | **5** | **3** | **19.5** |
+
+**Scope Completion % = (19.5 / 25) x 100 = 78.0%** on the evidence recorded at v4.0. The functional criteria alone score 14.5 / 17 = 85.3%.
+
+**Interpretation:** 78.0% is in the brief's 60 to 79% band, just below the 80% target. The gap is mostly in verification, not in construction: two of the 5.5 missing points are NFR checks that were never run (NFR-001 usability, NFR-006 walkthrough), not missing software. The functional scope, which carries the stakeholder value, is at 85.3%, and every functional Must-have except FR-005 is fully met.
+
+**Must-have items not fully met:**
+
+- **FR-005 (Must), partially met.** Controlled change C-05 / DEC-001: email needs a paid or external service, which conflicts with the cost constraint, and requester-side alerts need a notification store that was not built in time. Requesters can still see every status change in My requests.
+- **NFR-001 (Must), not verified.** The criterion needs a usability test with a first-time user, which was never run. This is a missing check, not a known failure.
+
+**Verification still open before submission (no code changes):**
+
+| Check | Procedure | Result | Effect on the score |
+|---|---|---|---|
+| NFR-001 usability | Someone who has never used CivicConnect registers and submits a valid request without help, then says what happens next; record the time and any help needed | Not run before submission (18/10/2026) | +1.0 if passed |
+| NFR-006 walkthrough | Someone outside the team finds the request-submission, staff-action and reporting code using only the repository and README; record the time taken | Not run before submission (18/10/2026) | +1.0 if passed |
+
+If both checks pass, the score becomes 21.5 / 25 = 86.0%. Update this section with the actual results; do not count a check that was not run.
+
+## 4. Final acceptance and quality evidence
+
+**Selected critical acceptance criteria for the final demonstration:**
+
+| Requirement | Acceptance criterion (short) | Final evidence | Status |
+|---|---|---|---|
+| FR-011, NFR-005 | Only legal transitions succeed; each is recorded once, attributed and immutable | TC-03 to TC-05 (full transition table), TC-17, TC-22, TC-09 database cases, TC-13 manual | Met |
+| FR-006, NFR-008 | Wrong roles are refused; contact details only for Staff and Manager | TC-16, TC-17 (23 cases), TC-12 and TC-20 manual | Met |
+| FR-001, FR-002 | Valid submission gets a reference number and "Submitted"; missing fields and unknown categories are blocked | TC-15 (partitions and boundaries), TC-19 manual | Met |
+| FR-014 | Counts by status match the data | TC-14 manual (DEF-02 regression) | Met |
+| NFR-002 | Staff list within the threshold | TC-21: p95 7.6 ms, 0 failures | Met (local database) |
+| FR-005 | Requester sees the change and is notified | TC-13 shows the popup for the acting user only | Partially met |
+
+**Re-verification of the final version.** Apart from the DEF-04 fix, the v4.0 changes rename tests and files, add cancellation tokens to tests, remove unused fields and update the CI actions; none of those changes runtime behaviour. The M3 manual staging evidence (TC-10 to TC-14, TC-19, TC-20, all Pass on 16/10/2026) therefore still applies, except for the resolve step that DEF-04 changed. The automated suite and a short smoke test, including that resolve step, are re-run on the final commit:
+
+| Check on the final commit | Expected | Result |
+|---|---|---|
+| CI run (secrets guard, build, tests, static analysis, vulnerable packages) | Green; 145 tests (143 plus the two DEF-04 regression tests) with 0 failed and 3 skipped (database tests); no CS0169 or Node.js 20 warnings, and no xUnit1051 warning in the two test files fixed in v4.0 | Pass: CI run #13 (https://github.com/BouncyCrawfish/SEN_381_Project/actions/runs/39148791822), all steps green. Tests: 0 failed (a failing test fails the run). Warnings: 10 xUnit1051 annotations, all in test files not changed in v4.0 (AuthServiceTests, AuditLogServiceTests, DomainEventDispatcherTest, NotificationsModuleTests); no CS0169 or Node.js 20 warning shown. |
+| Local full test run with `CIVICCONNECT_TEST_CONNECTION` set | 145 passed, 0 skipped | Pass, 18/10/2026 |
+| Staging smoke test of the final build: TC-13, TC-14, TC-20, and DEF-04 (as `staff1@civicconnect.test`, add a note with "Add note only" to an InProgress request, then choose Resolved, enter a resolution note and click Resolve) | As in the manual test table; for DEF-04 the request becomes Resolved and the resolution note appears in its history | Pass, 18/10/2026 |
+
+**Strongest and weakest evidence (from the RTM):** the strongest is FR-011 / NFR-005: a full state-transition table test, a database trigger tested against PostgreSQL, a DEF-01 regression test and a manual check on the real database all agree. The weakest are NFR-001 and NFR-006 (no evidence recorded) and FR-005, whose criterion is only partly met. **Regressions:** none; all re-runs above passed.
+
+## 5. M3 to final closure
+
+| M3 item | Final status | Evidence |
+|---|---|---|
+| DEF-01 duplicate audit rows (High) | Fixed and closed | TC-22 in every CI run; TC-13 on the real database |
+| DEF-02 manager overview error (High) | Fixed and closed | TC-14 |
+| DEF-03 CI YAML error (Medium) | Fixed and closed | Every CI run since v3.5 |
+| DEF-04 resolution note lost (found after M3) | Fixed in v4.0 (pull request #43) | Two regression tests in `RequestSecurityTests`; resolve step in the final smoke test (section 4) |
+| M3 classification "CONDITIONALLY READY" | Conditions met: the release candidate CI run was green (run #6), TC-13 showed one history row, and no high-severity defect was found on staging. Final release decision: section 6 | Release Evidence Summary |
+| 11 non-blocking CI warnings (TD-13) | Repaid in v4.0 | CI run #13 (https://github.com/BouncyCrawfish/SEN_381_Project/actions/runs/39148791822): the CS0169 and Node.js 20 warnings are gone; 10 xUnit1051 warnings remain in other test files |
+| Residual risks (RSK-013 tampered client, slow queue at volume, database defects missed by tests, data loss, requesters miss changes) | Retained; each is now future work with its consequence stated. RSK-013 and RSK-009 block production | Risk register "Final risk status"; section 8 |
+| Technical debt TD-01 to TD-13 | TD-11, TD-12, TD-13 repaid in v4.0; TD-01 to TD-10 retained with their consequence | Technical debt register (final status column) |
+| Incomplete integration | None: all modules are composed in one application and one solution, and CI builds and tests them together | CI run; `Program.cs` |
+| Release/staging evidence | M3 staging evidence reused, because apart from DEF-04 the v4.0 changes do not change runtime behaviour; smoke test, including the DEF-04 resolve step, re-run on the final build | Section 4; `Docs/STAGING.md` |
+| PostgreSQL version for TC-21 (section 8 of the M3 evidence) | Recorded: PostgreSQL 16+ | Section 8 of the M3 evidence |
+
+## 6. Final deployment and go-live decision
+
+**Decision: NO-GO for production. The final release is identified and tagged on `main`, and remains deployed in simulated staging.**
+
+The final release (tag and commit in "Final submission information") is published as a Release build and run against a database rebuilt from the scripts, exactly as in `Docs/STAGING.md`. It is not released to real users, for these specific reasons:
+
+| Blocking concern | Affected requirement / risk | Likely consequence of releasing | Must be resolved before go-live |
+|---|---|---|---|
+| Every client holds the `civicconnect_app` database credentials, and role checks and lockout run only in C#. A modified client could read requester contact details and other requesters' requests | NFR-008, FR-006, NFR-003; RSK-013, RSK-004, TD-06 | Exposure of citizens' personal data, which is the privacy failure the project ranked highest (RSK-004) | A thin API tier, or PostgreSQL row-level security, so clients no longer hold database credentials (controlled ADR change) |
+| No automated backups; manual `pg_dump` before deployments only | RSK-009, NFR-004 | Permanent loss of requests and the audit trail after a disk or operator failure | Scheduled, tested backups and a restore procedure for the hosted database |
+| Lockout held in memory; no session timeout, password reset or change-password screen | RSK-014, TD-04, TD-05, NFR-003 | Guessing protection resets on restart; users cannot recover or rotate passwords without an administrator | Durable lockout columns, session timeout, a password-reset and change-password flow |
+| No logging; listener failures are swallowed | TD-09, FEC-03 | Failures in operation would be invisible to support staff | Application logging with no personal data in the logs |
+| Only one local PostgreSQL instance has been used; no hosted database or TLS configuration | FEC-06, RSK-008 | Unknown behaviour over a network and with several staff at once | Hosted database with TLS, re-run of TC-21 with concurrent users |
+
+The integrity controls are not the blocker: the audit trail is append-only at the database level and every critical journey passes. The blockers are security and operational controls that a public-facing system holding citizen contact details needs. Releasing now would put stakeholder data at risk to meet a deadline, which the M4 brief and the project's own security constraint both rule out.
+
+**Final staging deployment record** (from `Docs/STAGING.md` section 5):
+
+| Field | Value |
+|---|---|
+| Date and time | 18/10/2026 |
+| Deployed by | Paul van Zyl |
+| Release tag / commit | v4.0-final / dfbd7c5554f3c1ad8eb54cab9c1be8e1bdee4b9c |
+| PostgreSQL version | 16+ |
+| Database rebuilt from scripts | Yes |
+| Configuration source | `ConnectionStrings__CivicConnect` environment variable |
+| Smoke checks (TC-13, TC-14, TC-20, DEF-04 resolve step) | Pass, 18/10/2026 |
+| Problems found | None |
+
+## 7. Significant decisions and their final consequences
+
+The decision records are not rewritten; their final consequence is recorded here (and as v4.0 notes on DEC-001, DEC-002 and DEC-004). The first three rows are the decisions with the clearest consequences.
+
+| Decision | Final consequence observed | Retain or change, with evidence |
+|---|---|---|
+| **ADR-003: WinForms desktop client connecting directly to PostgreSQL** | Positive: free tools, quick to build, all three roles in one application. Negative: every client holds database credentials, which created RSK-013 and is the main reason production is a no-go (section 6) | Change: keep the desktop client, add a thin API tier between it and the database |
+| **ADR-002 (hybrid integrity) with ADR-004 (State Pattern)** | Positive: the append-only trigger, grants and the state classes produced the strongest evidence in the project (TC-03 to TC-05, TC-09, TC-13) and made illegal transitions impossible from the UI and from tests alike | Retain |
+| **ADR-005 (Observer) with DEC-001 (in-app and email notifications)** | Mixed: the observer kept notifications out of the Requests module, but two history writers caused DEF-01 (corrected by C-02), and without a notification store or email the requester is never alerted (FR-005 partial) | Retain the observer for side effects only; plan the notification store in the data model from the start |
+| ADR-001 modular monolith | One project per module allowed parallel work and kept the DEF-01 fix to one file; the Reporting module was folded into Requests (C-01) | Retain |
+| ADR-006 / DEC-004 bcrypt and one permission matrix | One reviewable matrix, covered by `AccessControlTests` and 21 `RequestSecurityTests`; no permission defects found | Retain |
+| DEC-002 placeholder performance threshold | Measured only at M3 (TC-21) and never re-set for a desktop client; the measurement shows a large margin | Replace the placeholder with an agreed figure before any real release |
+
+## 8. Known limitations and future work
+
+In the order the team would do them if the project continued:
+
+1. Thin API tier or row-level security, so clients no longer hold database credentials (RSK-013, TD-06).
+2. Scheduled backups and a hosted database with TLS (RSK-009, FEC-06).
+3. Durable lockout, session timeout, password reset and a change-password screen (TD-04, TD-05, RSK-014).
+4. Requester notifications: a notification store, then email (FR-005, TD-01, DEC-001).
+5. Overdue requests once a threshold is agreed with management (FR-015, TD-02).
+6. Category filter on the manager list and audit-trail export (FR-016, FR-017, TD-03).
+7. Logging without personal data (TD-09); the audit-trail permission check inside `IAuditLogService` (TD-10).
+8. Paging for the staff queue and manager list, and removal of the 500-row audit cap (TD-07, NFR-007).
+9. A PostgreSQL job in CI with integration tests for the EF Core repositories (TD-08, RSK-015).
+10. The NFR-001 usability check and NFR-006 walkthrough, if not completed before submission (section 3).
+
+## 9. Project reflection
+
+| Area | Conclusion from the evidence |
+|---|---|
+| Original problem and value | The M1 problem was lost or duplicated requests across fragmented channels. The final product gives each request one record, a reference number, a controlled workflow and an immutable history, so the core needs of all three stakeholders are met: requesters can see that a request was not lost, staff have clear ownership and legal transitions, and managers have counts and an audit trail. The weakest stakeholder outcome is the requester, who must check for updates instead of being told (FR-005). |
+| Scope | 78.0% of the M1 acceptance criteria on recorded evidence (85.3% of the functional ones). Scope changes were controlled (C-01 to C-05). The losses are FR-015 (threshold never agreed), the partial FR-005, FR-016 and FR-017, and NFR checks that were planned but not run. |
+| Quality | Confidence comes from 143 automated tests run on every push by a CI pipeline with security gates, two tests against real PostgreSQL, seven manual system tests on staging and a performance measurement. What remains uncertain: usability with real users, several staff working at once, a hosted database, and the UI, which has no automated tests. |
+| Risks, defects and debt | Four defects were found and fixed, each with regression evidence; DEF-04 was found by using the application after M3, which shows the manual checks had not covered adding a note before resolving. DEF-01 was found by comparing the PED with the code, which showed the value of keeping the document honest about the implementation. The main risk left is RSK-013, together with backup and authentication gaps; three low-risk debt items were repaid in v4.0 and ten are carried forward with their consequences. |
+| Engineering decisions | See section 7: the direct database connection (ADR-003) had the largest negative consequence; the hybrid integrity model with the State Pattern (ADR-002, ADR-004) had the largest positive one. |
+| Team and project execution | The Git history shows work concentrated before each milestone deadline; all modules were built between 06/10 and 15/10/2026, and the final integration pull requests (#37 to #42) were merged on 14 and 15/10/2026. Late integration left no time for FR-015, the requester notification store or audit export, and documentation lagged the code until the v3.4 review. Pull requests into `development` and two approvals on `main` kept the history authentic and reviewable. |
+| Future | Section 8, starting with the security and operational controls that block production. |
+
+## 10. Evidence links
+
+- Repository and history: https://github.com/BouncyCrawfish/SEN_381_Project (branches `development` and `main`, pull requests #1 to #42 and the final merge)
+- CI workflow and runs: `.github/workflows/ci.yml`; https://github.com/BouncyCrawfish/SEN_381_Project/actions (M3 release candidate run #6: https://github.com/BouncyCrawfish/SEN_381_Project/actions/runs/38811087944; final run #13: https://github.com/BouncyCrawfish/SEN_381_Project/actions/runs/39148791822)
+- Tests: `Tests/CivicConnect.Tests/` (xUnit v3); test case table in "Test cases and verification evidence"; manual evidence screenshots in `Docs/evidence/`
+- Performance: `Tests/CivicConnect.Tests/Performance/StaffQueuePerformanceTests.cs`, `db/perf/`, section 8 of the M3 release evidence
+- Staging and deployment: `Docs/STAGING.md`
+- Database: `db/` scripts and `db/README.md`
+- Registers: RTM, Risk register (with final status), Defect and Technical debt registers (M3 release evidence, section 9, with final status), ADR-001 to ADR-006, DEC-001 to DEC-004, AI Usage Register, Document Control Log (`Docs/Change_log.md`)
+
+# M3 release evidence
+
+This chapter is the M3 evidence index. It follows the structure of section 6 of the M3 brief and points to the evidence in the repository and in the other sections of this document instead of repeating it. Items in square brackets are results the team records after running the checks; nothing in this chapter claims a result that has not been recorded.
+
+## 1. M3 overview
+
+The release candidate is the WinForms desktop application with five modules (Auth, Requests, AuditLog, Notifications and the shared Common library) over the PostgreSQL schema in `db/`. It covers the full core request lifecycle for all three roles: requester registration and sign-in, request submission and tracking (FR-001 to FR-004), staff queue, assignment, status changes and notes (FR-007 to FR-013), manager overview and audit trail (FR-014, FR-016, FR-017), and role-based access control throughout (FR-006). FR-005 is implemented as an in-app notification only; FR-015 (overdue requests) is deferred. The implementation status of each requirement is in the RTM.
+
+## 2. M2 baseline conformance
+
+| M2 decision | Implemented as planned | Deviation (see section 3) |
+|---|---|---|
+| ADR-001 modular monolith, four modules | Yes: one .NET class library per module, one composition root (`Program.cs`), dependencies point one way | Reporting is not a separate project; Notifications and a shared Common library were added (C-01) |
+| ADR-002 hybrid integrity, optimistic concurrency, atomic request + history | Yes: CHECK constraints, foreign keys, append-only trigger and grants in `db/`; `xmin` concurrency token; request and history saved in one transaction | None |
+| ADR-003 .NET 10 WinForms, EF Core 10, PostgreSQL 16+, xUnit v3, GitHub | Yes | None |
+| ADR-004 State Pattern for status transitions | Yes: `IRequestState` and one class per status in `RequestStates.cs` | None |
+| ADR-005 Observer Pattern for side effects | Yes for notifications (`NotificationEventHandler`) | History is written by the Request aggregate, not by `AuditLogEventHandler` (C-02) |
+| Data baseline (five entities) | Yes | "Comment" is the `notes` table (C-03) |
+| 5.7 module interfaces, DTOs, FluentValidation, `Result<T>` | Yes; final interface table in section 5.7 | Extra interfaces added (`ISessionContext`, `IAccessControl`, `INotificationService`, `IFormFactory`) |
+| FEC-01 authentication mechanism (open at M2) | Decided in M3 as ADR-006 and DEC-004 | New decision (C-04) |
+| DEC-001 in-app and email notifications | In-app only | Email deferred under the cost constraint (C-05) |
+
+## 3. Controlled changes
+
+| ID | Original decision | Implementation evidence / problem | Revised decision | Consequence | Record |
+|---|---|---|---|---|---|
+| C-01 | ADR-001: Requests, Audit log, Users and auth, Reporting | Reporting needed only read queries over request data; notifications needed a home that did not depend on Requests | Manager queries live in the Requests module; audit trail in AuditLog; separate Notifications project; shared Common library | One fewer project to maintain; Requests carries reporting queries | ADR-001 implementation note (v3.4) |
+| C-02 | ADR-005: `AuditLogEventHandler` writes history on each event | Writing history in a listener after the save would break the ADR-002 rule that a request and its history are saved atomically; registering both writers caused DEF-01 | The Request aggregate writes history in the same transaction; `AuditLogEventHandler` is kept but not registered | Atomic history; one fewer listener; handler kept for a possible later move | ADR-005 implementation notes (v3.2, v3.4, v3.6); DEF-01 |
+| C-03 | ERD entity "Comment" | Schema script created `notes` | Keep `notes`; document the mapping | Naming difference only | Data baseline note (v3.4) |
+| C-04 | FEC-01 left the authentication mechanism open | Desktop client connects directly to PostgreSQL; DB CHECK accepts bcrypt/argon2 only | bcrypt, in-memory session and lockout, one permission matrix | Residual risks RSK-013, RSK-014 | ADR-006, DEC-004 |
+| C-05 | DEC-001: in-app and email notifications | Email needs an external service, which conflicts with the free-services constraint | In-app popup for the person who made the change; email and requester notifications deferred | FR-005 only partly met | DEC-001 v3.2 update; TD-01 |
+
+## 4. Construction and configuration
+
+- **Repository strategy:** work happens on feature/fix branches merged by pull request into the `development` branch. The M3 release candidate is the last pull-request merge into `development` (PR #42, commit `73e2fe2`); on the lecturer's instruction `development` is merged into `main` only for the final release in the next milestone. `main` is protected: a pull request can only be merged into it after approval from two contributors. Work reaches `development` through pull requests, for example https://github.com/BouncyCrawfish/SEN_381_Project/pull/42 and https://github.com/BouncyCrawfish/SEN_381_Project/pull/41.
+- **Secrets and configuration:** no real credentials are committed. The connection string comes from user-secrets, the `ConnectionStrings__CivicConnect` environment variable or a gitignored `appsettings.json`; `appsettings.example.json` holds placeholders. Database role passwords are set locally (`01_roles.local.sql` is gitignored). The only passwords in the repository are the public development-account passwords in `db/05_dev_seed_users.sql`. CI enforces this with the secrets guard (section 5).
+- **Least privilege:** the application connects as `civicconnect_app` (no DELETE, no DDL, cannot change roles); see `db/README.md` section 3.
+- **Implementation notes:** the schema is owned by the SQL scripts (no EF migrations). `Program.cs` is the only composition root; each module registers itself with one `Add...Module` method.
+
+## 5. CI and automated verification
+
+`.github/workflows/ci.yml` runs on GitHub Actions (`windows-latest`) for every push and pull request to `main` and `development`.
+
+| Step | What it checks | Fails the run when |
+|---|---|---|
+| Secrets guard | Tracked files and `db/01_roles.sql` | A real `appsettings*.json`, `.env`, `.pfx/.p12`, `*.local.sql` or SSH key is committed, or `01_roles.sql` holds a password that is not a `CHANGE_ME_` placeholder |
+| Build | The whole solution in Release | Any compile error |
+| Tests | The xUnit v3 suite (database tests skip themselves) | Any test fails |
+| Static analysis | Microsoft .NET analyzers at the recommended level over the application and all modules | A security rule fires: CA2100 (SQL injection), CA3075 (insecure XML), CA5350/CA5351 (weak cryptography). Other analyzer warnings are reported, not blocking |
+| Vulnerable package check | `dotnet list package --vulnerable --include-transitive` | Any NuGet package has a known vulnerability |
+
+Dependabot (`.github/dependabot.yml`) opens weekly pull requests for NuGet and GitHub Actions updates, so updates pass through the same checks. **Quality gate:** with branch protection requiring "Build and test (Windows)", a failing step blocks merging. Evidence: https://github.com/BouncyCrawfish/SEN_381_Project/actions/runs/38811087944/job/116684180583; (https://github.com/BouncyCrawfish/SEN_381_Project/actions/runs/38782507670). **What a green run does not prove:** behaviour against the real database (only the skipped database tests cover that), UI behaviour, and performance.
+
+## 6. Quality strategy applied
+
+Verification effort followed risk, not test count:
+
+| Risk | Why it matters | Stronger verification applied |
+|---|---|---|
+| Unauthorised access or data exposure (RSK-004, RSK-013, NFR-008) | Requester contact details and staff actions must be role-gated | 21 `RequestSecurityTests`, `AccessControlTests` matrix, TC-12 and TC-20 manual checks |
+| Invalid or lost status changes (FR-011, ADR-002) | The core workflow and its audit trail | State Pattern tests including a full transition table, lost-update conflict test, TC-13 |
+| Audit trail integrity (NFR-005, DEF-01) | Accountability depends on exactly one immutable row per change | Append-only trigger and grants, `HistoryImmutabilityTests` against PostgreSQL, `AuditLogModuleRegistrationTests` (DEF-01 regression), TC-13 |
+| Credential handling (NFR-003) | Passwords and database credentials | `PasswordHasherTests`, lockout tests, CI secrets guard |
+| Query translation and database behaviour (RSK-015) | In-memory fakes cannot find SQL problems (DEF-02) | Manual system checks on staging; TC-21 against PostgreSQL |
+
+## 7. Black-box, integration and system validation
+
+Automated tests are counted once per meaningful case; legitimate overlap between categories is allowed by the brief.
+
+| Category (M3 minimum) | Evidence | Count |
+|---|---|---|
+| Unit/component (5) | `PasswordHasherTests`, `AccessControlTests`, `RequestStateTest`, `NotificationEventHandlerTests`, `NotificationServicesTests`, `AuditLogServiceTests`, `AuditLogEventHandlerTests`, `DomainEventDispatcherTests` | Well above 5 |
+| Black-box functional (5) | `RequestSubmissionTests` (TC-15), `RequestStateTest` transition cases (TC-03 to TC-05), lockout boundary in `AuthServiceTests` (TC-16) | Above 5 |
+| API/integration (3) | Module boundaries through dependency injection: `RequestNotificationTests` (Requests to dispatcher to listener, TC-06), `NotificationsModuleTests` (TC-08), `AuditLogModuleRegistrationTests` (TC-22), `RequestSecurityTests` (Requests with Auth session and access control, TC-17); against real PostgreSQL: `HistoryImmutabilityTests` (TC-09) and TC-21 | Above 3; only the last two use the real database |
+| E2E/system (2) | Manual journeys on the staging build: TC-19, TC-20, TC-13 (and the manual checks TC-10, TC-11, TC-12, TC-14) | 3 system journeys executed, all passed (7 manual cases in total) |
+| Negative/unauthorised (3) | Signed-out and wrong-role cases in `RequestSecurityTests` and `AccessControlTests`; wrong password and lockout in `AuthServiceTests`; invalid input in `RequestSubmissionTests` | Above 3 |
+| High-priority requirements/risks (5) | FR-006, FR-010, FR-011, NFR-003, NFR-005, NFR-008 (see RTM) | 6 |
+| Performance (1) | TC-21 | 1 |
+
+**Black-box techniques used:** equivalence partitioning (valid and invalid categories, blank versus filled fields, TC-15), boundary value analysis (description and location lengths at and around their limits, TC-15; the fifth failed login, TC-16), state transition testing (every allowed and blocked transition, TC-03 to TC-05) and a decision table (`TC05_StateTransitionTable_MatchesTheAcceptanceCriteria`, TC-05; named `TC08_...` until v4.0). Test case details, expected results and status are in "Test cases and verification evidence".
+
+## 8. Performance
+
+TC-21 (`Tests/CivicConnect.Tests/Performance/StaffQueuePerformanceTests.cs`) times the staff queue, the screen staff use most and the one NFR-002 is about. It signs in as a Staff user through the real Auth module and calls `IRequestService.GetStaffQueueAsync` against PostgreSQL: 3 warm-up calls, then 20 measured calls in sequence, with the open requests seeded by `db/perf/perf_seed_requests.sql` (1000 by default). Target: 95th percentile within 2 s and no failed calls; the 2 s figure is the NFR-002 placeholder from DEC-002, not a measured business requirement.
+
+| Field | Value |
+|---|---|
+| Environment | Freerk's Windows laptop (64-bit): AMD Ryzen 7 6800HS at 3.20 GHz, 16 GB RAM; PostgreSQL 16+ on the same machine (local database, no network latency); run on 16/10/2026 at 18:52 |
+| Data | 1003 open requests returned per call: the 1000 rows from `db/perf/perf_seed_requests.sql` plus 3 existing requests |
+| Result | 20 measured calls after 3 warm-up calls, 0 failed. Min 4.9 ms, median 5.6 ms, p95 7.6 ms, max 11.2 ms (from `perf-tc21-result.txt`; screenshot `Docs/evidence/TC-21.png`) |
+| Interpretation | Within target: p95 of 7.6 ms is far below the 2 s placeholder, with no failures, so loading about 1000 open requests through the real Auth and Requests modules and EF Core is not a bottleneck on one machine. The measurement covers the service call and the database query only, not drawing the grid in the WinForms screen. Because the database is local and only one user was simulated, the result says nothing about network latency to a hosted database or several staff using the queue at once. The queue has no paging (TD-07), so time grows with the number of open requests; a repeat with a larger seed would show how fast. |
+
+**What this does not prove:** concurrent users, network latency to a hosted database, UI rendering time, or behaviour at municipal scale. The queue loads every open request with no paging (TD-07), so response time is expected to grow with the number of open requests.
+
+## 9. Defects and quality interpretation
+
+### Defect register
+
+| ID | Defect | Severity / impact | Found by | Status | Fix | Regression evidence | Final status (v4.0) |
+|---|---|---|---|---|---|---|---|
+| DEF-01 | Each status change wrote two `request_history` rows: `AuditLogEventHandler` was registered while `RequestService` also writes history | High: duplicate audit rows undermine NFR-005 and FR-017 | Documentation review against the code (v3.4) | Fixed in v3.6; confirmed by TC-13 (Pass) | Registration removed from `AddAuditLogModule` | `AuditLogModuleRegistrationTests` (TC-22); TC-13 manual | Closed: TC-22 passes in the final CI run https://github.com/BouncyCrawfish/SEN_381_Project/actions/runs/39148791822 (CI run #13); no regression |
+| DEF-02 | Manager overview failed with "Something went wrong": `ListAllAsync` sorted after projecting to a DTO, which EF Core could not translate | High: FR-014 screen unusable | Manual run against PostgreSQL (v3.2) | Fixed in v3.2 | Sort moved before the projection | TC-14 manual: Pass | Closed: TC-14 in the final smoke test: Pass, 18/10/2026 |
+| DEF-03 | First CI run failed with a YAML syntax error on line 8 of `ci.yml` after the branch triggers were edited | Medium: no CI feedback until fixed | GitHub Actions (CI) | Fixed in v3.5 | Branch triggers rewritten as a list | Next CI run (https://github.com/BouncyCrawfish/SEN_381_Project/actions/runs/38784571497) | Closed: every later CI run starts |
+| DEF-04 | Staff who added a note with "Add note only" and then resolved the request got "A resolution note is required": the form had one shared note box, which was cleared after the note was saved, so the status change sent an empty note | Medium: FR-013 resolve step failed in the UI; staff could work around it by typing the note again before resolving | Using the application after M3 (18/10/2026) | Fixed in v4.0 (pull request #43) | Separate "Resolution note (required)" box shown when resolving and sent with the status change; general note now optional; the service still enforces the rule | `Resolving_WithANote_Succeeds_AndRecordsTheResolutionNote`, `Resolving_AfterAddingANoteSeparately_StillNeedsAResolutionNote` (TC-17) | Closed: both regression tests pass in CI run #13 (https://github.com/BouncyCrawfish/SEN_381_Project/actions/runs/39148791822) |
+
+### Technical debt register
+
+| ID | Debt | Why it was accepted | Consequence if left | Linked | Final status (v4.0) |
+|---|---|---|---|---|---|
+| TD-01 | No email and no requester notifications (no notification store) | Free-services constraint | FR-005 only partly met | DEC-001 | Retained: FR-005 stays partly met; requesters are not alerted (Final project closure, section 8, item 4) |
+| TD-02 | Overdue requests not implemented | SLA threshold never agreed | FR-015 unmet | FR-015 | Retained: FR-015 not implemented (Final project closure, section 8, item 5) |
+| TD-03 | No category filter on the manager list; no audit-trail export | Schedule | FR-016 partly met; FR-017 export missing | FR-016, FR-017 | Retained: FR-016 and FR-017 partly met (Final project closure, section 8, item 6) |
+| TD-04 | No change-password screen, session timeout or password reset | Schedule | Users cannot rotate passwords from the app | ADR-006 | Retained: one of the production blockers (Final project closure, section 6) |
+| TD-05 | Login lockout held in memory | Schema has no failed-attempt columns | Lockout resets on restart | RSK-014 | Retained: one of the production blockers (Final project closure, section 6) |
+| TD-06 | Desktop client connects directly to PostgreSQL | ADR-003 architecture | A tampered client can bypass C# checks | RSK-013 | Retained: main production blocker (Final project closure, section 6) |
+| TD-07 | Staff queue and manager list load every matching request (no paging) | Small data volumes in M3 | Response time grows with open requests | NFR-002, NFR-007, TC-21 | Retained: acceptable at about 1000 open requests (TC-21); paging needed before real volumes |
+| TD-08 | Automated tests use in-memory fakes; few database tests | Time; no database in CI | SQL/translation defects found late (DEF-02) | RSK-015 | Retained: database defects can still be found late |
+| TD-09 | Event listener failures are swallowed; no logging | Simplicity | Failures are invisible in operation | FEC-03 | Retained: one of the production blockers (Final project closure, section 6) |
+| TD-10 | Audit-trail permission checked in the UI, not inside `IAuditLogService` | Only one caller today | A new caller could skip the check | NFR-008 | Retained: still only one caller, so no current exposure |
+| TD-11 | Test method prefixes `TC06`/`TC07`/`TC08` clash with this document's IDs | Names predate the table | Confusing evidence references | Test cases section | Repaid in v4.0: `TC06_*`/`TC07_*` renamed `TC15_*` and `TC08_StateTransitionTable_*` renamed `TC05_*`; names now match this document |
+| TD-12 | Misspelt file names (`AuditLogModuleExstentions.cs`, `IDomainEventDispacther.cs`, `Architechture.png`) | Low priority | Harder to search the code | NFR-006 | Repaid in v4.0: files renamed to `AuditLogModuleExtensions.cs`, `IDomainEventDispatcher.cs`, `Architecture.png` (and `AuditLogEventHandlerTests.cs`) |
+| TD-13 | CI warnings in run #6: 6 unused designer fields in `ManagerDashboardForm.Designer.cs`, 4 xUnit1051 warnings, and `actions/checkout@v4` / `actions/setup-dotnet@v4` targeting deprecated Node.js 20 (GitHub forces them onto Node.js 24) | Non-blocking, found at the end of M3 | Dead code stays in the form; the workflow breaks when GitHub removes Node.js 20 support | Static/security evidence, CI | Repaid in v4.0 for the warnings listed from run #6: unused fields removed, cancellation tokens passed in `UserServiceTests` and `AuditLogEventHandlerTests`, actions updated to v5. Other test files may still raise low-severity xUnit1051 warnings (the earlier local build reported 26); any that remain are retained. Confirmed in CI run #13: no CS0169 or Node.js 20 warning; 10 xUnit1051 warnings remain in `AuthServiceTests`, `AuditLogServiceTests`, `DomainEventDispatcherTest` and `NotificationsModuleTests` (low severity, retained). |
+
+## 10. Release readiness
+
+### Release Evidence Summary
+
+| Evidence area | Result | Interpretation | Concern / action |
+|---|---|---|---|
+| Build and CI | Pass: CI run #6 (https://github.com/BouncyCrawfish/SEN_381_Project/actions/runs/38811087944), pull_request event for PR #42, 1 min 40 s, on PR #42 head `2c2d766` (same files as release candidate `73e2fe2`) | Every step succeeded: secrets guard, Release build, test suite, static analysis and vulnerable-package check. Any failing step fails the job, so a green job means all gates passed | None blocking; 11 non-blocking warnings recorded under Static/security and TD-13 |
+| Automated regression | Pass. CI run #6: 143 tests, 140 passed, 0 failed, 3 skipped (the database tests, because CI has no PostgreSQL connection: the 2 `HistoryImmutabilityTests` cases and TC-21). Local run against PostgreSQL on 16/10/2026: all 143 passed, 0 skipped | Core rules, permissions and transitions protected | Investigate any failure |
+| API/integration | Module-integration tests (TC-06, TC-08, TC-17, TC-22) passed in CI run #6; the PostgreSQL tests (TC-09 database cases, TC-21) passed in the local run on 16/10/2026 | Module boundaries cooperate; database denies history edits | Database coverage is thin (TD-08) |
+| System/E2E | TC-10 to TC-14, TC-19, TC-20: 7 of 7 passed on staging | Sign-in, role separation, status change with notification and a single audit row, and the manager views all work on the real database | Record any failure as a defect |
+| Static/security | Secrets guard passed (no secret files or real role passwords tracked); static analysis passed with no blocking security finding (CA2100, CA3075, CA5350, CA5351); vulnerable-package check passed (no known vulnerable NuGet packages). 11 warnings reported | No security findings. The warnings are low severity: 6 unused designer fields in `ManagerDashboardForm.Designer.cs` (CS0169, dead code); 4 xUnit1051 test warnings (cancellation token not passed); 1 GitHub notice that `actions/checkout@v4` and `actions/setup-dotnet@v4` target the deprecated Node.js 20 and are being forced to run on Node.js 24 | Recorded as TD-13; update the two actions before GitHub removes Node.js 20 |
+| Performance | TC-21 Pass: p95 7.6 ms (median 5.6 ms, max 11.2 ms), 0 of 20 calls failed, 1003 open requests | Against the 2 s placeholder, local database | TD-07 paging |
+| Known defects | DEF-01 fixed (confirmed by TC-13), DEF-02 fixed (confirmed by TC-14), DEF-03 fixed | No open defects found in the manual tests | Block if a high-severity defect is open |
+| Acceptance | RTM: FR-001 to FR-013 implemented; FR-005, FR-016, FR-017 partial; FR-015 deferred | Core lifecycle met; known gaps listed | Gaps recorded as TD-01 to TD-03 |
+
+### Classification
+
+**Proposed: CONDITIONALLY READY**, to be confirmed by the team once the results above are recorded. **v4.0:** the conditions were met (see Final project closure, section 5); the final go-live decision is in section 6 of that chapter. Reasoning: the core lifecycle is implemented for all three roles and protected by automated tests and CI gates, and the known limitations (TD-01 to TD-03, deferred FR-015) are non-blocking and documented. The classification becomes **NOT READY** if the CI run for the release candidate fails, if TC-13 still shows two history rows, or if a high-severity defect is found during the staging checks.
+
+### Residual risk statement
+
+| Residual risk | Why it remains | Current mitigation | Next action / owner |
+|---|---|---|---|
+| A tampered desktop client bypasses C# authorisation | Clients hold the app role's database credentials (RSK-013) | Least-privilege grants, append-only history, assignee trigger | Thin API tier or row-level security before any real release / carried to future work at closure (Final project closure, section 8) |
+| Slow staff queue at real volumes | No paging; TC-21 used one local machine (TD-07) | Indexed status and date columns | Add paging and re-run TC-21 on representative hardware / carried to future work at closure (Final project closure, section 8) |
+| Database defects missed by tests | Most tests use in-memory fakes (RSK-015) | Manual staging checks, two database tests | PostgreSQL integration job in CI / carried to future work at closure (Final project closure, section 8) |
+| Data loss | No automated backups (RSK-009) | Manual `pg_dump` before staging deployments | Scheduled backups for any hosted database / carried to future work at closure (Final project closure, section 8) |
+| Requesters miss status changes | No email or requester notifications (TD-01) | Status visible in My requests | Notification store and email channel / carried to future work at closure (Final project closure, section 8) |
+
+# Problem Statement & business need
+
+The current problem is that various types of service requests are currently handled using different un-optimal methods, this causes many problems, including but not limited to lost or duplicated records. Thus, a significant need for a functioning system exists.
+
+The organisation needs a managed digital platform that provides a reliable, traceable and usable way to submit, manage, monitor and report on various service requests. The solution must increase visibility and accountability whilst maintaining a sustainable technical, operational and financial impact.
+
+# Stakeholder analysis 
+
+From the scenario we can identify 3 stakeholders namely requesters, staff & management.
+
+| Stakeholder | Needs | Influence | Interest | Conflicts |
+|---|---|---|---|---|
+| Requester | Submit a request easily and get status updates. | Low | High | Frequent updates conflicts with staff’s need to avoid update overhead |
+| Staff | Fast acknowledgment, possible escalation path, discretion for sensitive reports, <br>clear work assignment, | Medium | High | Wants minimal mandatory fields, conflicts with managers need for granular reporting |
+| Management | Reliable, auditable, information on work | High | Medium | Wants detailed reporting, conflicts with Staff’s need for lightweight logging |
+| Lecturer | Good work that follows the project baseline and relative milestone requirements. | High | High | None at present. |
+
+# Scope baseline
+
+## In scope
+
+### Request submission & tracking 
+
+- Requesters can submit a new service request with category, description, and relevant details
+
+- Requesters can categorise a request using a controlled (fixed) category list
+
+- Requesters can view status of their own submitted requests
+
+- Requesters can view a history/list of their previously submitted requests
+
+- Requesters receive automated notification when a request is accepted, rejected, updated, or completed (in-app/email — not SMS)
+
+### Staff assignment and status management
+
+- Staff can view requests relevant to their authorised role
+
+- Staff can search, filter, and sort requests (by status, category, date, etc.)
+
+- Staff can view full request details
+
+- Staff can assign or accept responsibility for a request
+
+- Staff can update request status through defined, controlled transitions (e.g. New → Assigned → In Progress → Resolved → Closed)
+
+- Staff can record comments/actions/resolution notes against a request
+
+- Staff can resolve or close requests where authorised
+
+### Management reporting & oversight
+
+- Management can view service activity summaries (open/overdue/resolved/closed counts)
+
+- Management can filter/view requests by category, status, and other basic dimensions
+
+- Management has access to enough information to support basic accountability and performance review
+
+### Access control
+
+- Basic role-based access control separating Requester/Staff/Management views
+
+## Out of scope
+
+- SMS/push notifications- excluded on cost grounds. SMS gateway pricing carries per-segment charges plus recurring monthly number-rental fees regardless of volume tier (Twilio, 2026), making it an ongoing operational cost incompatible with the project's free/low-cost constraint.
+
+- Native mobile application- excluded on schedule and team-capability grounds. Native development typically costs two to four times more than an equivalent web product and requires separate platform-specific codebases, increasing both build time and team learning curve beyond what the milestone schedule allows (MayaLogic, 2026).
+
+- Multi-language support- excluded on schedule grounds
+
+- Advanced analytics/BI dashboards — excluded as beyond core business need for this project.
+
+## Deferred / future scope
+
+- SLA-based auto-escalation of overdue requests
+
+- Integration with external helpdesk systems
+
+- Fine-grained, configurable category management
+
+## Exclusion defence
+
+SMS notifications were excluded because they require a paid gateway service to run, this directly conflicts with the constraint that free tools must be used to create the system. An in-app and email notification must satisfy the same underlying requester need “I know my request was not lost”, without introducing a recurring cost or an external service dependency.
+
+# Requirements & acceptance criteria
+
+## Functional Requirements (FRs)
+
+Each FR below maps to exactly one of the three capability groups in the SEN381 Master Brief document under section 3 namely Requester, Staff and Management and a cross-cutting access control requirement. This access control requirement exists because sections 4 and 16 of the same master brief document treats security as a lifecycle-wide constraint and not just as an afterthought and because a request-management platform handling potentially sensitive information cannot be meaningfully evaluated without knowing who is allowed to view or act on each FR below.
+
+The question, “Does the platform lose its core value proposition without this?” was used to determine priorities. It is necessary for a requester, staff or manager to have everything they need to finish the basic request lifecycle namely submit --\> assign --\> action --\> resolve --\> report. Filtering, overdue flagging and grouping are examples of convenience features that enhance the experience but are not essential. The team could still present a functional platform without these, but they provide significant stakeholder value at a low cost.
+
+| ID     | Requirement                                                                                                                                                      | Source/ Stakeholder | Priority |
+|--------|------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------|----------|
+| FR-001 | When a requester submits a new service, the system must at least record the category, description, location and requester’s contact information.                 | Requester           | Must     |
+| FR-002 | The system should require the requester to choose a category from a predetermined, controlled list.                                                              | Requester           | Must     |
+| FR-003 | A requester should be able to see the status of every request they have submitted through the system.                                                            | Requester           | Must     |
+| FR-004 | A requester should be able to view a list or history of all the requests they have made in the past.                                                             | Requester           | Must     |
+| FR-005 | When a request is approved, denied, amended or finished the system must alert the requester or provide them with other relevant feedback.                        | Requester           | Must     |
+| FR-006 | Only authenticated, authorised users should be able to read and respond to service requests in accordance with their roles.                                      | Security Constraint | Must     |
+| FR-007 | The system should permit authorised staff to access service requests that are specific to them.                                                                  | Staff               | Must     |
+| FR-008 | Staff should be able to search, filter or arrange requests using practical criteria.                                                                             | Staff               | Should   |
+| FR-009 | The system should enable staff to see every element of a particular request, including the requester’s submitted information and the requester’s action history. | Staff               | Must     |
+| FR-010 | The system will should enable staff to either take responsibility for a request or allocate it to themselves or another permitted staff member.                  | Staff               | Must     |
+| FR-011 | Only a limited number of legitimate transactions should let staff change a request’s status.                                                                     | Staff               | Must     |
+| FR-012 | Staff members should be able to document actions, remarks or resolution notes in response to a request using the system.                                         | Staff               | Must     |
+| FR-013 | Authorised staff should be able to close or resolve a request through the system.                                                                                | Staff               | Must     |
+| FR-014 | Managers should be able to view aggregate service activity data across requests.                                                                                 | Manager             | Must     |
+| FR-015 | Based on a predetermined age/SLA threshold, the system should enable managers to identify past-due requests.                                                     | Manager             | Should   |
+| FR-016 | Managers should be able to view requests filtered or aggregated by category, status or other appropriate parameters.                                             | Manager             | Should   |
+| FR-017 | In order to facilitate accountability and service-performance analysis, the system should give managers sufficient request-level and aggregated data.            | Manager             | Should   |
+
+## Non-Functional Requirements (NFRs):
+
+Even though this milestone is not yet permitted to make architectural and construction decisions, milestones 1 discreetly begins to restrict those decisions in NFRs (section 5, Explicit Milestone 1 Boundaries, Master Brief document). Each of the NFRs listed below can be traced either directly to a specific pain point in the business requirements or to an explicit restriction in the Master Brief (section 4).
+
+All the NFRs in this section are constructed so that they may eventually be proven true or false using evidence rather than claims.
+
+| ID      | Category                  | Requirement                                                                                                                                                                         | Source/ Stakeholder         | Priority |
+|---------|---------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------|----------|
+| NFR-001 | Usability                 | A valid service request can be submitted by a first-time requester without outside assistance.                                                                                      | Requester/ business need    | Must     |
+| NFR-002 | Performance               | Under typica demand, the request list view must return results to staff within a predetermined response time.                                                                       | Constraint                  | Should   |
+| NFR-003 | Security                  | No sensitive information is kept in the repository, all request data in transit and saved credentials must be secured using industry-standard techniques.                           | Constraint                  | Must     |
+| NFR-004 | Availability              | Requesters and staff should be able to access the system during scheduled business hours and aby scheduled outages should be announced.                                             | Business need               | Should   |
+| NFR-005 | Auditability              | Every staff action and status change on a request must be recorded, along with the person who made the change and when. This history must not be able to be edited.                 | Traceability/ business need | Must     |
+| NFR-006 | Maintainability           | For a new team member[^1] to find the request-submission, staff-action and reporting logic within a reasonable review, the codebase must adhere to a consistent, defined structure. | Constraint                  | Could    |
+| NFR-007 | Scalability               | As the volume of requests exceed the initial testing dataset, the data model and queries must be made to continue to be functional.                                                 | Constraint/ business need   | Should   |
+| NFR-008 | Compliance/ Data Handling | In accordance with FR-006, only authorised roles may view private or sensitive requester data.                                                                                      | Constraint/ business need   | Must     |
+
+## Acceptance criteria:
+
+| ID      | Acceptance Criteria                                                                                                                                                                                                                                                                |
+|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| FR-001  | A new request is created with a unique reference number and an initial status of “Submitted” when a requester who is logged in completes all the required information and presses submit. Submission is blocked with a field-level error message when required fields are missing. |
+| FR-002  | A request cannot be submitted without selecting a category from the approved list because the category field is a constrained selector rather than free text.                                                                                                                      |
+| FR-003  | The status is shown when a requester reads a particular request they own and it corresponds to the most recent status noted by staff.                                                                                                                                              |
+| FR-004  | When a requester logs in, a list of all their own requests, each with a reference number, category, submission date and status is displayed, requests from other requesters are not.                                                                                               |
+| FR-005  | When a staff member modifies the status of a request, the requester can see the change within a predetermined window of time, and the feedback details they changed.                                                                                                               |
+| FR-006  | When a user without staff privileges tries to access management or staff views or actions, access is refused. Only request and actions relevant to that role are accessible if the staff login is genuine.                                                                         |
+| FR-007  | When a staff member logs in, they can see a list of requests that are relevant to their role or queue, leaving out requests that are not authorised.                                                                                                                               |
+| FR-008  | Only requests that match are shown when a staff member applies a filter.                                                                                                                                                                                                           |
+| FR-009  | All submitted fields and a chronological action/ status history are shown when a staff member opens a request.                                                                                                                                                                     |
+| FR-010  | When a staff member assigns or accepts an unassigned request, the action is timestamped and assigned to that staff member, and the request’s “owner” filed is updated.                                                                                                             |
+| FR-011  | When a staff member tries and invalid transaction given a request in a specific status, the system stops them, legitimate transactions are successful and are recorded with a timestamp and staff ID.                                                                              |
+| FR-012  | When a staff member adds a comment or resolution note, it is recorded, timestamped, assigned to that staff member and displayed in the history of the request.                                                                                                                     |
+| FR-013  | When a staff member marks a request as “Resolved” or “Closed”, the system updated appropriately, the change is recorded and the requester can view the updated status (see FR-005).                                                                                                |
+| FR-014  | Counts of requests by status are shown and match the underlying request data when a manager examines the oversight dashboard ore report.                                                                                                                                           |
+| FR-015  | A request is marked as “overdue” in the management view if it has stayed in an open status for longer than the specified timeframe.                                                                                                                                                |
+| FR-016  | The view only displays requests that match that dimension with accurate counts if a manager applies a grouping or filter.                                                                                                                                                          |
+| FR-017  | The responding staff member and timestamps for significant status changes are visible and exportable when a manager reviews a request or report.                                                                                                                                   |
+| NFR-001 | A first-time user completes and sends a legitimate request on their own during a usability test, and they can describe what happens next.                                                                                                                                          |
+| NFR-002 | Throughout multiple test runs, the measured page-load/ query time for a staff request list remains within the predetermined threshold, the threshold and test conditions are recorded.[^2]                                                                                         |
+| NFR-003 | Passwords are not kept in plaintext, the repository scan reveals no committed credentials, secure login are used.                                                                                                                                                                  |
+| NFR-004 | The uptime/availability strategy is recorded and every outage that occurs during demo or testing phase is noted along with the reason.                                                                                                                                             |
+| NFR-005 | There is no UI path to update previous history entities, instead viewing a request’s history displays and unchangeable, timestamped, attributed log of all status changes and actions.                                                                                             |
+| NFR-006 | Within a predetermined amount of time, a walkthrough by someone other than the original creators finds the three areas (see NFR-006’s requirement in NFR table) using just the repository structure and documents.                                                                 |
+| NFR-007 | A simple load test with a larger dataset in a later milestone verifies that there are no fixed-size assumptions after reviewing the schema and queries.                                                                                                                            |
+| NFR-008 | At no point in the user interface or API answers are other requesters or unauthenticated users able to see or access a requester’s contact information.                                                                                                                            |
+
+# Constraints
+
+## Scope constraint
+
+Scope must be baselined and controlled once agreed. Any feature proposed after baseline must go through a formal change-request and impact-analysis process, not be silently added to work in progress.
+
+## Schedule constraint
+
+The project must progress through 4 fixed milestones, each with its own presentation/defence date, with no flexibility to shift work across milestones after the fact.
+
+## Cost/Resources constraint 
+
+The team must prefer free or low-cost services where practical and must identify the limitations of those services rather than assume "free" carries and no trade-off.
+
+## Quality constraint
+
+Quality attributes must be defined early and later supported by measurable evidence, not asserted after implementation.
+
+## Security Constraint
+
+Security is a lifecycle-wide responsibility. Security-relevant decisions such as which stakeholders can see which requests must be identified at the foundation stage, before architecture or technology choices are made.
+
+## Trade-off
+
+Preferring free-tier hosting limits which security protections are available by default most free tiers don't include a web application firewall or advanced traffic protection services. This pushes security responsibility from the infrastructure layer to the application layer. We've recorded the reduced infrastructure-level protection as a residual risk rather than assuming the free tier is safe by default.
+
+# Requirements Traceability Matrix (RTM) 
+
+**v4.0 (final):** the Status column now holds the final status of each requirement and its acceptance criterion (AC), using the M4 categories. Implementation and verification evidence refer to the final release in "Final submission information". The full M1 scope reflection and the Scope Completion Percentage are in "Final project closure", sections 2 and 3.
+
+| Source/ Priority         | Req ID        | ASR Link                                         | Architecture/Module               | Data/Persistence Impact                                              | Design Decision                                                                                                                                                                                                                                   | Tech Decision                                                   | Implementation Evidence      | Verification Evidence        | Status (final, v4.0)       | ADR/Risk Ref              |
+|--------------------------|---------------|--------------------------------------------------|-----------------------------------|----------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------|------------------------------|------------------------------|----------------------------|---------------------------|
+| Requester/Must           | FR-001        | NFR-008                                          | Request module                    | Request (created), Category (FK), User (requester_id)                | FluentValidation pipeline validates the submission, Request initialised into SubmissionStatus under the State Pattern, RequestAggregate raises RequestStatusChangedEvent handled by AuditLogEventHandler to write the first RequestHistory entry. (v3.2: the request_history row is written by the Request aggregate in the same transaction, see the ADR-005 deviation note.) | C# .NET WinForm (VS 2026), EF Core 10, PostgreSQL 16+ (ADR-003) | `SubmitRequestForm`; `RequestService.SubmitRequestAsync` (CivicConnect.Requests). The requester id is taken from the session, never from the form; contact details come from the signed-in `users` row. Request and first `request_history` row ("Submitted") saved in one transaction. | TC-15 (`RequestSubmissionTests`), TC-17 (`SubmittedRequest_AlwaysBelongsToTheSignedInUser`) | IMPLEMENTED. AC met | ADR-001 - 005             |
+| Requester/Must           | FR-002        | NFR-007 (indirect)                               | Request module                    | Category (Lookup reference data)                                     | Category passed as a strongly typed DTO field, FluentValidation confirms the selected category exists in the lookup set.                                                                                                                          | C# .NET WinForm (VS 2026), EF Core 10, PostgreSQL 16+ (ADR-003) | Category drop-down filled by `IRequestService.ListCategoriesAsync`; categories seeded by `db/04_requests_module.sql`; validator rejects a category outside the active list; `category` is SELECT-only for the app role. | TC-15 (`CategoryOutsideTheApprovedList_IsRejected`) | IMPLEMENTED. AC met | ADR-001, ADR-003          |
+| Requester/Must           | FR-003        | NFR-005                                          | Request module                    | Request, RequestHistory (read)                                       | Current status read via IRequestService exporting the RequestAggregate’s active IRequestState as a DTO.                                                                                                                                           | C# .NET WinForm (VS 2026), EF Core 10, PostgreSQL 16+ (ADR-003) | `MyRequestsForm` and `RequestDetailForm` show the current status from `RequestDto`. | TC-17 (`Requester_SeesOnlyOwnRequests`) | IMPLEMENTED. AC met | ADR-002-004               |
+| Requester/Should         | FR-004        | NFR-005                                          | Request module                    | Request, RequestHistory (read, append-only)                          | RequestHistory read via IAuditLogService as DTOs.                                                                                                                                                                                                 | C# .NET WinForm (VS 2026), EF Core 10, PostgreSQL 16+ (ADR-003) | `MyRequestsForm` via `IRequestService.GetMyRequestsAsync` (own requests only, with reference number, category, date and status). | TC-17 (`Requester_SeesOnlyOwnRequests`, `Requester_CannotOpenSomeoneElsesRequest_AndGetsSameAnswerAsMissing`) | IMPLEMENTED. AC met | ADR-002, ADR-003, ADR-005 |
+| Requester/Should         | FR-005        | NFR-005                                          | Request module                    | RequestHistory (triggers notification per DEC-001)                   | NotificationEventHandler subscribes to RequestStatusChangedEvent and shows an in-app message through INotificationService. Email delivery is deferred under DEC-001 (free-services constraint). | C# .NET WinForm (VS 2026), EF Core 10, PostgreSQL 16+ (ADR-003) | `NotificationEventHandler`, `NullNotificationService`, `MessageBoxNotificationService` (CivicConnect.Notifications); `RequestService` publishes the event after a saved status change. In-app popup for the person who made the change only; requesters are not notified (no notification store). | TC-06, TC-07, TC-08 (automated), TC-13 (manual) | CHANGED THROUGH APPROVED CHANGE (C-05, DEC-001); PARTIALLY IMPLEMENTED: in-app popup for the acting user only; email and requester alerts deferred. AC partially met | DEC-001, ADR-003, ADR-005 |
+| Security Constraint/Must | FR-006 | NFR-003, NFR-008 | User and auth module | User (role field, password_hash) | Role check performed in the C# application layer: `IAccessControl` evaluates the signed-in user's role (held in `ISessionContext`) against a single `RolePermissions` matrix and fails closed when nobody is signed in. `IAuthService` handles login, logout and change-password; `IUserService` handles requester registration (role hard-coded to Requester) and user lookups. FluentValidation validates every DTO before execution and failures return `Result<T>`. | C# .NET 10, EF Core 10 (Npgsql), PostgreSQL 16+ (ADR-003); BCrypt.Net-Next for hashing (ADR-006) | `CivicConnect.Auth` (`IAuthService`, `IUserService`, `ISessionContext`, `IAccessControl`, `RolePermissions`), `CivicConnect.Common`, `LoginForm`, `RegisterForm`, role-based tiles on `MainForm`; every `RequestService` method re-checks the permission. | TC-16 (`PasswordHasherTests`, `AuthServiceTests`, `UserServiceTests`, `AccessControlTests`), TC-17 (`RequestSecurityTests`), TC-12 (manual) | IMPLEMENTED. AC met (residual RSK-013) | DEC-003, DEC-004, ADR-003, ADR-006, RSK-013, RSK-014 |
+| Staff/Must               | FR-007        | NFR-002, NFR-008                                 | Request module                    | Request (role-filtered read)                                         | IRequestService query filtered by caller role, returned as DTOs.                                                                                                                                                                                  | C# .NET WinForm (VS 2026), EF Core 10, PostgreSQL 16+ (ADR-003) | `StaffQueueForm` via `IRequestService.GetStaffQueueAsync` (open requests; "assigned to me" option), gated by `ViewStaffQueue`. | TC-17 (`StaffQueue_HidesClosed_AndFiltersByStatusAndSearch`, `Requester_CannotUseStaffActions`) | IMPLEMENTED. AC met | ADR-003                   |
+| Staff/Must               | FR-008        | NFR-002                                          | Request module                    | Request (indexed filter field per NFR-002)                           | EF Core query against indexed PostgreSQL columns per NFR-002.                                                                                                                                                                                     | C# .NET WinForm (VS 2026), EF Core 10, PostgreSQL 16+ (ADR-003) | `StaffQueueForm` status filter, free-text search and "assigned to me" (`RequestQueueFilter`); manager list has status filter and search. | TC-17 (`StaffQueue_HidesClosed_AndFiltersByStatusAndSearch`) | IMPLEMENTED. AC met | ADR-003                   |
+| Staff/Must               | FR-009        | NFR-008                                          | Request module                    | Request, Comment, RequestHistory (fied-level access)                 | Field-level projection enforced via DTOs, separating presentation from domain.                                                                                                                                                                    | C# .NET WinForm (VS 2026), EF Core 10, PostgreSQL 16+ (ADR-003) | `RequestDetailForm` via `GetRequestDetailAsync`: all fields, chronological history and notes; requester name and email only for Staff/Manager (NFR-008). | TC-17 (`Staff_DetailView_ShowsContactDetailsHistoryAndNotes`, `Requester_DetailView_HidesContactDetailsAndStaffNotes`) | IMPLEMENTED. AC met | ADR-003                   |
+| Staff/Must               | FR-010        | NFR-005                                          | Request module                    | Request (assigned_staff_id FK to User)                               | State Pattern transition to AssignedState, RequestStatusChangedEvent dispatched to AuditLogEventHandler. (v3.2: the request_history row is written by the Request aggregate in the same transaction, see the ADR-005 deviation note.) | C# .NET WinForm (VS 2026), EF Core 10, PostgreSQL 16+ (ADR-003) | `RequestService.AssignRequestAsync` + `Request` aggregate / State Pattern (CivicConnect.Requests); staff can assign to themselves or another Staff user. | TC-03 to TC-05, TC-06 (automated), TC-17 (`Staff_CanAssignToAnotherStaffMember`, `Assign_ToSomeoneWhoIsNotStaff_IsRejected`), TC-13 (manual) | IMPLEMENTED. AC met | ADR-002-005               |
+| Staff/Must               | FR-011        | NFR-005                                          | Request module + Audit log module | Request, RequestHistory (hybrid enforcement, optimistic concurrency) | Primary application of the State Pattern combined with Observer Pattern audit dispatch and PostgreSQL optimistic concurrency. (v3.2: the request_history row is written by the Request aggregate in the same transaction, see the ADR-005 deviation note.) | C# .NET WinForm (VS 2026), EF Core 10, PostgreSQL 16+ (ADR-003) | Request state machine (`RequestStates.cs`) and `RequestService.UpdateRequestStatusAsync`; only the assignee may change status; optimistic concurrency on `xmin`. | TC-03 to TC-05, TC-06 (automated), TC-17 (`OnlyTheAssignee_CanChangeStatus`, `LostUpdate_IsReportedAsConflict_NotAsACrash`), TC-13 (manual) | IMPLEMENTED. AC met | ADR-002-005               |
+| Staff/Must               | FR-012        | NFR-005                                          | Request module                    | Comment (created by Staff)                                           | Comment DTO validated via Fluent Validation, comment creation may raise an audit event via the Observer Pattern.                                                                                                                                  | C# .NET WinForm (VS 2026), EF Core 10, PostgreSQL 16+ (ADR-003) | `RequestService.AddNoteAsync`; notes stored in the `notes` table (the ERD's "Comment") and shown in `RequestDetailForm`. Notes do not publish a domain event. | TC-06 (`Adding_a_note_publishes_nothing`), TC-17 (`NoteTooLong_IsRejected`), `RequestStateTest.ClosedRequest_CannotReceiveNotes` | IMPLEMENTED. AC met | ADR-003, ADR-005          |
+| Staff/Must               | FR-013        | NFR-005                                          | Request module                    | Request, RequestHistory (closure recorded)                           | State Pattern transition to ResolvedState/ClosedState, Observer Pattern dispatches closure audit entry and notification.                                                                                                                          | C# .NET WinForm (VS 2026), EF Core 10, PostgreSQL 16+ (ADR-003) | State Pattern transitions to Resolved and Closed; resolving requires a note. | TC-03 to TC-05, TC-17 (`FullJourney_Submit_Assign_Progress_Resolve_Close_RecordsEveryStep`, `Resolving_WithoutANote_IsRejected`) | IMPLEMENTED. AC met (DEF-04 fixed in v4.0) | ADR-002-005               |
+| Manager/Should           | FR-014        | NFR-007                                          | Requests module (manager queries) | Request (aggregated read queries)                                    | IRequestService aggregate read queries via EF Core LINQ                                                                                                                                                                                           | C# .NET WinForm (VS 2026), EF Core 10, PostgreSQL 16+ (ADR-003) | `ManagerDashboardForm`: counts by status and category (`GetSummaryAsync`) and all-requests list (`GetAllRequestsAsync`). ListAllAsync sort defect fixed in v3.2. | TC-14 (manual regression) | IMPLEMENTED. AC met (TC-14 Pass) | ADR-003                   |
+| Manager /Should          | FR-015        | NFR-007                                          | Requests module (manager queries) | Request (overdue-threshold queries)                                  | IRequestService overdue-threshold query via EF Core LINQ.                                                                                                                                                                                         | C# .NET WinForm (VS 2026), EF Core 10, PostgreSQL 16+ (ADR-003) | Not implemented: the overdue/SLA threshold was never agreed. | None | NOT IMPLEMENTED: threshold never agreed; no approved change. AC not met | ADR-003                   |
+| Manager/Could            | FR-016        | NFR-007                                          | Requests module (manager queries) | Request, Category (grouped read)                                     | IRequestService grouped read query via EF Core LINQ.                                                                                                                                                                                              | C# .NET WinForm (VS 2026), EF Core 10, PostgreSQL 16+ (ADR-003) | `ManagerDashboardForm`: counts grouped by status and by category; list filtered by status and free-text search. No category filter on the list. | TC-14 (manual, list loads); no automated test | PARTIALLY IMPLEMENTED: no category filter on the list. AC partially met | ADR-003                   |
+| Manager/Should           | FR-017        | NFR-005, NFR-007                                 | Audit log module | RequestHistory, Comment (read for accountability)                    | IAuditLogService read RequestHistory/Comment populated via Observer Pattern.                                                                                                                                                                      | C# .NET WinForm (VS 2026), EF Core 10, PostgreSQL 16+ (ADR-003) | `IAuditLogService` / `AuditLogService` / `EfAuditLogRepository` (CivicConnect.AuditLog); `AuditTrailForm` opened from `ManagerDashboardForm`, gated by `ViewReports`. No export function. | TC-09 (automated), TC-10 to TC-12 (manual) | PARTIALLY IMPLEMENTED: no export. AC partially met | ADR-003                   |
+| Constraints/Must         | NFR-001-\>008 | All (NFR-002,003,005,007,008 formalised as ASRs) | All modules (Auth, Requests, AuditLog, Notifications, shared Common) | Crosscutting see ASR section for per NDR data impact                 | Collectively supported by State Pattern, Observer Pattern and Module Integration Decisions.                                                                                                                                                       | C# .NET WinForm (VS 2026), EF Core 10, PostgreSQL 16+ (ADR-003) | NFR-003/008: bcrypt hashes checked by `users_hash_format`, no secrets in the repository (.gitignore, `appsettings.example.json`, user-secrets), `User` and the hash internal to the Auth module, least-privilege `civicconnect_app` role, requester contact details hidden from requesters. NFR-005: `request_history` append-only (trigger + no UPDATE/DELETE grant), audit trail screen. NFR-006: one project per module. NFR-002, NFR-004 and NFR-007: not measured. | NFR-003/008: TC-16, TC-17, CI secrets guard and static/security checks. NFR-005: TC-09 (database cases passed against PostgreSQL on 16/10/2026), TC-22, TC-10/TC-13 (manual). NFR-002/007: TC-21 (Pass on 16/10/2026: p95 7.6 ms with 1003 open requests, local database). NFR-001, 004, 006: no evidence recorded. | Final: NFR-002, 003, 005, 008 met; NFR-004 and NFR-007 partially met; NFR-001 and NFR-006 not verified (Final project closure, sections 2 and 3) | ADR-001 to ADR-006, RSK-013 to RSK-016 |
+
+# End-to-end traceability
+
+| Stage                       | Evidence                                                                                                                                                                                                                                                                                       |
+|-----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Requirement                 | FR-001: “Submit a new service request with appropriate information” (priority: Must)                                                                                                                                                                                                           |
+| ASR/Constraint              | NFR-008 (Compliance/Data Handling: role-gated sensitive data) applies from the point of submission, since Request capture requester-identifying information. Cost/Resources constraint also shaped DEC-001                                                                                     |
+| Architecture Responsibility | Request module, per ADR-001                                                                                                                                                                                                                                                                    |
+| Data Decision               | Request entity created with required FKs to User and Category. Per ADR-002 creation is enforced though hybrid database and application-layer integrity checks, per NFR-005 a corresponding RequestHistory entry is written as the first append-only status record (“Submitted”).               |
+| Design/Interface Decision | FluentValidation validates `SubmitRequestDto` before domain execution. The new `Request` starts in `SubmittedState` (State Pattern, ADR-004) and the `Request` aggregate adds the first append-only `request_history` entry ("Submitted"), saved in the same EF Core transaction as the request (ADR-002). Submission publishes no domain event; events are published only for status changes. |
+| Technology/ADR              | C# .NET 10 WinForms desktop application (Visual Studio 2026), EF Core 10 over PostgreSQL 16+. Connection string handled via gitignore appsettings.json per NFR-003.                                                                                                                            |
+| Application Artifact | Implemented: `SubmitRequestForm` (CivicConnect.App) calls `IRequestService.SubmitRequestAsync`; `RequestService`, `Request`, `EfRequestRepository` (CivicConnect.Requests). The requester id comes from the session, never from the form. |
+| Initial Verification | xUnit v3: `RequestSubmissionTests` (valid submission, missing/blank fields, category outside the list, field-level messages, trimming, length boundaries) and `RequestSecurityTests.SubmittedRequest_AlwaysBelongsToTheSignedInUser` (TC-15, TC-17). Run result to be recorded in the test case table. |
+
+**End-to-end traceability (FR-006)**
+
+| Stage | Evidence |
+|---|---|
+| Requirement | FR-006: only authenticated, authorised users can read and respond to requests according to their role (priority: Must, Security Constraint) |
+| ASR/Constraint | NFR-003 (credentials protected, nothing sensitive in the repository) and NFR-008 (role-gated sensitive data). The Security and Cost/Resources constraints shaped ADR-006. |
+| Architecture Responsibility | Users and auth module (`CivicConnect.Auth`), per ADR-001. Other modules use only `IAuthService`, `IUserService`, `ISessionContext` and `IAccessControl`; the `User` entity and password hash are internal. |
+| Data Decision | `users` table: `role` limited to Requester, Staff or Manager by CHECK; `password_hash` must be a bcrypt or argon2 hash; case-insensitive unique email. The app role cannot update `role`, so Staff and Manager accounts are created by the owner role (`db/05_dev_seed_users.sql` for development). |
+| Design/Interface Decision | `RolePermissions` is the single role-to-permission matrix (DEC-004); `IAccessControl` fails closed when nobody is signed in. Every `RequestService` method re-checks the permission and applies row-level rules (a requester sees only their own requests). Generic error on bad credentials; 5 failures lock an email for 5 minutes. |
+| Technology/ADR | C# .NET 10, EF Core 10 (Npgsql), BCrypt.Net-Next 4.2.0 (work factor 12, SHA-384 pre-hash), connection string from user-secrets, environment variable or gitignored `appsettings.json` (ADR-003, ADR-006). |
+| Application Artifact | Implemented: `CivicConnect.Auth`, `CivicConnect.Common`, `LoginForm` and `RegisterForm` (full screen), role-based tiles on `MainForm`. Not implemented: change-password screen (service method exists), session timeout, password reset, durable lockout, login audit trail. |
+| Initial Verification | xUnit v3: `PasswordHasherTests`, `AuthServiceTests`, `UserServiceTests`, `AccessControlTests` (TC-16) and `RequestSecurityTests` (TC-17); manual TC-12. Not covered by tests: behaviour against the real database and tamper resistance of the client (RSK-013). |
+
+# Test cases and verification evidence
+
+Automated cases are xUnit v3 tests in `CivicConnect.Tests` (target `net10.0-windows`, Windows only). From v3.5 they also run in the GitHub Actions CI workflow on every push and pull request; a CI run is the evidence to cite for their status once recorded. Manual cases are performed in the running application. Status is recorded only for what has been run. **v3.4 note:** some test method names in the code use the prefixes `TC06`, `TC07` and `TC08` for request submission and state-table tests; those names predate this table and do not match TC-06 to TC-08 below. The IDs in this table are the ones to cite. **v4.0:** renamed (TD-11): the submission tests now start with `TC15_` and the state table test is `TC05_StateTransitionTable_MatchesTheAcceptanceCriteria`, so test names and this table agree. Automated rows TC-15 to TC-18 were added in v3.4 from the test classes in the final repository, and TC-21 and TC-22 in v3.6; their run result has not yet been recorded here. In CI the database cases (TC-09 database part, TC-21) are skipped because no database connection is configured; they run on the staging machine (`Docs/STAGING.md`).
+
+## Automated test cases
+
+| ID | What it checks | Expected result | Traces to | Test class | Status |
+|---|---|---|---|---|---|
+| TC-03 to TC-05 | Valid workflow and invalid transitions of the request state machine | Legal transitions succeed, illegal ones return an error | FR-010, FR-011, ADR-004 | RequestStateTest | Pass (recorded in v3.1) |
+| TC-06 | RequestService publishes RequestStatusChangedEvent: assigning publishes one event; a status update carries the old and new status; a note alone publishes nothing; a rejected change publishes nothing; a failing listener does not fail the saved change | Exactly the events described, and the call still succeeds when a listener throws | FR-005, FR-010, FR-011, ADR-005 | RequestNotificationTests | Pass |
+| TC-07 | NotificationEventHandler and notification services: one message per status change; the body names the request and both statuses; a missing old status reads as New; title present and severity Info; the text never mentions email; a null event is rejected; a failing channel is not hidden; null title/body become empty text; the null and message-box services ignore a null message | As described, with no crash on null input | FR-005, DEC-001 | NotificationEventHandlerTests, NotificationServicesTests | Pass |
+| TC-08 | Notifications module registration and dispatch: the silent service is the default; AddMessageBoxNotification replaces it when added last; the module registers the status-change handler; a dispatched event reaches the notification channel | Services resolve from DI, the last registration wins, the dispatcher reaches a recording channel | FR-005, ADR-005, DEC-001 | NotificationsModuleTests, DomainEventDispatcherTest | Pass |
+| TC-09 | Audit log module: history for one request only; invalid ids (0, negative) rejected as validation errors; From after To rejected; filtering by actor and status; AuditLogEventHandler maps an event to one entry with a UTC timestamp and allows a null old status; the app database role cannot UPDATE or DELETE request_history | As described. The database cases run only when CIVICCONNECT_TEST_CONNECTION is set, otherwise they are skipped | FR-017, NFR-005 | AuditLogServiceTests(1/1), AuditLogEventHandlerTests(1/1), HistoryImmutabilityTests(Skipped) | Pass: service and handler cases in CI run #6; the 2 database cases (app role cannot UPDATE or DELETE `request_history`) passed against PostgreSQL in the local run on 16/10/2026 |
+| TC-15 | Request submission: a valid submission creates a Submitted request with a reference number; missing or blank fields and a category outside the approved list are rejected and nothing is saved; field-level messages name the missing fields; whitespace is trimmed; description and location length boundaries | As described | FR-001, FR-002, NFR-001 | RequestSubmissionTests (7/7) | All Pass |
+| TC-16 | Users and auth: hash is never plaintext and passes the `users_hash_format` CHECK; salted; 72-byte limit removed; malformed hash fails closed; work factor at least 12; login ignores email case; identical error for wrong password and unknown email; 5 failures lock the email until the lockout expires; change-password rules; DTOs never print a password; registration always creates a Requester; duplicate email rejected; role-permission matrix; signed-out user has no access | As described | FR-006, NFR-003, NFR-008, ADR-006, DEC-004 | PasswordHasherTests (6/6), AuthServiceTests (10/10), UserServiceTests (6/6), AccessControlTests (4/4) | All pass |
+| TC-17 | Request security and workflow rules: signed-out user refused; requester cannot use staff actions; manager cannot change requests; staff cannot submit; requester sees and opens only their own requests and never sees contact details or staff notes; staff detail shows contact details, history and notes; full journey records every step; only Staff can be assignees; only the assignee changes status; resolving needs a note; lost update reported as a conflict; staff queue hides Closed and filters by status and search | As described | FR-003, FR-004, FR-006 to FR-013, NFR-005, NFR-008, ADR-002, ADR-004 | RequestSecurityTests (21/21) | All Pass |
+| TC-18 | Domain event dispatcher: calls every registered handler; no handlers does nothing; the original exception surfaces, not a reflection wrapper | As described | ADR-005 | DomainEventDispatcherTest (3) | Pass (CI run #6) |
+| TC-21 | Performance: signed in as Staff, time `GetStaffQueueAsync` against PostgreSQL with the open requests seeded by `db/perf/perf_seed_requests.sql`; 3 warm-up and 20 measured calls | 95th percentile within 2 s (NFR-002 placeholder, DEC-002) and no failed calls | NFR-002, NFR-007 | StaffQueuePerformanceTests (runs only when `CIVICCONNECT_TEST_CONNECTION` is set) | Pass, run locally on 16/10/2026 against PostgreSQL: p95 7.6 ms, 0 failed calls (1003 requests). Skipped in CI, which has no database |
+| TC-22 | DEF-01 regression: `AddAuditLogModule` does not register `AuditLogEventHandler`; with the Notifications and AuditLog modules registered, a status change has exactly one listener (`NotificationEventHandler`) | No `AuditLogEventHandler`; exactly one handler | NFR-005, FR-017, ADR-005, DEF-01 | AuditLogModuleRegistrationTests (2/2) | Pass |
+
+## Manual test cases
+
+Black-box tests run by a person on the staging build (`Docs/STAGING.md`) against the real `civicconnect_db`, using the development accounts from `db/05_dev_seed_users.sql`. Expected results were written from the requirements and acceptance criteria before the tests were run. TC-13, TC-19 and TC-20 are also the system (E2E) cases, because each goes through the whole application down to the database. Screenshots are stored in `Docs/evidence/` under the test ID.
+
+| ID | Steps and test data | Technique | Traces to | Expected result | Actual result | Status | Evidence | Interpretation |
+|---|---|---|---|---|---|---|---|---|
+| TC-10 | Sign in as `manager@civicconnect.test`; on the manager dashboard click Audit trail | Use case / acceptance | FR-017, NFR-005 | The audit trail opens and lists status changes newest first | The audit trail opened from the dashboard with the most recent status change at the top | Pass | `Docs/evidence/TC-10.png` (audit trail, newest row first) | Managers can reach the full change history from their dashboard. Does not show behaviour beyond the 500-row cap of the audit query |
+| TC-11 | In the audit trail filter by request number 1, then by status Resolved, then by today's date range; then enter request number 0, and a From date after the To date | Equivalence partitioning: valid and invalid filter values | FR-017, NFR-005 | Each valid filter shows only matching rows; request number 0 and From after To each show a clear message and no results | Each valid filter showed only matching rows; request number 0 and the reversed date range were rejected with a message | Pass | `Docs/evidence/TC-11-valid.png`, `Docs/evidence/TC-11-invalid.png` | Filters behave correctly for one value from each valid and invalid class. Other values in the same classes are assumed to behave the same; no export exists (TD-03) |
+| TC-12 | Sign in as `requester@civicconnect.test`, then as `staff1@civicconnect.test`; look for any tile, button or menu that opens the audit trail | Negative / unauthorised | FR-006, NFR-008 | Neither role has any route to the audit trail | Neither home screen nor any opened screen offered a route to the audit trail | Pass | `Docs/evidence/TC-12-requester.png`, `Docs/evidence/TC-12-staff.png` | The UI hides manager-only data from other roles. A tampered client could still call the service; that refusal is covered by the automated `AccessControlTests` and the accepted risk RSK-013 |
+| TC-13 | Sign in as `staff1@civicconnect.test`; open a request assigned to staff1 and change its status from Assigned to InProgress; sign in as the manager and filter the audit trail by that request | Use case + regression for DEF-01 | FR-005, FR-010, FR-011, NFR-005, ADR-005 | A pop-up names the request and both statuses; the audit trail shows exactly one new row for the change, with staff1 and the time | The pop-up appeared naming the request and both statuses; the audit trail showed one row (Assigned to InProgress, staff1) | Pass | `Docs/evidence/TC-13-popup.png`, `Docs/evidence/TC-13-audit.png` | Confirms the DEF-01 fix on the real database: one status change writes one history row, and the notification fires after the save. Does not cover two staff changing the same request at once (covered by the automated concurrency test) |
+| TC-14 | Sign in as `manager@civicconnect.test`; open the overview of all requests | Regression for DEF-02 | FR-014 | Counts by status and category and the full list load without a "Something went wrong" error | Counts and the full list loaded with no error | Pass | `Docs/evidence/TC-14.png` | The EF Core sorting fix (DEF-02) holds against PostgreSQL, which in-memory tests cannot show. Load time with large volumes is covered by TC-21, not here |
+| TC-19 | Start the app; register `tc19@civicconnect.test` with a 12-character password; sign in; sign out; enter a wrong password five times, then the right password | Boundary value (fourth versus fifth failure), negative | FR-006, NFR-003, ADR-006 | Login and register open full screen; the new account is a Requester; a wrong password and an unknown email give the same message; after the fifth failure even the right password is refused with the lockout message | Both forms opened full screen; the new account signed in with Requester tiles only; each failure showed the generic message; the right password was refused with the lockout message after the fifth failure | Pass | `Docs/evidence/TC-19-register.png`, `Docs/evidence/TC-19-lockout.png` | Registration, sign-in and online-guessing protection work end to end. The lockout is held in memory and resets when the app restarts (RSK-014, TD-05) |
+| TC-20 | Sign in as `requester@`, `staff1@` and `manager@civicconnect.test` in turn; then close the home screen | Decision table: role against visible tiles | FR-006, NFR-008, DEC-004 | Requester sees only Submit and My requests; Staff sees only the staff queue; Manager sees only all requests; closing the home screen signs out | Each role saw only its own tiles; closing the home screen returned to sign-in | Pass | `Docs/evidence/TC-20-requester.png`, `-staff.png`, `-manager.png` | The permission matrix (DEC-004) drives the UI correctly for all three roles. Hiding a tile is a convenience; the services re-check every permission (`RequestSecurityTests`) |
+
+# Risk register
+
+**1. Initial Risk Register**
+
+| **ID**  | **Risk Description**                                                                                                                                                                    | **Category**               | **Prob** | **Imp** | **Priority** | **Mitigation**                                                                                                                                                                                                                                                        | **Contingency**                                                                                                                                                                                                                                            |
+|---------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------|----------|---------|--------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| RSK-001 | Team member unavailability (illness, exams, dropout) disrupts delivery of a milestone component                                                                                         | Team/Schedule              | M        | H       | High         | Cross-training via shared PED reviews; no single-owner knowledge silos; weekly sync with visible task board                                                                                                                                                           | Redistribute open issues; extend internal deadline buffer                                                                                                                                                                                                  |
+| RSK-002 | Requirements drift — client/lecturer feedback introduces scope not covered by current baseline                                                                                          | Scope                      | H        | M       | High         | Explicit scope baseline with in/out/deferred; change-request note added to Decision Log before any requirement is altered                                                                                                                                             | Log as deferred/future scope item; re-baseline only via team review                                                                                                                                                                                        |
+| RSK-003 | Weak or broken traceability between requirements -\> RTM -\> future test evidence, discovered late                                                                                      | Quality/Traceability       | M        | H       | High         | RTM built and populated from M1 onward; each new FR/NFR gets an RTM row at creation time                                                                                                                                                                              | Dedicated traceability audit session before next milestone gate                                                                                                                                                                                            |
+| RSK-004 | Sensitive citizen data (location, contact/reporter details) mishandled, creating security exposure                                                                                      | Security                   | M        | H       | High         | NFR mandating data minimisation and access control recorded now; constraint documented                                                                                                                                                                                | Treat as a P0 defect if discovered later; restrict field collection to minimum necessary                                                                                                                                                                   |
+| RSK-005 | Repository history is bulk-uploaded or reconstructed just before assessment, failing authentic progression                                                                              | Governance                 | M        | H       | High         | Weekly minimum commit/issue/PR cadence from Week 1; protected main + 2-reviewer rule                                                                                                                                                                                  | Document the cause transparently in the AI Usage/Decision Log rather than concealing it                                                                                                                                                                    |
+| RSK-006 | Undisclosed or unverified AI-generated content submitted as own work                                                                                                                    | Academic Integrity         | L        | H       | Medium       | AI Usage Register maintained live, per contribution, with verification notes                                                                                                                                                                                          | Immediate correction and re-attribution before submission; team review catches unregistered AI                                                                                                                                                             |
+| RSK-007 | Over-scoping M1 into premature technology/architecture decisions, violating milestone boundaries                                                                                        | Process                    | M        | M       | Medium       | Explicit 'deferred pending M2' tagging in Decision Log; review Section 5 of brief before sessions                                                                                                                                                                     | Flag and roll back any premature implementation artefact found in the repo                                                                                                                                                                                 |
+| RSK-008 | Modular monolith architecture creates a single point of failure. if the deployed instance goes down, all modules (request submission, staff actions, reporting) all become unavailable. | Architecture/Availability  | L        | M       | Medium       | Free-tier hosting platform's uptime/restart behaviour documented (NFR-004), modules kept loosely coupled internally so a future split to microservices remains possible if justified later, deployment/rollback approach recorded in deployment compatibility section | If downtime becomes a recurring issue, evaluate extracting the highest-risk module (e.g. request submission) into a separately deployed service logged as a controlled architecture change via ADR, not a deliberate fix                                   |
+| RSK-009 | Single free-tier database instance with no backup/recovery strategy creates risk of permanent data loss if the instance fails, expires, or is corrupted                                 | Architecture/Data          | M        | H       | High         | Document free-tier provider's data retention/expiry policy explicitly (e.g. Render's 30-day free Postgres limit); avoid relying on free-tier database beyond its stated retention window without a migration/backup plan                                              | Establish a manual or automated backup/export routine before M3 staging deployment; treat any pre-M3 data loss as acceptable since M1–M2 data is baseline/test data, not production data                                                                   |
+| RSK-010 | RTM/PED documentation falls behind=d the actual repository/decision state as development proceeds                                                                                       | Documentation/Traceability | M        | M       | Medium       | RTM/trace updated at every ADR merger, not assumed complete from changelog entry alone.                                                                                                                                                                               | If a gap is found close to a deadline/presentation, prioritise fixing the RTM/trace over any other work and treat the mismatch as P1 documentation defect.                                                                                                 |
+| RSK-011 | ADR-003 commits the team to very recently released tooling, which may have thinner community documentation.                                                                             | Technology                 | M        | M       | Medium       | Pin exact SDK/package versions in source control. Budget extra research time for unfamiliar API surfaces, fall back to widely documented .NET 8 LTS APIs where a .NET 10 specific feature causes friction.                                                            | If a specific .NET 10 API proves too instable or under documented to implement reliably within the milestone timeline, fall back to the equivalent .NET 8 LTS API for that one component only and record the substitute as a controlled change/ADR update. |
+| RSK-012 | State Pattern and Observer Pattern add several extra classes and an indirect, harder-to-trace execution flow. Acknowledged as a trade-off in both design decisions themselves           | Design                     | M        | L-M     | Medium       | Keep state/handler classes small and clearly named, add inline comments at each dispatch point, review at the M3 checkpoint whether the pattern is earning its complexity for the areas actually build.                                                               | If the added indirection genuinely slows debugging or onboarding beyond what the team can sustain, simply by collapsing rarely used state classes or merging trivial event handlers. Documented as a controlled ADR amendment.                             |
+| RSK-013 | The desktop client connects directly to PostgreSQL, so the `civicconnect_app` credentials exist on every client machine and authorisation and login lockout are enforced only in C#. A tampered or modified client could bypass role checks and the lockout. | Security | M | H | High | Least-privilege grants (no DELETE, no DDL, no UPDATE of role, append-only RequestHistory); `User` type and password hash kept `internal` to the module; connection string kept out of the repository (NFR-003); accepted risk recorded in db/README section 6 and ADR-006. | If the risk becomes unacceptable, introduce a thin API tier or PostgreSQL row-level security as a controlled architecture change via ADR, not an informal edit. |
+| RSK-014 | Authentication has known gaps at M3: lockout is in memory only (resets on restart, the schema has no failed-attempt columns), no login audit trail, no session timeout, no password-reset flow, no common-password check, and the role is a snapshot taken at login. | Security/Quality | M | M | Medium | Gaps recorded in the module README and ADR-006; password length rules (10 to 128) and bcrypt work factor 12; lockout applies to both login and change-password. | Raise a change request (Appendix E template) for durable lockout columns, a login-event table and session timeout, and re-run the NFR-003 tests before release. |
+| RSK-015 | Automated tests use in-memory fakes, so EF Core query translation, SQL and grant problems are found only when the app is run (the ListAllAsync defect in v3.2 was found this way). The CI workflow (v3.5) runs the unit tests on every push and pull request, but it does not run any test against PostgreSQL. **v3.6:** TC-21 adds a second test against PostgreSQL (run on staging, not in CI). | Quality | M | M | Medium | CI build and tests on every change (`.github/workflows/ci.yml`), required to pass before merging once branch protection is switched on; run the manual cases TC-10 to TC-14, TC-19 and TC-20 against `civicconnect_db` before release; the history-immutability test runs against PostgreSQL when `CIVICCONNECT_TEST_CONNECTION` is set. | Add a PostgreSQL job to the CI workflow that runs the `db/` scripts and sets `CIVICCONNECT_TEST_CONNECTION`, then add integration tests for the EF Core repositories. |
+| RSK-016 | Duplicate audit history (defect DEF-01): `AddAuditLogModule` registered `AuditLogEventHandler` while `RequestService` already writes `request_history` in the same transaction, so each status change wrote two history rows. **v3.6: fixed** (registration removed); remaining risk is a regression if the handler is registered again. | Quality/Auditability | L | M | Low | Regression test `AuditLogModuleRegistrationTests` (TC-22) runs in CI on every change; TC-13 confirms one row per change on the real database. | If history writing should move to the handler instead, stop the `Request` aggregate writing history and re-run TC-03, TC-06, TC-09 and TC-13; record the change in ADR-005. |
+
+**3. Final risk status (v4.0)**
+
+| ID | Final status | Evidence / consequence |
+|---|---|---|
+| RSK-001 | Closed | All four milestones delivered by the three members |
+| RSK-002 | Closed | Scope changes went through controlled changes C-01 to C-05; no unrecorded scope was added |
+| RSK-003 | Closed | RTM continued from M1 to v4.0 with final statuses; end-to-end traces for FR-001 and FR-006 |
+| RSK-004 | Mitigated in the application; residual through RSK-013 | NFR-008 tests (TC-16, TC-17) and TC-12, TC-20; blocks production (Final project closure, section 6) |
+| RSK-005 | Closed | Pull-request history from #1 to #42 and the final merge; `main` protected with two approvals |
+| RSK-006 | Closed | AI Usage Register kept per milestone and person |
+| RSK-007 | Closed | Historical (M1) |
+| RSK-008 | Accepted | Single desktop application and database; not tested as a hosted service |
+| RSK-009 | Open | Manual `pg_dump` only; blocks production (Final project closure, section 6) |
+| RSK-010 | Occurred once, then closed | DEF-01 was found when the PED was compared with the code (v3.4); documentation passes in v3.4 to v4.0 brought it in line |
+| RSK-011 | Closed | The one .NET 10 problem (VSTest runner) was solved with `global.json`; no fallback to .NET 8 was needed |
+| RSK-012 | Accepted | The State Pattern earned its classes; the Observer added indirection that contributed to DEF-01 |
+| RSK-013 | Open | Main production blocker (Final project closure, section 6) |
+| RSK-014 | Open | TD-04, TD-05; production blocker |
+| RSK-015 | Open | TD-08; two database tests and manual staging checks only |
+| RSK-016 | Closed | DEF-01 fixed; TC-22 guards against regression in every CI run |
+
+**2. Highest-priority risk to defend (recommend RSK-004 or RSK-005):**
+
+- RSK-004 (data handling): worth defending because it's the risk most likely to produce a genuinely defensible NFR-to-risk trace, and it demonstrates forward-thinking without violating the "no architecture yet" boundary.  
+
+- RSK-005 (repo authenticity): worth defending because it's the risk most directly under your control as the governance owner, and shows you understand GitHub as an engineering control environment.
+
+# Forward engineering considerations
+
+| **ID** | **M1 Concern** | **Why it matters now** | **Later decision / activity it influences** | **Information still missing** | **Risk of ignoring it** | **M2 Status Update** |
+|---|---|---|---|---|---|---|
+| FEC-01 | Security & access control | Citizen reports and staff roles imply differentiated access from day one | M2 architecture (authN/authZ approach), data model | Whether municipal staff need role-based access vs single admin tier | Retrofitting access control later is expensive and risks exposing citizen data | Partially resolved. ADR-003 confirms a WinForms desktop client connecting directly to PostgreSQL, with no separate server/API tier. <br>**Status:** In Progress <br>**v3.4 update:** Resolved by ADR-006 and DEC-004 and implemented in `CivicConnect.Auth` (bcrypt, C# role checks, in-memory lockout). Residual risks RSK-013 and RSK-014. <br>**Status:** Resolved (residual risks open) |
+| FEC-02 | Data migration & integrity | Legacy or pilot data collected early must be portable into whatever schema M2 selects | Database technology choice, schema design | Format and volume of any existing/pilot data | Locked-in choices made for convenience now could block a sound M2 schema decision | Partially resolved. Data and persistence baseline is now baselined per the Data & Persistence section, and ADR-002 sets hybrid DB and application-layer integrity enforcement with optimistic concurrency. <br>**Status:** In Progress |
+| FEC-03 | Observability & tracking | Citizens need to see report status; this is a functional expectation, not just an ops concern | Logging/monitoring approach, status-change audit trail | Whether status history needs to be query able/reportable for municipal accountability | Without early NFRs on this, status tracking risks being bolted on rather than designed in | Still open as originally scoped but now has an architectural home. NFR-005 formalized as an ASR, RequestHistory entity defined as append-only. Logging/monitoring tools itself remains a forward consideration for M3. <br>**Status:** Still open, narrowed scope <br>**v3.4 update:** The audit trail is implemented (append-only `request_history`, manager Audit trail screen, FR-017). Application logging is still not implemented, and listener failures are swallowed silently. <br>**Status:** Partially resolved |
+| FEC-04 | Scalability under uneven load | Report volume will spike after major weather events or infrastructure failures, not evenly | Deployment environment, architecture (M2) | Expected peak vs baseline volumes (no real data yet) | Under-provisioning is a public-facing failure mode — visible and reputationally costly | Partially resolved. NFR-007 formalized as an ASR, Data 7 Persistence baseline explicitly addresses scalability/availability/backup-recovery at the architectural level. Actual load-test evidence remains a forward consideration for M3. <br>**Status:** In Progress |
+| FEC-05 | Automated testing & CI | Requirements must be written testable now so M2/M3 CI can actually verify them | Test strategy, CI pipeline design | Which NFRs are realistically automatable vs manual | Untestable requirements written now become unverifiable requirements later | Partially resolved in M3. An xUnit v3 suite now exists (see Test cases and verification evidence, TC-03 to TC-09) and runs on Windows only. No CI pipeline is configured yet, and the manual UI cases (TC-10 to TC-14) are not yet executed. <br>**Status:** In Progress <br>**v3.4 update:** The suite now also covers Auth (TC-16), request submission (TC-15), request security (TC-17) and the dispatcher (TC-18). Still no CI pipeline and no PostgreSQL integration tests (RSK-015). <br>**Status:** In Progress <br>**v3.5 update:** CI pipeline added: GitHub Actions (`.github/workflows/ci.yml`) builds the solution and runs the xUnit v3 suite on a Windows runner for every push and pull request to `main` and the development branch. Not yet covered: database integration tests in CI, and the first successful run is still to be recorded. <br>**Status:** Largely resolved <br>**v3.6 update:** CI now also runs a secrets guard, .NET static analysis with blocking security rules, and a vulnerable-package check; Dependabot is configured. <br>**Status:** Largely resolved (database tests still not in CI) |
+| FEC-06 | Deployment constraints | Municipal/government hosting may carry compliance, uptime or procurement constraints unknown yet | Hosting/infrastructure decision (M2+) | Whether the client has a mandated hosting environment or budget ceiling | Committing to assumptions now may not survive client constraints later | Largely resolved. ADR-003 and the Deployment Compatibility Notes confirm Windows 10/11 desktop client distributed as a packaged executable, connecting to a PostgreSQL 16+ instance. <br>**Status:** Mostly Resolved <br>**v3.4 update:** No change: the client is run from Visual Studio or `dotnet run` against a local PostgreSQL 16+ instance; a hosted database was not set up. <br>**Status:** Open for any deployment beyond development |
+| FEC-07 | Maintainability post-handover | The client (a municipality) will operate this after the team graduates/moves on | Documentation depth, architecture simplicity vs sophistication trade-off | Client's technical capacity to maintain the system long-term | Building something only the current team can maintain creates unsustainable technical debt | Still open as a documentation depth/simplicity trade-off, but ADR-001’s rational already speaks to it. Full assessment deferred to M3 debt review. <br>**Status:** Still open, informed by ADR-001 |
+
+# ASR’s & quality drivers
+
+## NFR-002 (Performance: staff list view response time)
+
+Here we have a measurable aspect in that staff request-list page-load/query time stays within a defined threshold across multiple test runs, with the threshold and test conditions recorded. As evidenced by the Problem Statement (*"Staff have difficulty prioritising requests..."*); FR-008 (filtering must return only matching requests).
+
+This influences the architecture by requiring an indexed filterable read path for the staff queue. It also influences the data by indexing on status/category/assigned-to fields, sized for query patterns not just storage. Furthermore, it also influences technology by constraining the database choice toward one with efficient indexed filtering at the expected data volumes. Lastly, it influences design by ruling out client-side-only filtering of an unbounded dataset.
+
+## NFR-003 (Security: data in transit/credentials, nothing sensitive in repo)
+
+A measurable aspect here is that no plain text passwords are kept, the repository scan reveals no committed credentials, and secure login mechanisms are used. This is evidenced by RSK-004 (sensitive citizen data mishandled, creating security exposure), FEC-01 (security & access control implied from day one), FR-006 (only authenticated, authorised users can read/respond to requests).
+
+This influences the architecture by requiring credentials and secrets to live outside source control, informing the deployment/environment design. It also influences the data by requiring passwords to be stored hashed. Furthermore, it also influences technology by constraining the auth library/framework choice toward one that supports secure hashing and HTTPS by default. Lastly, it influences design by requiring the trust boundary to sit server-side rather than being assumed from client input.
+
+## NFR-005 (Auditability: immutable action log)
+
+The measurable expectation is that there is no UI path to update previous history entries, and viewing a request's history displays an unchangeable, timestamped, attributed log of all status changes and actions. This is evidenced by FEC-03 (status-change audit trail as a functional expectation, not just an ops concern), FR-011 (only legitimate transactions succeed and are recorded with a timestamp and staff ID).
+
+This influences the architecture by requiring an append-only event/log structure as a first-class architectural component, not an afterthought. It also influences the data by requiring a separate RequestHistory/AuditLog table that is insert-only, with no UPDATE/DELETE permitted at the schema level. Furthermore, it also influences technology by constraining the ORM/database choice toward one that can enforce insert-only access cleanly. Lastly, it influences design by requiring status changes to go through a controlled transition function rather than a direct field write.
+
+## NFR-007 (Scalability: data model/queries hold up as volume grows)
+
+What makes this measurable is that a load test with a larger dataset, conducted in a later milestone, confirms there are no fixed-size assumptions in the schema or queries. This is evidenced by FEC-04 (report volume spikes unevenly after major events, under-provisioning is a public-facing failure mode), FR-015 (overdue-threshold queries must remain efficient as request volume grows).
+
+This influences the architecture by requiring query and data-access patterns to be designed for volume growth from the outset. It also influences the data by ruling out hardcoded row-count or pagination assumptions in the schema. Furthermore, it also influences technology by constraining database tier selection toward one where scaling isn't blocked by free-tier hard limits. Lastly, it influences design by ruling out patterns like unindexed joins that degrade non-linearly with volume.
+
+## NFR-008 (Compliance/Data Handling: role-gated sensitive data)
+
+The measurable condition is that at no point in the user interface or API responses can other requesters or unauthenticated users see or access a requester's contact information. This is evidenced by RSK-004, FEC-01, FR-006 (role-based access enforcement).
+
+This influences the architecture by requiring access control to be enforced server-side at the data-access layer, not only hidden in the UI. It also influences the data by requiring field-level access rules on sensitive fields like contact information, not just table-level restrictions. Furthermore, it also influences technology by constraining the API layer design toward one that can enforce field-level authorization checks per response. Lastly, it influences design by ruling out a single unrestricted endpoint serving all roles identically.
+
+# Architecture diagrams
+
+The decision was made to use a modular monolith architecture, the following will expand on why this choice was made, evidence supporting this choice, and why another architecture was not chosen and more.
+
+## Justifications
+
+### Why not a standard monolith
+
+Without enforced internal module boundaries, nothing stops a dev from writing code elsewhere in the codebase that directly updates a history row (which would silently violate NFR-005's insert-only requirement). A modular monolith solves this by giving the audit/history logic its own module with a controlled interface (e.g. only exposing an “appendHistoryEntry()” function, never an UPDATE/DELETE path), so the immutability constraint is enforced by the module boundary itself, not just by developer discipline.
+
+### Why not microservices
+
+Splitting into separate deployable services means separate hosting instances, separate free-tier limits, network calls between services (latency working against NFR-002's performance requirement), and distributed-transaction complexity for a 3-person team with a fixed milestone schedule. Cost evidence already shows free-tier platforms carry real constraints (Render's 750 hrs/month, Railway's peak-hour deploy restrictions) — multiplying that across several independently-deployed services multiplies the operational risk for no corresponding benefit at CivicConnect's expected scale.
+
+### Why modular monolith
+
+One deployable unit (simple for free-tier hosting, one team to manage) but internally organized into clearly bounded modules (e.g. Requests, Users/Auth, AuditLog, Reporting) each with a defined interface. This gives the structural enforcement NFR-005 needs (audit module only allows inserts), the access-control isolation NFR-003/008 needs (auth/permissions logic centralized in one module rather than scattered) and keeps deployment and hosting cost proportionate to the team size on a fixed schedule.
+
+The team's strongest shared skill is C#, with working proficiency in Java, HTML, CSS & JavaScript. A modular monolith aligns with this capability: ASP.NET Core provides built-in support for organizing a single deployable application into clearly bounded modules (e.g. via project structure, namespaces, or feature folders) without requiring the team to Given the fixed schedule, committing to an architecture the team can implement reliably within known tooling reduces schedule risk compared to an architecture requiring new skills to be learned under deadline pressure.
+
+A modular monolith deploys as a single unit, which fits cleanly within a single free-tier hosting instance (e.g. Render's 750 free web-service hours), avoiding the cost and configuration overhead of provisioning multiple services across free-tier limits. This does introduce a single point of failure, if the one deployed instance goes down, all modules become unavailable simultaneously, unlike microservices where a failure in one service can be isolated. This risk is accepted given the team's schedule and hosting-cost constraints and is recorded in the risk register as a residual architectural risk rather than ignored.
+
+## Architecture diagram
+
+<img src="Architecture.png" alt="Architecture diagram" width="547" />
+
+## Architecture vs. technology, logical modules vs. physical deployment tiers
+
+The architecture decisions in this section describes the logical structure, the modular monolith pattern and the module boundaries (Requests, Audit log, Users and auth, Reporting) independent of any specific programming language, framework, or hosting provider. Technology choices (e.g. ASP.NET Core, a specific database engine) are addressed in a separate section and constrained by this architecture, not the reverse.
+
+Similarly, the module boundaries shown in the architecture diagram are logical, describing responsibility and data-ownership within the single deployable application. They are distinct from physical deployment tiers the actual runtime/hosting layout (e.g. one web-service instance, one database instance), which is addressed in Deployment compatibility. At this baseline, all four modules deploy together as one physical unit. The logical boundaries exist to keep responsibilities separated in code and data (supporting NFR-005's insert-only enforcement and NFR-008's access control), not to imply separate deployment today.
+
+# Architecture Decision Record(ADR)
+
+## Decision ID: ADR-001
+
+Context: CivicConnect requires an architecture proportionate to a 3 person team, a fixed 4-milestone schedule, and free-tier hosting, while satisfying five ASRs (NFR-002, 003, 005, 007, 008) that materially constrain data handling, access control, and auditability.
+
+Constraints: Cost/Resources (prefer free-tier hosting), Schedule (fixed milestone deadlines), Team capability (strongest shared skill is C#), Scope (avoid unjustified complexity).
+
+Alternatives: Plain layered monolith, no enforced internal module boundaries. Modular monolith, single deployable, internally organized into bounded modules. Microservices, separately deployed services per domain.
+
+Decision: Adopt a modular monolith, organized into four modules: Requests, Audit log, Users and auth, and Reporting.
+
+Rationale: A plain monolith cannot structurally guarantee NFR-005's insert-only audit requirement, nothing prevents code elsewhere from writing directly to history data. Microservices introduce distributed-systems complexity (network calls, multiple free-tier hosting instances, distributed transactions) disproportionate to team size and schedule this also directly conflicts with the Cost constraint (evidenced by Render/Railway free-tier limitations). A modular monolith enforces module boundaries at the code level (e.g. Audit log only exposes an insert operation) while remaining a single deployable unit compatible with free-tier hosting and the team's strongest language (C#/ASP.NET Core).
+
+Trade-offs: Single point of failure, if the one deployed instance goes down, all modules become unavailable simultaneously, unlike microservices where failures can be isolated per service.
+
+Risks: Logged as RSK-008 (modular monolith SPOF); mitigated via documented uptime/restart behaviour (NFR-004) and an internal design that keeps modules loosely coupled enough to extract into a separate service later if justified.
+
+Evidence: ASR evidence for NFR-002, 003, 005, 007, 008 , Cost constraint evidence (Render vs Railway free-tier comparison), Team capability (C# proficiency).
+
+Later consequence: TBD, to be revisited at M3/M4 if load or availability requirements change materially.
+
+Implementation note (v3.4): The build follows the modular monolith with one .NET class library per module: `CivicConnect.Auth` (Users and auth), `CivicConnect.Requests`, `CivicConnect.AuditLog` and `CivicConnect.Notifications`, plus `CivicConnect.Common` (shared kernel: `Result<T>`, `UserRole`, domain-event and notification contracts) and the WinForms host `CivicConnect.App`. There is no separate Reporting project: manager counts and lists are served by the Requests module (`GetSummaryAsync`, `GetAllRequestsAsync`) and the audit trail by the AuditLog module. Notifications became its own project so the Observer listener does not depend on the Requests module. Dependencies point one way: App to the modules, modules to Common.
+
+## Decision ID: ADR-002
+
+Context: Request creation and its initial status record must be atomic; validation must hold regardless of entry point; near-simultaneous Staff edits to the same Request must not silently corrupt data.
+
+Constraints: Quality constraint (measurable correctness), Security/Compliance (NFR-008), small team, limited capacity for complex concurrency infrastructure.
+
+Alternatives: Application-layer-only enforcement, Database-layer-only enforcement, Hybrid both layers, different responsibilities. Concurrency: optimistic check vs. pessimistic locking.
+
+Decision: Adopt hybrid enforcement (database constraints for structural integrity, application layer for transaction boundary and business rules) and optimistic concurrency control for status updates.
+
+Rationale: Application-only enforcement risks a forgotten transaction wrap on an overlooked code path. Database-only enforcement produces SQL errors that are hard to translate into meaningful user feedback and struggles to express complex multi-conditional business rules. A hybrid gets structural guarantees that hold regardless of caller, plus readable, testable business logic. Optimistic concurrency is preferred over locking because CivicConnect's expected concurrent-edit rate on any single Request is low, and optimistic checks are simpler for a three-person team to implement and reason about correctly than pessimistic locking.
+
+Trade-offs: Hybrid approach means integrity logic is split across two layers, requiring discipline to keep both in sync as requirements evolve. Optimistic concurrency means a legitimate second edit can be rejected and must be retried, rather than silently queued.
+
+Risks: A developer could bypass the transaction wrapper on a new code path, a rejected concurrent edit needs clear UI feedback, so Staff aren't confused (deferred to M2/M3 UI implementation).
+
+Evidence: Assignment 2, Task 2.2–2. NFR-005 (auditability); FR-011 (controlled transitions) (Pearce, et al., 2022) (Zhu, et al., 2021).
+
+Later consequence: TBD.
+
+## Decision Record: ADR-003
+
+- Context: CivicConnect requires a responsive, maintainable desktop client application using WinForms .NET 10 and open-source PostgreSQL to support modular request management, satisfying NFR-002, NFR-003, NFR-005, NFR-007, and NFR-008.
+
+- Constraints: Free/Open-Source constraint (PostgreSQL / open-source tooling), Schedule constraint (fixed milestones), Team capability (strong shared C# proficiency).
+
+- Alternatives: MS SQL Server / Oracle (rejected due to licensing); MySQL 8.0 (rejected due to lack of native xmin concurrency tokens and weaker EF Core spatial support); C# .NET 10 WinForms + PostgreSQL 16+ (selected).
+
+- Decision: Adopt C# .NET 10 WinForms desktop application developed in Visual Studio 2026 with Entity Framework Core 10 and open-source PostgreSQL.
+
+- Rationale: Capitalizes on team C# expertise; provides rapid desktop UI via WinForms; PostgreSQL xmin system column provides robust optimistic concurrency control required by ADR-002; open-source PostgreSQL eliminates licensing costs.
+
+- Trade-offs: Windows desktop OS dependency; client deployment requires installing/distributing the desktop application executable.
+
+- Risks & Mitigation: PostgreSQL connection string handling; mitigated by storing connection strings in appsettings.json (gitignored) and ensuring zero hardcoded credentials in the GitHub repository (NFR-003).
+
+## Decision Record: ADR-004
+
+- **Context**: State transitions must be strictly controlled, testable, and transparently auditable to satisfy FR-011 and NFR-005.
+
+- **Decision**: Adopt the State Pattern for Request status transitions.
+
+- **Consequences**: Centralizes transition rules, enforces NFR-005 logging, prevents invalid status changes at the domain model level.
+
+## Decision Record: ADR-005
+
+- **Context**: Side-effects must remain decoupled from core request transaction logic to satisfy SRP, NFR-005, and DEC-001.
+
+- **Decision**: Adopt Observer Pattern via in-process domain event dispatching.
+
+- **Consequences**: Decouples subsystems, simplifies unit testing, enables clean audit trail generation.
+
+- **Implementation note (v3.2, deviation)**: `AuditLogEventHandler` exists and is unit tested (TC-09) but is deliberately **not registered** in the application. The Request aggregate already writes `request_history` in the same transaction as the status change, so a second writer subscribed to `RequestStatusChangedEvent` would create duplicate history rows. The Observer Pattern is used for the notification side-effect (`NotificationEventHandler`); `AuditLogEventHandler` is kept as a ready listener should history writing ever move out of the Request module. A failing listener never undoes a saved change (TC-06).
+
+- **Implementation note (v3.4, defect DEF-01)**: the v3.2 note above describes the intended design, but the final code does **not** match it: `AddAuditLogModule` (`AuditLogModuleExstentions.cs`, renamed `AuditLogModuleExtensions.cs` in v4.0) still registers `AuditLogEventHandler` as a listener for `RequestStatusChangedEvent`. Because `RequestService` also writes `request_history` in the same transaction, each status change is expected to produce two history rows. Fix: remove that registration line. Tracked as RSK-016 and checked by TC-13.
+
+- **Implementation note (v3.6)**: DEF-01 fixed. The `AuditLogEventHandler` registration was removed from `AddAuditLogModule`, so the code now matches the v3.2 note: only `NotificationEventHandler` listens for `RequestStatusChangedEvent`. Regression test: `AuditLogModuleRegistrationTests` (TC-22).
+
+## Decision Record: ADR-006
+
+- Context: CivicConnect is a WinForms desktop client connecting directly to PostgreSQL with no server or API tier (ADR-003), so authentication and role enforcement must live in the C# application layer. The database already refuses plaintext passwords through the `users_hash_format` CHECK, which accepts bcrypt (`$2a$`, `$2b$`, `$2y$`) or Argon2 hashes only. Resolves FEC-01.
+
+- Constraints: NFR-003 (credentials protected, nothing sensitive in the repository), NFR-008 (role-gated data, least privilege), Free/Open-Source constraint, Schedule constraint (fixed milestones), Team capability (strong shared C# proficiency, limited security-library experience).
+
+- Alternatives: Argon2id (memory-hard, current OWASP first choice, rejected for now because it needs a less common library, extra tuning and the team has no experience with it); PBKDF2 or the ASP.NET Identity hasher (rejected because its output format fails the database CHECK unless the constraint is changed, and the Identity framework is heavy for a WinForms client); Windows/SSO integration (rejected as out of scope and unavailable to all requesters); bcrypt via BCrypt.Net-Next (selected).
+
+- Decision: Adopt bcrypt through BCrypt.Net-Next (work factor 12, enhanced mode with SHA-384 pre-hash), an in-memory per-client session, an in-memory lockout (five failed attempts locks an email for five minutes, applied to login and change-password), identical error messages for unknown email and wrong password, and a single `RolePermissions` matrix behind `IAccessControl`. Registration always creates a Requester; Staff and Manager accounts are created by the database owner role.
+
+- Rationale: bcrypt matches the existing database CHECK without schema change, is mature and widely reviewed, and has a simple API suited to the team's capability. The pre-hash removes bcrypt's 72-byte truncation. Keeping the role out of the application's UPDATE grant means the application cannot grant itself privileges.
+
+- Trade-offs: bcrypt is not memory-hard (weaker against GPU attacks than Argon2id); lockout is not durable and can be reset by restarting or tampering with the client; registration reveals whether an email is already registered (accepted for usability); .NET strings cannot be wiped from memory on demand.
+
+- Risks & Mitigation: RSK-013 (tampered client) and RSK-014 (authentication gaps). Mitigation: least-privilege database roles, internal types, generic login errors, password-redacting DTOs. Evidence: `PasswordHasherTests`, `AuthServiceTests`, `UserServiceTests` and `AccessControlTests` (TC-16); `db/05_dev_seed_users.sql` produces hashes the login screen accepts. Not yet measured: bcrypt hashing time on the team's machines at work factor 12. Later consequence to be updated at M4.
+
+# Technology-Stack Decision
+
+## Stack Overview
+
+- **Application UI / Client Tier**: C# .NET 10 WinForms (Windows Forms) desktop application built in Visual Studio 2026
+
+- **Backend & Modular Architecture:** C# .NET 10 Class Libraries adhering to the Modular Monolith structure
+
+- **Persistence & ORM:** PostgreSQL with Entity Framework Core 10
+
+- **Build & Version Control:** GitHub repository
+
+- **Continuous Integration (v3.5):** GitHub Actions workflow `.github/workflows/ci.yml` on a `windows-latest` runner (the app and tests target `net10.0-windows`). It restores, builds the solution in Release and runs the xUnit v3 suite on every push and pull request to `main` and the development branch. `global.json` in the repository root opts `dotnet test` into Microsoft.Testing.Platform, which the .NET 10 SDK requires for xUnit v3. The workflow uses a read-only token and needs no secrets. **v3.6:** the workflow also runs a secrets guard, Microsoft .NET analyzers (security rules CA2100, CA3075, CA5350, CA5351 block the run) and a vulnerable NuGet package check; Dependabot (`.github/dependabot.yml`) proposes weekly dependency updates.
+
+- **IDE & Development Environment:** Visual Studio 2026
+
+- **Target Framework:** .NET 10.0 (net10.0-windows)
+
+- **Testing Framework:** xUnit v3.
+
+## Technology Comparison Evidence
+
+### Frontend Selection Evidence
+
+- **Option A:** Web Application / WPF: Excluded based on group decision for a straightforward desktop application using WinForms in .NET 10; rapid form layout, direct C# event handling, native Windows execution in Visual Studio 2026.
+
+- **Option B (Selected):** WinForms .NET 10 (Windows Forms) Desktop Application: Straightforward desktop form design, native C# execution, responsive Windows UI, and seamless integration with .NET 10 libraries.
+
+### Backend & Runtime Selection Evidence
+
+- **Option A:** Node.js / Java Spring Boot microservices: Excluded due to team specialization, higher architectural complexity, and unnecessary overhead for a modular monolith desktop application.
+
+- **Option B:** Python / Django backend: Rejected due to dynamically typed runtime limitations and lower performance overhead when interfacing with native WinForms UI components.
+
+- **Option C (Selected):** C# .NET 10 Class Libraries Runtime: Provides strongly typed execution, native synchronization with WinForms UI controls, optimal performance, and shared domain models across modular monolith boundaries.
+
+### Persistence Engine Selection Evidence
+
+- **Option A:** MongoDB 7.0 (Document Store): Lacks native schema-enforced Foreign Key referential integrity, making audit immutability (NFR-005, ADR-002) depend entirely on application discipline.
+
+- **Option B:** SQLite 3 / File-based Storage: Embedded file storage lacks multi-user concurrent write throughput and enterprise-grade row locking necessary for concurrent staff updates.
+
+- **Option C (Selected):** PostgreSQL 16+ + EF Core 10: Single definitively chosen open-source relational database engine; native xmin system column provides built-in optimistic concurrency tokens (supporting ADR-002), strict schema enforcement, and zero licensing fees.
+
+# Deployment Compatibility Notes Tied to the Stack
+
+- Target Distribution Environment: Windows 10/11 Desktop Client with PostgreSQL database instance.
+
+- Packaging & Deployment: Executable built and packaged via Visual Studio 2026 / .NET 10 CLI (dotnet publish -c Release -r win-x64).
+
+- Configuration & Secrets: Connection strings stored in appsettings.json (gitignored); zero committed credentials in GitHub repository (NFR-003).
+
+- Database Migrations: EF Core dbContext.Database.Migrate() executed on application startup or deployed via PostgreSQL setup scripts.
+
+# Initial Design-Pattern Decisions
+
+## Design Decision 1: Request Status State Machine & Workflow Transitions
+
+- **Problem Statement**: Enforce strict status transitions (Submitted -\> Assigned -\> In Progress -\> Resolved -\> Closed) in the C# domain layer while ensuring audit logging (NFR-005).
+
+- **A2 Research Evidence & Alternatives**:
+
+- A2 Task 2.1 Research compared Procedural switch statements, Strategy Pattern, Command Pattern, and State Pattern.
+
+- Procedural switch: Highly fragile, duplicates state checks across forms, fails to enforce encapsulated state-transition rules.
+
+- Command Pattern: Encapsulates user actions into command objects but does not natively model internal entity state transitions.
+
+- Selected: State Pattern (IRequestState interface with concrete state handlers).
+
+- **Final Judgement & Rationale**: Implement the **State Pattern**. Each request state is represented by an explicit class (SubmittedState, AssignedState, InProgressState, ResolvedState, ClosedState) implementing IRequestState. State objects enforce valid transition paths and automatically construct append-only RequestHistory records upon transition.
+
+- **Expected Benefits**: High cohesion; complete elimination of duplicate conditional logic; strict compile-time and runtime enforcement of NFR-005 audit trails; simplified unit testing per state class.
+
+- **Trade-offs / Introduced Complexity**: Adds several small class files (IRequestState + 5 state classes); requires a state mapper to convert between database entity strings and C# State objects in WinForms.
+
+- **Affected Components & Classes**:
+
+- Interface: IRequestState (CanTransitionTo(), TransitionTo())
+
+- States: SubmittedState, AssignedState, InProgressState, ResolvedState, ClosedState
+
+- Context / Service: RequestAggregate, RequestService
+
+## Design Decision 2: Audit Trail Event Dispatching & Notification Triggering
+
+- **Problem Statement**: Decouple core request status updates from writing RequestHistory logs (NFR-005) and sending requester notifications (FR-005).
+
+- **A2 Research Evidence & Alternatives**:
+
+- A2 Task 2.1 Research compared Direct Synchronous Method Invocations, Decorator Pattern, and Observer Pattern (In-Process Domain Events).
+
+- Direct Method Invocations: Tight coupling; failure in email sending rolls back the primary request update.
+
+- Decorator Pattern: Wraps service calls but becomes cumbersome when multiple disparate handlers need execution.
+
+- Selected: Observer Pattern via In-Process C# Domain Events (IDomainEventDispatcher, RequestStatusChangedEvent, AuditLogEventHandler).
+
+- **Final Judgement & Rationale**: Implement the **Observer Pattern** using C# Domain Events. Upon status update, RequestAggregate raises RequestStatusChangedEvent. Independent handlers (AuditLogEventHandler, NotificationEventHandler) subscribe to and handle this event within the application.
+
+- **Expected Benefits**: Complete decoupling of core request logic from notification/audit side-effects; easy addition of future listeners (e.g., analytics/reporting) without modifying core domain logic; isolated unit testing.
+
+- **Trade-offs / Introduced Complexity**: Indirect execution flow makes tracing call paths slightly harder; requires an in-memory event dispatcher component.
+
+- **Affected Components & Classes**:
+
+- Event: RequestStatusChangedEvent, IDomainEvent
+
+- Dispatcher: IDomainEventDispatcher
+
+- Handlers: AuditLogEventHandler, NotificationEventHandler
+
+- Service: RequestService
+
+- **v3.2 note**: only NotificationEventHandler is registered as a listener. AuditLogEventHandler is implemented but not registered, to avoid duplicate request_history rows (see ADR-005 implementation note).
+
+- **v3.4 note**: in the final code both handlers are registered (see ADR-005, defect DEF-01). Only `NotificationEventHandler` should be.
+
+- **v3.6 note**: fixed; only `NotificationEventHandler` is registered (DEF-01, TC-22).
+
+# Initial Module Interface & Integration Decisions
+
+- Module Interface Boundaries: Strongly typed C# interfaces (IRequestService, IUserService, IAuditLogService) separating logical modules within the Modular Monolith.
+
+- Data Transfer: Strongly typed C# DTOs passed between WinForms controls/presenters and Core Domain Services.
+
+- Validation: FluentValidation pipeline validating input forms and DTOs before domain execution.
+
+- Error Handling: Custom C# Exception handling and result objects (Result\<T\>), mapping PostgreSQL concurrency conflicts (DbUpdateException / DbUpdateConcurrencyException) to friendly WinForms user dialogs.
+
+- **Final interfaces (v3.4)**:
+
+| Interface | Project | Responsibility |
+|---|---|---|
+| `IAuthService` | CivicConnect.Auth | Sign in, sign out, change password |
+| `IUserService` | CivicConnect.Auth | Register a requester (always the Requester role), look up a user, list staff |
+| `ISessionContext`, `IAccessControl` | CivicConnect.Auth | The signed-in user (read-only); permission and role checks that fail closed |
+| `IRequestService` | CivicConnect.Requests | Categories, submit, my requests, staff queue, all requests, summary, detail, assign, change status, add note |
+| `IAuditLogService` | CivicConnect.AuditLog | Read-only history of one request, or a query by request, user, status and date range |
+| `IDomainEventDispatcher`, `IDomainEventHandler<T>` | CivicConnect.Common (dispatcher implemented in AuditLog) | In-process domain events (`RequestStatusChangedEvent`) |
+| `INotificationService` | CivicConnect.Common (implemented in Notifications) | Show a message to the user (message box, or silent) |
+| `IFormFactory` | CivicConnect.App | Creates forms through dependency injection so forms receive interfaces only |
+
+- Errors are returned as `Result` / `Result<T>` (CivicConnect.Common); the forms show a generic message instead of exception text. A concurrency conflict on `xmin` is mapped to `RequestConcurrencyException` and shown as a conflict, not a crash. Each module registers itself with one extension method (`AddAuthModule`, `AddRequestsModule`, `AddAuditLogModule`, `AddNotificationsModule`) in `Program.cs`, which is the only composition root.
+
+# Data and persistence baseline
+
+## Data Entities, Relationships and Ownership
+
+| Entity         | Description                                                     | Ownership                                               | Relationships                                                                                                                            |
+|----------------|-----------------------------------------------------------------|---------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------|
+| User           | Any authenticated account (Requester, Staff, or Manager role).  | Self-registered.                                        | Referenced by Request (as requester and optionally as assigned staff), and by Comment (as author).                                       |
+| Category       | Controlled, fixed list of request categories (FR-002).          | Managed as reference/lookup data                        | Referenced by Request (many-to-one).                                                                                                     |
+| Request        | A submitted service request, core transactional entity.         | Created by the Requester (FR-001).                      | Belongs to one Requester, optionally one assigned Staff member, and exactly one Category, owns many RequestHistory entries and Comments. |
+| RequestHistory | Append-only, immutable log of status changes (NFR-005, FR-011). | Written by the system on every valid status transition. | Belongs to exactly one Request, never updated or deleted.                                                                                |
+| Comment        | Staff-authored action/resolution notes (FR-012).                | Created by a Staff member                               | Belongs to one Request, references one User (author).                                                                                    |
+
+*v3.4 note: the Comment entity is implemented as the `notes` table (`db/03_schema.sql`) and the `RequestNote` type in code; "Comment" and "note" refer to the same thing in this document.*
+
+## Foreign key structure
+
+- Request.requester_id → User (required).
+
+- Request.assigned_staff_id → User (nullable).
+
+- Request.category_id → Category (required) .
+
+- RequestHistory.request_id → Request (required).
+
+- Comment.request_id → Request (required) .
+
+- Comment.author_id → User (required).
+
+## Lifecycle implications
+
+Request is the core entity, meaning its lifecycle drives the others. RequestHistory entries are permanent once written and are never deleted, even if the parent Request is later closed or archived, since immutability is the entire point of NFR-005. Comments are tied to their Request's lifecycle and are retained alongside it as part of the request's audit trail. Category, by contrast, is reference data rather than transactional data: a Category should not be deleted while active Requests reference it, requiring either a restrict-on-delete rule or a soft-delete/deprecation approach so historical Requests retain a valid category reference even if that category is later retired from the active list.
+
+## ERD diagram
+
+<img src="ERD.png" alt="ERD diagram" width="552" />
+
+## Persistence model classification
+
+### Structure and relationships
+
+CivicConnect's data is highly relational, Request depends on User, Category, and owns many RequestHistory and Comment records via clear foreign-key relationships . This structure is naturally suited to a relational (SQL) database, where foreign-key constraints can enforce referential integrity at the schema level (e.g. preventing a Request from referencing a non-existent Category) rather than relying on application code alone.
+
+### Access patterns 
+
+The dominant read pattern is the Staff request queue (NFR-002) filtered, sorted lookups across Request by status/category/assignment. Relational databases support this well through standard indexing on foreign-key and status columns, without requiring denormalized or pre-aggregated data structures. The Manager oversight views (FR-014–FR-017) are aggregate queries (counts by status/category) a natural fit for SQL's native GROUP BY/aggregate functions, rather than requiring separate reporting infrastructure at this scale.
+
+### Integrity and consistency
+
+Several requirements demand strong consistency guarantees a relational model provides directly: a Request must always reference a valid Category and Requester (FR-001, FR-002), a status transition must be validated against allowed states before being recorded (FR-011), and RequestHistory must never be altered once written (NFR-005). These are enforced through foreign-key constraints, check constraints on valid status values, and database-level permission restrictions (no UPDATE/DELETE grants on RequestHistory for the application's normal database role) pushing the immutability guarantee below the application layer, where it can't be bypassed by a coding mistake.
+
+### Sensitivity
+
+Requester contact information (NFR-008) requires field-level access control, not just table-level restriction . A relational database with role-based query permissions or application-enforced field filtering supports this directly, since sensitive fields sit alongside non-sensitive ones in the same normalized User/Request structure rather than being scattered across denormalized documents.
+
+### Expected growth 
+
+As per NFR-007 and FEC-04 (uneven spikes after major events), the schema avoids fixed-size or hardcoded assumptions, foreign-key-indexed lookups scale predictably with row count, and the modular schema separation (ERD/architecture diagram) means growth in one area (e.g. RequestHistory volume) doesn't require redesigning unrelated modules like Category.
+
+### Conclusion
+
+A relational database is justified over a document/NoSQL alternative specifically because CivicConnect's core value proposition: traceable, auditable, accountable request handling depends on enforced structural integrity and immutability guarantees that a schema-less model would have to reimplement entirely in application code, increasing the risk of the exact accountability gaps the project exists to solve.
+
+## A2-Informed Transaction and Validation Strategy
+
+Assignment 2 research into CivicConnect's request-submission operation directly informs the persistence approach for Request and RequestHistory. Two locally coupled writes creating a Request and recording its initial status must succeed or fail together; a Request without an initial status breaks the staff queue, and an orphaned status record with no parent breaks the audit trail. This is the atomicity property of ACID transactions, and the M2 baseline adopts it directly: Request creation and the initial RequestHistory entry are wrapped in a single database transaction.
+
+Rather than choosing purely application-layer or purely database-layer enforcement, the A2 comparison of both approaches recommends a hybrid model, which this baseline adopts:
+
+- Database-layer carries non-negotiable structural constraints: NOT NULL on required fields (e.g. location), a foreign-key constraint from RequestHistory to its parent Request, and a CHECK constraint restricting status values to the approved workflow states.
+
+- Application/service-layer owns the transaction boundary and business-rule validation (e.g. which status transitions are legal, feeding directly into NFR-005's controlled transition logic).
+
+- UI-layer validation is treated as a convenience only, never the sole safeguard, since any other entry point (script, future API, integration) bypasses the client entirely.
+
+For concurrency (two Staff members updating the same Request near-simultaneously) the A2 research recommends optimistic concurrency control over locking, given CivicConnect's low expected contention on any single Request and a small team's ability to reason about it more easily than pessimistic locking. This is adopted as the M2 baseline approach: Request includes a version/row-check field, and a conflicting concurrent update is rejected and surfaced to the second Staff member rather than silently overwritten.
+
+## Database-Level SPOF, Scalability, Availability and Backup/Recovery
+
+Single point of failure (database-specific): Distinct from the application-instance SPOF logged as RSK-008 the database itself is a separate potential failure point even with multiple application instances, a single database instance means database downtime or data loss affects the entire system regardless of application redundancy. Given the free-tier hosting constraint, only one database instance is realistically provisioned, so this risk is accepted rather than solved architecturally at this stage.
+
+### Scalability
+
+The relational schema avoids fixed-size or hardcoded row-count assumptions, and query patterns rely on indexed foreign keys rather than full-table scans. However, free-tier database services impose hard scalability ceilings independent of schema quality (e.g. Render's free-tier Postgres instance expires after 30 days and has storage/connection limits regardless of how well-indexed the schema is). This means CivicConnect's scalability is currently bounded by hosting tier, not application design.
+
+### Availability
+
+No high-availability (multi-instance/replicated) database configuration is planned for M2 this would require paid infrastructure disproportionate to project scope. Availability at this stage depends entirely on the hosting provider's uptime for a single instance, and any outage is expected to be recorded as per NFR-004 ("uptime/availability strategy is recorded and every outage that occurs during demo or testing phase is noted along with the reason").
+
+### Backup/recovery
+
+No automated backup strategy has been implemented at M2 this is recorded as a deliberately deferred decision, not an oversight. Free-tier database services typically don't include automated backups, and implementing custom backup tooling this early would be premature relative to M2's boundaries. This is flagged as a Forward Engineering Consideration for M3/M4, where staging/production deployment readiness is explicitly in scope.
+
+# Engineering decision log
+
+## Decision ID: DEC-001
+
+Context: The team needed to decide how requesters would be notified when their request status changes, to satisfy the requester need for visibility without overloading Staff with manual update work.
+
+Constraints: Cost/Resources constraint (prefer free/low-cost services), Scope constraint (avoid unjustified feature complexity)
+
+Alternatives: (1) SMS notifications via a third-party gateway (e.g. Twilio), (2) In-app + email notifications only, (3) No automated notification, requester must manually check status.
+
+Decision: Use in-app and email notifications only, SMS notifications excluded from scope.
+
+Rationale: SMS requires a paid gateway service, which conflicts with the project's cost constraint of preferring free-tier services. Email and in-app notification satisfy the same underlying stakeholder need confirmation that a request wasn't lost without introducing a recurring operational cost or an external paid dependency. Option 3 (no automated notification) was rejected because it fails to address the core business problem of poor requester visibility identified in the problem statement.
+
+Trade-offs: Requesters without regular access to email/the platform may experience slower awareness of status changes compared to SMS. This is accepted as a reasonable trade-off given the cost constraint.
+
+Risks: Requesters who don't check email/app promptly may perceive the system as unresponsive even when status updates are occurring correctly.
+
+Evidence: Cost/Resources constraint (PED Constraints), Scope Baseline exclusion (PED Scope, Out of Scope), Stakeholder need — Requester "know it wasn't lost" (Stakeholder Analysis).
+
+Later consequences: To be revisited at M2 when notification implementation approach is selected, and at M4 if operational cost/usage evidence suggests SMS should be reconsidered. **v3.2 update:** M3 implements the in-app channel only (a message shown to the signed-in user when a status change is saved). Email delivery and a stored, requester-side notification list remain deferred under the free-services constraint. **v4.0 (final):** unchanged at closure; FR-005 is partially met and requester alerts are future work (Final project closure, sections 2 and 8). SMS was not reconsidered because no usage or cost evidence was collected.
+
+## Decision ID: DEC-002
+
+Context: A quantifiable criterion was required for NFR-002, although the precise figure depends on hosting and infrastructure decisions that have not yet been decided (out of scope for M1).
+
+Constraints: Technology-stack or architecture decisions are expressly prohibited under M1, although section 15 in the Milestone 1 document mandates that NFRs eventually be quantifiable and supported by evidence.
+
+Alternatives:
+
+1)  Select a random number at this point of the project.
+
+2)  Wait until M2 to measure the NFR.
+
+3)  Establish a temporary placeholder threshold with a clear label.
+
+Decision: Instead of leaving it unmeasurable, set a temporary placeholder (\<= 2 seconds for up to 200 requests), clearly marked as subject to adjustment once hosting/architecture is selected.
+
+Rationale: A marked placeholder maintains testability while truthfully indicating the number is not final, an NFR with zero measurable targets is not testable at all.
+
+Trade-offs: The NFR is still used in the RTM and defence at the time but, here is a chance that the placeholder number will be mistakenly regarded as final if it is not reviewed.
+
+Risks: The acceptance criteria may become untestable against the actual environment if the team neglects to check the figure after deciding on the M2 architecture and hosting.
+
+Evidence PED v1.0’s NFR-002 row in the NFR table and acceptance criteria table, this decision log item serves as the deferral’s record.
+
+Later consequences: Later consequence update (v2.4): ADR-003 has now selected the technology/hosting direction. Still planning: pending actual measurement. **v3.4 update:** still not measured. The threshold was written for a hosted web API; the final product is a desktop client querying PostgreSQL directly, so the figure must be re-set and measured against that before NFR-002 can be claimed. **v3.6 / v4.0 (final):** measured by TC-21 against the 2 s placeholder (p95 7.6 ms, local database, 1003 open requests); the placeholder itself was never replaced by an agreed figure, which is recorded as future work before any real release.
+
+## Decision ID: DEC-003
+
+Context: Stakeholder analysis identified two user classes — residents and municipal staff — with different access needs. The team must decide whether M1 requirements should assume a single shared login mechanism or anticipate role-based access, without committing to an implementation.
+
+Options considered:(1) Treat all users identically with no role distinction; (2) Define requirements now assuming role-based access exists, deferring *how* it's implemented; (3) Defer the question entirely to M2.
+
+Decision: NFRs and FRs will assume distinct resident/staff roles exist, but the authentication mechanism, technology and schema are explicitly **not** decided at this stage.
+
+Rationale: Reflects genuine stakeholder conflict already surfaced in the stakeholder analysis. Not deciding this would leave requirements untestable and would risk rework of acceptance criteria later.
+
+Trade-offs: **Gained:** requirements and acceptance criteria can be written now with testable role-based conditions, preventing a rewrite of FR/NFR wording at M2. **Given up:** the team cannot yet confirm how expensive or complex the eventual access-control implementation will be, so effort estimation for M2 carries more uncertainty. Choosing to specify roles now vs staying generic also means any late stakeholder request for a *third* role would require revisiting already-baselined requirements rather than starting clean.
+
+Risks: R-004 — Unauthorized access to staff functions (linked): probability Medium, impact High if role boundaries are assumed in requirements but not enforced correctly later. R-007 — Requirements rework risk (new): if a stakeholder later requests a third user role, baselined FR-012/NFR-003 wording may need revision, consuming RTM traceability effort. Mitigation: both risks flagged for review at M2 architecture kick-off; contingency is to re-baseline the affected requirements under controlled change rather than informal edit.
+
+Consequences: Influences NFR-003 (access control), FR-012 (staff status update), and will constrain M2 architecture decisions around session/role management. Flagged in Forward Engineering Considerations as "Access control model.”
+
+## Decision ID: DEC-004
+
+Context: The Master Project Brief lists requester, staff and management capabilities but no permission-by-permission matrix. The Users and auth module needed one concrete role-to-permission mapping to enforce FR-006.
+
+Constraints: Scope constraint (only brief-justified capabilities), Security Constraint (least privilege), Schedule constraint.
+
+Alternatives: (1) Check roles directly in each form or service (scattered, hard to audit); (2) one central permission matrix in the Users and auth module, derived from the brief; (3) database row-level security (rejected earlier, see the db README: business rules stay in C#).
+
+Decision: Option 2. `RolePermissions` maps Requester, Staff and Manager to named permissions in one place. It is coarse-grained; row-level rules (for example, a requester sees only their own requests) are enforced by the Requests module by comparing the signed-in user's id to the record owner.
+
+Rationale: One reviewable table gives a single point of change and a single set of tests, and keeps the hybrid model intact (database enforces structure, C# enforces business rules).
+
+Trade-offs: Gained: auditability and easy change. Given up: the matrix is an assumption derived from the brief and must be confirmed against the baselined requirements; a change to it needs a controlled change, not an informal edit.
+
+Risks: The matrix may not match the baselined FR wording; mitigated by checking each permission against the RTM and updating `AccessControlTests` in the same change.
+
+Evidence: Master Project Brief section 3 capability lists; `Permissions.cs`; `AccessControlTests` (role-permission matrix cases).
+
+Later consequences: To be revisited when the Requests and Reporting modules are built, and at M4. **v3.4 update:** the Requests module and manager screens use the matrix unchanged; `AccessControlTests` and `RequestSecurityTests` cover it. **v4.0 (final):** unchanged at closure; no permission defect was found. Retained.
+
+# References
+
+MayaLogic, 2026. *Mobile vs web: the decision most teams get wrong.* \[Online\]  
+Available at: <u>https://www.mayalogic.com/blog/mobile-vs-web-the-decision-most-teams-get-wrong</u>  
+\[Accessed 17 September 2026\].
+
+Pearce, H. et al., 2022. Asleep at the Keyboard? Assessing the Security of GitHub Copilot’s Code Contributions. *Communications of the ACM,* 68(2), pp. 95 - 105.
+
+Twilio, 2026. *SMS Pricing.* \[Online\]  
+Available at: <u>https://costbench.com/software/sms-api/twilio-sms/hidden-costs/</u>  
+\[Accessed 17 September 2026\].
+
+Zhu, Q.-H., Tang, H., Huang, J.-J. & Hou, Y., 2021. Task scheduling for multi-cloud computing subject to security and reliability constraints. *IEEE/CAA Journal of Automatica Sinica,* 8(4), pp. 848-865.
+
+# AI Usage Register
+
+| Team Member | Artefact/Task | AI Tool Used | Nature of Assistance | What Was Verified/Changed/Rejected |
+|---|---|---|---|---|
+| **MILESTONE 1** | 
+| Paul Edward van Zyl | Drafting initial risk category and considerations list | Claude | Suggested a starting set of risk categories and example risk wording. Helped with engineering considerations list. | Team cross-checked categories against CivicConnect's actual scope; rewrote 3 of 5 example risks as project-specific; removed one category. |
+| Freerk van den Bos | Drafting of initial FR/NFR tables and the RTM | Claude | Suggested FRs and NFRs along with an RTM. Helped with structure and wording. | Cross-checked with CivicConnect's business needs. |
+| Regardt Osler | Formatting of Project Scope, Risks, Constraints | Claude | Suggested possible order of Constraints and did general spell checking. | Many of the suggested constraints were rejected due to not being applicable. |
+| **MILESTONE 2** | 
+| Paul Edward van Zyl | Technology, Design Baseline | Gemini | Generated initial drafts for the WinForms .NET 10 technology stack, PostgreSQL persistence, xUnit testing configuration, design patterns. | Manually reviewed and modified parts of the generated text to fit the team's precise requirements. Retained the core design pattern decisions (ADR-004 and ADR-005) as a shared baseline for the group to adapt during later implementation. |
+| Freerk van den Bos | Drafting of version control log & README | Claude | Generating the version control log & README. | Checked to verify that all drafted content is accurate to the PED. |
+| Regardt Osler | Generating architecture & ERD diagrams | Claude | Generating architecture & ERD diagrams based on given information. | Checked the validity of diagrams and changed the diagrams to match the overall look and feel of the document. Changed the colors used in the diagram to match the overall look and feel of the document. |
+| **MILESTONE 3** | 
+| Paul Edward van Zyl | Milestone 3 contributions (08/10/2026 to 15/10/2026): (1) Users and auth module: `CivicConnect.Common` and `CivicConnect.Auth` (login, bcrypt hashing, registration, role checks, lockout, validators, EF Core mapping), its xUnit tests, draft ADR-006 and module README; (2) `CivicConnect.App` full-screen login and registration forms; (3) `.gitignore` and `appsettings.example.json`; (4) CI pipeline (`.github/workflows/ci.yml` with secrets guard, build, tests, static analysis and vulnerable-package check), `global.json` and Dependabot; (5) DEF-01 fix with regression test TC-22, performance test TC-21 with `db/perf/` scripts, and `Docs/STAGING.md`; (6) documentation: README, `db/README.md`, PED v3.3 to v3.6 (RTM, traces, test cases, risks, FECs, ADR-006, DEC-004, interface table, M3 submission information and M3 release evidence chapters) and Document Control Log rows; (7) removal of leftover AI instruction comments from the code | Claude | Generated the code, tests, forms, scripts, CI workflow, staging guide and documentation from the PED, `db/` scripts, Master Project Brief and M3 brief, following the PED's existing formats. Iterated on build, restore, test and CI errors that I reported. Compared the project against the M3 brief and against the code to find gaps and stale documentation (it found DEF-01). Explained project layout, NuGet packages, dotnet commands and GitHub Actions setup. Listed every comment it proposed to delete so I could review the list. Claude could not compile or run anything in its environment, so nothing it produced was verified by the tool itself. | Rejected/changed: the first `.gitignore` was too broad (it ignored folder names such as out, artifacts, publish and logs, and file types such as .db, .sqlite, .key, .pem, .crt and .bak that could match needed files), so it was cut down to secrets, dumps and generated output and tested against a mock repository layout; CI branch triggers extended from `main` only to `main` and `development`, because the team works on `development`; in the comment cleanup I kept the usage note in `perf_seed_requests.sql` and the `FormFactory` comment (typo fixed), and the unresolvable "PERF-01" reference was removed. Fixed with AI help: CS0411 in `Validators.cs` (Cascade used inside helper methods); xUnit v2 and v3 both installed (CS0433), v2 removed to match ADR-003; test project named `xUnit` caused a circular dependency (NU1108), renamed to `CivicConnect.Tests`; stale solution path after the rename (MSB3202); CS0122 because the Auth code was not in its own project, fixed by moving it into the `CivicConnect.Auth` class library with `InternalsVisibleTo CivicConnect.Tests`; .NET 10 test runner opt-in via `global.json`; YAML syntax error in `ci.yml` (DEF-03); connection-string-not-found at startup (the gitignored `appsettings.json` was not in `CivicConnect/CivicConnect.App/`, so the host never loaded it; fixed by placing it next to the App project, with user-secrets or the `ConnectionStrings__CivicConnect` environment variable as alternatives). Accepted: 26 xUnit1051 warnings (cancellation-token suggestion) because they do not affect results (the ones still reported by CI were fixed in v4.0, TD-13). Evidence: PR #28 / commit 012cc9d. |
+| Freerk van den Bos | Database baseline and supporting documentation (06/10/2026): (1) `db/` setup scripts (dev reset, roles, create database, schema); (2) `db/README.md`; (3) commit message, v3.0 Document Control Log row and PR description; (4) suggested repository/project structure | Claude | Generated the PostgreSQL scripts for `civicconnect_db` from the ERD and PED (tables, constraints, indexes, `xmin` concurrency, append-only history trigger, least-privilege roles and grants) and iterated on errors reported by the team. Drafted the database README, the commit/changelog/PR wording from the project's existing conventions, and a proposed folder layout mapped to the PED architecture. | Rejected: first version's business-rule triggers, row-level security, views and stored functions, because they duplicated the State Pattern and Observer logic in C# (ADR-004/005, hybrid strategy). Changed: roles aligned to Requester/Staff/Manager; statuses aligned to the PED workflow; script split into three files after psql-only commands failed in pgAdmin; schema-ownership and aborted-transaction errors fixed; email format check re-added at team request. Evidence: PR #36 / commit a6b4886. |
+| Regardt Osler | Manager audit trail screen, in-app notifications, compile-error fixes in the AuditLog and Notifications modules, README and PED v3.2 update (15/10/2026) | Claude | Helped with UI design, Helped with debugging, generated code for request models, helped me to understand how modular monolith works in practice. Generated and helped visualise edits to Markdown files| Evidence: PR #31 / commit d920db3 |
+| **MILESTONE 4** | 
+| Paul Edward van Zyl | PED v4.0 and the v4.0 technical-debt fixes (18/10/2026): (1) "Final submission information" and "Final project closure (M4)" chapter (final product, M1 scope to final delivery, Scope Completion Percentage, final acceptance evidence, M3 closure, go-live decision, decision consequences, limitations, reflection); (2) final status in the RTM and in the Defect, Technical Debt and Risk registers, v4.0 notes on DEC-001, DEC-002 and DEC-004, and the Document Control Log row; (3) TD-11, TD-12 and TD-13 fixes; README and `db/README.md` updates | Claude | Compared PED v3.6 and the repository with the M4 brief, drafted the closure chapter and final statuses from the existing evidence, calculated the Scope Completion Percentage, and selected only debt fixes that cannot change runtime behaviour (renames, unused fields, test cancellation tokens, CI action versions). It listed every changed line for review and left placeholders for results that had not been recorded. Claude could not compile or run anything in its environment. | Verified: CI run #13 on the final commit `dfbd7c5` passed all steps (https://github.com/BouncyCrawfish/SEN_381_Project/actions/runs/39148791822); the remaining 10 xUnit1051 warnings are recorded under TD-13. Changed/confirmed by the team: the go-live decision, scope statuses and reflection were reviewed and approved by all three members (Sign off, 18/10/2026). |
+# Sign off
+
+PED v4.0 Final describes the final release identified in "Final submission information".
+
+| Name | Role | Decision | Date |
+|---|---|---|---|
+| Paul Edward van Zyl | Team member | Approved | 18/10/2026 |
+| Freerk van den Bos | Team member | Approved | 18/10/2026 |
+| Regardt Osler | Team member | Approved | 18/10/2026 |
+
+[^1]: New member of the development team.
+
+[^2]: Subject to change once hosting/architecture is selected in later milestones.

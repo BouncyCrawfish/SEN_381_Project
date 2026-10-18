@@ -1,0 +1,95 @@
+# CivicConnect CI: secrets guard, build, tests, static analysis and a dependency check on every push and
+# pull request. Runs on Windows because the app and the test project target net10.0-windows (WinForms).
+# No secrets are needed: the tests use in-memory fakes. Database tests (HistoryImmutabilityTests and the
+# TC-21 load test) skip themselves because CIVICCONNECT_TEST_CONNECTION is not set here.
+# Quality gate: any failing step fails the run; with branch protection on, a failed run blocks the merge.
+
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - development
+  pull_request:
+    branches:
+      - main
+      - development
+  workflow_dispatch:        # lets you run it by hand from the Actions tab
+
+permissions:
+  contents: read            # read-only token: the pipeline cannot push or change the repo
+
+concurrency:                # a newer push to the same branch cancels the older, still-running build
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    name: Build and test (Windows)
+    runs-on: windows-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: pwsh
+
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v5
+
+      - name: Install the .NET 10 SDK
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+
+      # Security check 1: fails if a real secret file is committed, or if 01_roles.sql holds a real password.
+      - name: Secrets guard
+        run: |
+          $tracked = git ls-files
+          $bad = $tracked | Where-Object {
+            (($_ -match '(^|/)appsettings(\.[^/]+)?\.json$') -and ($_ -notmatch 'appsettings\.example\.json$')) -or
+            ($_ -match '\.(pfx|p12)$') -or
+            ($_ -match '(^|/)\.env(\.[^/]+)?$' -and $_ -notmatch '\.env\.example$') -or
+            ($_ -match '\.local\.sql$') -or
+            ($_ -match '(^|/)id_(rsa|ed25519)')
+          }
+          if ($bad) {
+            Write-Output "These files must not be committed (see .gitignore):"
+            $bad | ForEach-Object { Write-Output "  $_" }
+            exit 1
+          }
+          $realPasswords = Select-String -Path db/01_roles.sql -Pattern "PASSWORD\s+'" |
+            Where-Object { $_.Line -notmatch "PASSWORD\s+'CHANGE_ME_" }
+          if ($realPasswords) {
+            Write-Output "db/01_roles.sql contains a password that is not a CHANGE_ME_ placeholder:"
+            $realPasswords | ForEach-Object { Write-Output "  line $($_.LineNumber)" }
+            exit 1
+          }
+          Write-Output "No secret files or real role passwords are tracked."
+
+      - name: Restore NuGet packages
+        run: dotnet restore CivicConnect.slnx
+
+      - name: Build
+        run: dotnet build CivicConnect.slnx --configuration Release --no-restore
+
+      - name: Run the tests
+        run: dotnet test --project Tests/CivicConnect.Tests/CivicConnect.Tests.csproj --configuration Release --no-build
+
+      # Static analysis: Microsoft .NET code analyzers at the "recommended" level over the application and
+      # every module it references (not the test project). Warnings are reported in the log; the listed
+      # security rules fail the run: CA2100 SQL injection, CA3075 insecure XML, CA5350/CA5351 weak crypto.
+      - name: Static analysis (.NET analyzers)
+        run: dotnet build CivicConnect/CivicConnect.App/CivicConnect.App.csproj --configuration Release --no-restore -p:AnalysisLevel=latest-recommended "-warnaserror:CA2100,CA3075,CA5350,CA5351"
+
+      # Security check 2: fails if any direct or transitive NuGet package has a known vulnerability.
+      - name: Vulnerable package check
+        run: |
+          $out = dotnet list CivicConnect.slnx package --vulnerable --include-transitive 2>&1 | Out-String
+          Write-Output $out
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if ($out -match 'has the following vulnerable packages') {
+            Write-Output "Vulnerable NuGet packages found: update them, or record an accepted risk."
+            exit 1
+          }
+          Write-Output "No known vulnerable packages."

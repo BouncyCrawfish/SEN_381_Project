@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	<TargetFramework>net10.0-windows</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+	<OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="6.0.4" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.10.1" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="4.0.1">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="xunit.v3" Version="4.0.2" />
+	<InternalsVisibleTo Include="CivicConnect.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\CivicConnect\CivicConnect.Auth\CivicConnect.Auth.csproj" />
+    <ProjectReference Include="..\..\CivicConnect\CivicConnect.Common\CivicConnect.Common.csproj" />
+    <ProjectReference Include="..\..\CivicConnect\CivicConnect.Requests\CivicConnect.Requests.csproj" />
+	<ProjectReference Include="..\..\CivicConnect\CivicConnect.AuditLog\CivicConnect.AuditLog.csproj" />
+	<ProjectReference Include="..\..\CivicConnect\CivicConnect.Notifications\CivicConnect.Notifications.csproj" />
+  </ItemGroup>
+
+</Project>
