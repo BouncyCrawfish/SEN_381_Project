@@ -35,7 +35,7 @@ jobs:
 
     steps:
       - name: Check out the code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Install the .NET 10 SDK
         uses: actions/setup-dotnet@v5
