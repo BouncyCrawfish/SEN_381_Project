@@ -2,7 +2,7 @@
 
 A community service-request management platform. CivicConnect replaces the current fragmented mix of email, phone calls, WhatsApp messages, spreadsheets and paper records with a single controlled system for submitting, tracking, actioning and reporting on service requests (facility faults, maintenance issues, lost property, IT support and similar).
 
-> **Project status: Milestone 3 complete (Controlled Construction, Integration, Quality & Release Readiness).** The Windows Forms application is built and runs against PostgreSQL for all three roles (Requester, Staff, Manager). Email notification, overdue requests (FR-015) and a few smaller items are deferred, and the duplicate audit-row defect (DEF-01) is fixed. A GitHub Actions CI pipeline checks for committed secrets, builds, runs the tests, runs static analysis and checks dependencies on every push and pull request. The M3 release evidence (defects, technical debt, release readiness) is indexed in the PED. See [Known Limitations / TODOs](#known-limitations--todos).
+> **Project status: Final project (Milestone 4) complete. The final release is tagged on `main` and remains in simulated staging: production is a deliberate no-go until the security and operational gaps in the PED are closed.** The Windows Forms application is built and runs against PostgreSQL for all three roles (Requester, Staff, Manager). Email notification, overdue requests (FR-015) and a few smaller items are deferred, and the duplicate audit-row defect (DEF-01) is fixed. A GitHub Actions CI pipeline checks for committed secrets, builds, runs the tests, runs static analysis and checks dependencies on every push and pull request. The final scope completion, go-live decision and closure of defects, risks and technical debt are in the PED's "Final project closure" chapter; the M3 release evidence is kept there as history. See [Known Limitations / TODOs](#known-limitations--todos).
 
 ---
 
@@ -150,10 +150,10 @@ These passwords are public and exist only for a development database. Delete the
 │       └── ci.yml                    # CI pipeline: secrets guard, build, tests, static analysis, dependency check
 ├── appsettings.example.json          # placeholder config, safe to commit
 ├── Docs/
-│   ├── PED_v3.6.md                   # Project Engineering Document and M3 evidence index
+│   ├── PED_v4.0.md                   # Project Engineering Document (final) and evidence index
 │   ├── STAGING.md                    # simulated staging: deploy, verify, roll back, deployment record
 │   ├── Change_log.md                 # PED document control log
-│   ├── Architechture.png             # architecture diagram
+│   ├── Architecture.png              # architecture diagram
 │   └── ERD.png                       # entity relationship diagram
 ├── db/
 │   ├── README.md                     # explains the scripts
@@ -249,7 +249,7 @@ The test project targets `net10.0-windows` (the Notifications module uses WinFor
 | Notifications | `NotificationEventHandlerTests`, `NotificationServicesTests`, `NotificationsModuleTests` | Notification wording, delivery services, DI registration, event-to-notification path | TC-07, TC-08 |
 | Performance | `StaffQueuePerformanceTests` | Staff queue response time against PostgreSQL: 20 timed calls, p95 within 2 s (database only) | TC-21 |
 
-Some test method names start with `TC06`, `TC07` or `TC08` for submission and state-table tests; those names predate the PED's test case table, so use the IDs in the table above when citing evidence.
+Test method names that start with a test case ID use the PED's IDs: `TC03_` to `TC05_` for the state machine and `TC15_` for request submission (renamed in v4.0; they used to start with `TC06`, `TC07` and `TC08`).
 
 Tests use in-memory fakes for repositories, so they need no database. That also means they cannot catch EF Core query translation or SQL problems (a sort applied after building a DTO failed only when run against the real database). `HistoryImmutabilityTests` and `StaffQueuePerformanceTests` run against PostgreSQL only when the `CIVICCONNECT_TEST_CONNECTION` environment variable is set (connection string for the `civicconnect_app` role); otherwise they are skipped. For TC-21, seed data with `db/perf/perf_seed_requests.sql` first; the timings are written to `perf-tc21-result.txt` next to the test DLL. `Docs/STAGING.md` shows the full procedure. Manual UI checks (TC-10 to TC-14, TC-19, TC-20) are listed in the PED: for example, as Staff change a request's status and confirm the popup appears and the Audit trail shows one new row; adding only a note should not show a popup.
 
@@ -293,15 +293,17 @@ The release candidate is checked in a simulated staging environment: the tagged 
 - **No paging.** The staff queue and the manager list load every matching request, so they slow down as open requests grow (TD-07). The audit-trail query is capped at 500 rows.
 - NFR-002's threshold (2 s) is still the DEC-002 placeholder. TC-21 measures the staff queue against it on one local machine; it says nothing about concurrent users or a hosted database.
 - PostgreSQL has only been run locally; no hosted database was set up (FEC-06).
+- **Not released to production.** The final release stays in simulated staging until clients stop holding database credentials (RSK-013), backups are scheduled (RSK-009), authentication gaps are closed (RSK-014) and logging exists. See the go-live decision in the PED.
 - Notes (FR-012) do not publish a domain event; only status changes do.
 
 ## Engineering Evidence Links
 
-- Project Engineering Document: [`Docs/PED_v3.6.md`](Docs/PED_v3.6.md)
+- Project Engineering Document: [`Docs/PED_v4.0.md`](Docs/PED_v4.0.md)
 - PED document control log: [`Docs/Change_log.md`](Docs/Change_log.md)
-- Requirements Traceability Matrix, end-to-end traces (FR-001, FR-006), test cases (TC-03 to TC-20), Architecture Decision Records (ADR-001 to ADR-006), Engineering Decision Log (DEC-001 to DEC-004) and Risk Register (RSK-001 to RSK-016): sections inside the PED
-- Architecture and ERD diagrams: [`Docs/Architechture.png`](Docs/Architechture.png), [`Docs/ERD.png`](Docs/ERD.png)
+- Requirements Traceability Matrix, end-to-end traces (FR-001, FR-006), test cases (TC-03 to TC-22), Architecture Decision Records (ADR-001 to ADR-006), Engineering Decision Log (DEC-001 to DEC-004) and Risk Register (RSK-001 to RSK-016): sections inside the PED
+- Architecture and ERD diagrams: [`Docs/Architecture.png`](Docs/Architecture.png), [`Docs/ERD.png`](Docs/ERD.png)
 - CI pipeline: [`.github/workflows/ci.yml`](.github/workflows/ci.yml) and its runs in the repository's **Actions** tab
+- Final project closure (final release, M1 scope to final delivery, Scope Completion Percentage, M3 issue closure, go-live decision, reflection): chapter "Final project closure (M4)" in the PED
 - M3 release evidence (submission information, baseline conformance, Defect Register, Technical Debt Register, Release Evidence Summary, residual risks): chapter "M3 release evidence" in the PED
 - Simulated staging and deployment record: [`Docs/STAGING.md`](Docs/STAGING.md)
 - Database design, setup and verification: [`db/README.md`](db/README.md)

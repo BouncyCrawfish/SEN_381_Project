@@ -3,7 +3,7 @@ using CivicConnect.Requests.Domain;
 namespace CivicConnect.Tests.Requests;
 
 /// <summary>
-/// TC-03, TC-04, TC-05 (unit) and TC-08 (black-box state transition), requirement FR-011.
+/// TC-03, TC-04, TC-05 (unit and black-box state transition), requirement FR-011.
 /// Expected results come from the acceptance criteria for FR-011 and ADR-004, not from the code:
 ///   Submitted > Assigned > InProgress > Resolved > Closed, nothing else, and Closed allows nothing.
 /// </summary>
@@ -157,9 +157,9 @@ public class RequestStateTest
         Assert.Empty(request.Notes);
     }
 
-    /// <summary>TC-08 (black-box, state transition): the full 5x5 table of what is allowed from where.</summary>
+    /// <summary>TC-05 (black-box, state transition): the full 5x5 table of what is allowed from where.</summary>
     [Fact]
-    public void TC08_StateTransitionTable_MatchesTheAcceptanceCriteria()
+    public void TC05_StateTransitionTable_MatchesTheAcceptanceCriteria()
     {
         var allowed = new Dictionary<RequestStatus, RequestStatus[]>
         {

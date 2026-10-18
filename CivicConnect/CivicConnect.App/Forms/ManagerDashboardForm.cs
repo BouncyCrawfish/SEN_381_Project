@@ -64,7 +64,7 @@ internal sealed partial class ManagerDashboardForm : Form
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine(ex);   // temporary: full error goes to the Output window
+            System.Diagnostics.Debug.WriteLine(ex);   // Debug builds only: full error goes to the Output window
             Theme.ShowMessage(lblStatus, Ui.Unavailable, isError: true);
         }
         finally
