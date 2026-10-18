@@ -54,7 +54,7 @@ public sealed class UpdateRequestStatusDtoValidator : AbstractValidator<UpdateRe
         RuleFor(x => x.Note).MustBeValidNote();
         // A resolution note is mandatory so the requester always learns what was done (FR-012, FR-005).
         RuleFor(x => x.Note).NotEmpty().When(x => x.NewStatus == RequestStatus.Resolved)
-            .WithMessage("A resolution note is required when resolving a request.");
+            .WithMessage("A resolution note is required to resolve a request: describe what was done.");
     }
 }
 

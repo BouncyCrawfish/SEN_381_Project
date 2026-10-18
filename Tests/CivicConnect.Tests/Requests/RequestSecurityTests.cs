@@ -237,6 +237,38 @@ public class RequestSecurityTests
     }
 
     [Fact]
+    public async Task Resolving_WithANote_Succeeds_AndRecordsTheResolutionNote()
+    {
+        // Regression: staff entered a note and still got "resolution note required".
+        var h = new RequestHarness();
+        var req = h.Seed(RequestStatus.InProgress);
+        h.SignInAs(RequestHarness.StaffId);
+
+        var result = await h.Service.UpdateRequestStatusAsync(new UpdateRequestStatusDto(req.Id, RequestStatus.Resolved, "Pothole filled and sealed."));
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal(RequestStatus.Resolved, h.Repo.Requests[req.Id].Status);
+        Assert.Single(h.Repo.Requests[req.Id].Notes);
+        Assert.Equal("Pothole filled and sealed.", h.Repo.Requests[req.Id].Notes[0].Note);
+    }
+
+    [Fact]
+    public async Task Resolving_AfterAddingANoteSeparately_StillNeedsAResolutionNote()
+    {
+        // A note added earlier with "Add note only" does not replace the required resolution note.
+        var h = new RequestHarness();
+        var req = h.Seed(RequestStatus.InProgress);
+        h.SignInAs(RequestHarness.StaffId);
+        Assert.True((await h.Service.AddNoteAsync(new AddNoteDto(req.Id, "Called the requester."))).IsSuccess);
+
+        var result = await h.Service.UpdateRequestStatusAsync(new UpdateRequestStatusDto(req.Id, RequestStatus.Resolved, null));
+
+        Assert.True(result.IsFailure);
+        Assert.Contains("resolution note", result.Error.Message);
+        Assert.Equal(RequestStatus.InProgress, h.Repo.Requests[req.Id].Status);
+    }
+
+    [Fact]
     public async Task NoteTooLong_IsRejected()
     {
         var h = new RequestHarness();
