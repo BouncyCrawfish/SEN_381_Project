@@ -583,12 +583,6 @@ namespace CivicConnect.App.Forms
         private System.Windows.Forms.TableLayoutPanel tlpLower;
         private System.Windows.Forms.Panel pnlListCard;
         private System.Windows.Forms.DataGridView dgvRequests;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colId;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colCategory;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colLocation;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colStatus;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colAssigned;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colSubmitted;
         private System.Windows.Forms.FlowLayoutPanel flowToolbar;
         private System.Windows.Forms.Label lblFilter;
         private System.Windows.Forms.ComboBox cboStatus;

@@ -1,7 +1,7 @@
 # CivicConnect Database (`civicconnect_db`)
 
 PostgreSQL 16+ database scripts for the SEN381 CivicConnect project.
-Baseline: PED v3.6 (ADR-002, ADR-003, ADR-004, ADR-005, ADR-006; NFR-003, NFR-005, NFR-008).
+Baseline: PED v4.0 (ADR-002, ADR-003, ADR-004, ADR-005, ADR-006; NFR-003, NFR-005, NFR-008).
 
 | File | Purpose |
 |---|---|

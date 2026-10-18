@@ -3,7 +3,7 @@ using CivicConnect.Requests.Domain;
 
 namespace CivicConnect.Tests.Requests;
 
-/// <summary>TC-06 (equivalence partitioning) and TC-07 (boundary value analysis): FR-001, FR-002.</summary>
+/// <summary>TC-15: equivalence partitioning and boundary value analysis for FR-001, FR-002.</summary>
 public class RequestSubmissionTests
 {
     private const string GoodLocation = "12 Long Street";
@@ -16,10 +16,10 @@ public class RequestSubmissionTests
         return h;
     }
 
-    // ---- TC-06: partitions of the submission form ----
+    // ---- TC-15: partitions of the submission form ----
 
     [Fact]
-    public async Task TC06_ValidSubmission_CreatesSubmittedRequest_WithReferenceNumber()
+    public async Task TC15_ValidSubmission_CreatesSubmittedRequest_WithReferenceNumber()
     {
         var h = SignedInRequester();
 
@@ -39,7 +39,7 @@ public class RequestSubmissionTests
     [InlineData(1L, "   ", GoodDescription)]                                // blank location
     [InlineData(1L, GoodLocation, "")]                                      // missing description
     [InlineData(1L, GoodLocation, "          ")]                            // blank description
-    public async Task TC06_MissingOrBlankFields_AreRejected_AndNothingIsSaved(long category, string location, string description)
+    public async Task TC15_MissingOrBlankFields_AreRejected_AndNothingIsSaved(long category, string location, string description)
     {
         var h = SignedInRequester();
 
@@ -54,7 +54,7 @@ public class RequestSubmissionTests
     [InlineData(999L)]   // not in the controlled list
     [InlineData(3L)]     // exists but retired
     [InlineData(-5L)]
-    public async Task TC06_CategoryOutsideTheApprovedList_IsRejected(long category)
+    public async Task TC15_CategoryOutsideTheApprovedList_IsRejected(long category)
     {
         var h = SignedInRequester();
 
@@ -65,7 +65,7 @@ public class RequestSubmissionTests
     }
 
     [Fact]
-    public async Task TC06_FieldLevelMessages_NameTheMissingFields()
+    public async Task TC15_FieldLevelMessages_NameTheMissingFields()
     {
         var h = SignedInRequester();
 
@@ -76,7 +76,7 @@ public class RequestSubmissionTests
     }
 
     [Fact]
-    public async Task TC06_SurroundingWhitespace_IsTrimmedBeforeSaving()
+    public async Task TC15_SurroundingWhitespace_IsTrimmedBeforeSaving()
     {
         var h = SignedInRequester();
 
@@ -86,7 +86,7 @@ public class RequestSubmissionTests
         Assert.Equal(GoodDescription, h.Repo.Requests[result.Value].Description);
     }
 
-    // ---- TC-07: description length at, below and above the limits ----
+    // ---- TC-15: description length at, below and above the limits ----
 
     [Theory]
     [InlineData(RequestRules.MinDescriptionLength - 1, false)]   // just below the minimum
@@ -95,7 +95,7 @@ public class RequestSubmissionTests
     [InlineData(RequestRules.MaxDescriptionLength - 1, true)]    // just below the maximum
     [InlineData(RequestRules.MaxDescriptionLength, true)]        // at the maximum
     [InlineData(RequestRules.MaxDescriptionLength + 1, false)]   // just above the maximum
-    public async Task TC07_DescriptionLength_Boundaries(int length, bool accepted)
+    public async Task TC15_DescriptionLength_Boundaries(int length, bool accepted)
     {
         var h = SignedInRequester();
 
@@ -107,7 +107,7 @@ public class RequestSubmissionTests
     [Theory]
     [InlineData(RequestRules.MaxLocationLength, true)]
     [InlineData(RequestRules.MaxLocationLength + 1, false)]
-    public async Task TC07_LocationLength_Boundaries(int length, bool accepted)
+    public async Task TC15_LocationLength_Boundaries(int length, bool accepted)
     {
         var h = SignedInRequester();
 
